@@ -3,7 +3,35 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**", "build/**"]
+      "outputs": [".next/**", "dist/**", "build/**"],
+      "env": [
+        "SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "APP_CRON_SECRET",
+        "CRON_SECRET",
+        "ADMIN_BASIC_AUTH_USER",
+        "ADMIN_BASIC_AUTH_PASS",
+        "TUEJECUTIVA_DB_SCHEMA",
+        "TUEJECUTIVA_ENFORCE_BILLING_SUBSCRIPTION",
+        "TUEJECUTIVA_SERVICE_SUBJECT_ID",
+        "LEADOS_DB_SCHEMA",
+        "LEADOS_ENFORCE_BILLING_SUBSCRIPTION",
+        "LEADOS_SECRETS_KEY",
+        "BACKOFFICE_ADMIN_EMAIL",
+        "WHATSAPP_WEBHOOK_VERIFY_TOKEN",
+        "INTERNAL_CRON_SECRET",
+        "OPENAI_API_KEY",
+        "RESEND_API_KEY",
+        "META_API_BASE_URL",
+        "NOTIFICATION_FROM_EMAIL",
+        "NEXT_PUBLIC_SITE_URL",
+        "ALLOWED_ORIGINS",
+        "PANEL_PASSWORD"
+      ]
     },
     "dev": {
       "cache": false,
