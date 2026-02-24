@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-export const TUEJECUTIVA_SCHEMA = process.env.TUEJECUTIVA_DB_SCHEMA || "public";
+export const TUEJECUTIVA_SCHEMA = process.env.TUEJECUTIVA_DB_SCHEMA || "tuejecutiva";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
