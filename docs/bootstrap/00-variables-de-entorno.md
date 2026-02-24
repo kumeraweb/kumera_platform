@@ -17,6 +17,8 @@ Obligatorias:
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_BASIC_AUTH_USER`
+- `ADMIN_BASIC_AUTH_PASS`
 
 Opcionales:
 
@@ -28,6 +30,8 @@ Ejemplo:
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+ADMIN_BASIC_AUTH_USER=<admin-user>
+ADMIN_BASIC_AUTH_PASS=<admin-password-largo>
 ```
 
 ## 2) `apps/kumerabilling-web`

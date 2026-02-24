@@ -34,7 +34,9 @@ Referencia completa de variables:
 
 1. `SUPABASE_URL`
 2. `SUPABASE_SERVICE_ROLE_KEY`
-3. opcional `NEXT_PUBLIC_SUPABASE_URL`
+3. `ADMIN_BASIC_AUTH_USER`
+4. `ADMIN_BASIC_AUTH_PASS`
+5. opcional `NEXT_PUBLIC_SUPABASE_URL`
 
 ## Tuejecutiva (`apps/tuejecutiva-web`)
 

@@ -7,7 +7,7 @@ export default async function SubscriptionsPage() {
     const client = createBillingAdminClient();
     const { data, error } = await client
       .from("subscriptions")
-      .select("id, service_key, service_subject_id, status, plan_code, period_start, period_end, created_at")
+      .select("id, service_key, service_subject_id, status, plan_id, period_start, period_end, created_at")
       .order("created_at", { ascending: false })
       .limit(100);
 
@@ -32,7 +32,7 @@ export default async function SubscriptionsPage() {
                 <td>{row.service_key}</td>
                 <td>{row.service_subject_id}</td>
                 <td>{row.status}</td>
-                <td>{row.plan_code}</td>
+                <td>{row.plan_id}</td>
               </tr>
             ))}
           </tbody>
