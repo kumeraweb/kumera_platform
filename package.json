@@ -2,6 +2,7 @@
   "name": "kumera-platform",
   "private": true,
   "version": "0.1.0",
+  "packageManager": "npm@11.8.0",
   "workspaces": [
     "apps/kumera-admin",
     "apps/kumerabilling-web",
