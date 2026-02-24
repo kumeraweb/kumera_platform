@@ -4,7 +4,7 @@ Este documento define **qué variables debe tener cada proyecto** para levantarl
 
 ## Convenciones generales
 
-- `SUPABASE_URL` y .`NEXT_PUBLIC_SUPABASE_URL` deben apuntar al **mismo proyecto Supabase nuevo**.
+- `SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_URL` deben apuntar al **mismo proyecto Supabase nuevo**.
 - `SUPABASE_SERVICE_ROLE_KEY` se usa solo en backend (API routes/server).
 - `APP_CRON_SECRET` es el secreto preferido para jobs; `CRON_SECRET` se mantiene por compatibilidad.
 - En migración controlada, `*_DB_SCHEMA` puede iniciar en `public` y luego moverse a su schema final.
@@ -81,8 +81,8 @@ Obligatorias:
 Migración controlada:
 
 - `TUEJECUTIVA_DB_SCHEMA`:
-  - `public` al inicio
-  - luego `tuejecutiva`
+  - recomendado desde inicio: `tuejecutiva`
+  - solo transición legacy: `public`
 - `TUEJECUTIVA_ENFORCE_BILLING_SUBSCRIPTION`:
   - `false` al inicio
   - luego `true`
@@ -101,7 +101,7 @@ SUPABASE_ANON_KEY=<anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-TUEJECUTIVA_DB_SCHEMA=public
+TUEJECUTIVA_DB_SCHEMA=tuejecutiva
 TUEJECUTIVA_ENFORCE_BILLING_SUBSCRIPTION=false
 TUEJECUTIVA_SERVICE_SUBJECT_ID=tuejecutiva-default
 NEXT_PUBLIC_SITE_URL=https://tuejecutiva.cl
@@ -127,8 +127,8 @@ Obligatorias:
 Migración controlada:
 
 - `LEADOS_DB_SCHEMA`:
-  - `public` al inicio
-  - luego `leados`
+  - recomendado desde inicio: `leados`
+  - solo transición legacy: `public`
 - `LEADOS_ENFORCE_BILLING_SUBSCRIPTION`:
   - `false` al inicio
   - luego `true`
@@ -148,7 +148,7 @@ SUPABASE_ANON_KEY=<anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-LEADOS_DB_SCHEMA=public
+LEADOS_DB_SCHEMA=leados
 LEADOS_ENFORCE_BILLING_SUBSCRIPTION=false
 LEADOS_SECRETS_KEY=<32-plus-random-chars>
 BACKOFFICE_ADMIN_EMAIL=admin@kumeraweb.com

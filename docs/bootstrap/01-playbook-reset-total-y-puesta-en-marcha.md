@@ -34,8 +34,11 @@ Al final debes tener:
 ## Fase B — Inicializar nueva base
 
 1. Abrir SQL Editor en Supabase nuevo.
-2. Ejecutar el archivo:
-- `supabase/migrations/20260224_000001_kumera_platform_v2_init.sql`
+2. Ejecutar estos archivos en orden:
+- `docs/bootstrap/sql/paso-01-core-billing.sql`
+- `docs/bootstrap/sql/paso-02-tuejecutiva.sql`
+- `docs/bootstrap/sql/paso-03-leados.sql`
+- `docs/bootstrap/sql/paso-04-seed-minimo.sql`
 
 3. Verificar creación de schemas.
 - Deben existir: `core`, `billing`, `tuejecutiva`, `leados`.
@@ -96,7 +99,7 @@ Al final debes tener:
 - Root Directory: `apps/tuejecutiva-web`
 
 2. Variables iniciales (modo controlado):
-- `TUEJECUTIVA_DB_SCHEMA=public`
+- `TUEJECUTIVA_DB_SCHEMA=tuejecutiva`
 - `TUEJECUTIVA_ENFORCE_BILLING_SUBSCRIPTION=false`
 - resto de variables Supabase
 
@@ -110,7 +113,7 @@ Al final debes tener:
 - Root Directory: `apps/leadosku-web/leados-system`
 
 2. Variables iniciales (modo controlado):
-- `LEADOS_DB_SCHEMA=public`
+- `LEADOS_DB_SCHEMA=leados`
 - `LEADOS_ENFORCE_BILLING_SUBSCRIPTION=false`
 - resto de variables obligatorias (Meta, secretos, cron)
 
@@ -214,6 +217,12 @@ Inicialmente puedes operar con el backoffice de LeadOS.
 - [ ] Crons configurados con `APP_CRON_SECRET`
 - [ ] Documentación en `docs/` actualizada
 - [ ] Variables de entorno guardadas en Vercel por entorno
+
+## Version por pasos (fuente recomendada)
+
+Para ejecucion diaria usa el flujo nuevo:
+
+- `docs/bootstrap/pasos/README.md`
 
 ## Troubleshooting rápido
 
