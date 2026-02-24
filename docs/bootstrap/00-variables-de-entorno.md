@@ -4,7 +4,7 @@ Este documento define **qué variables debe tener cada proyecto** para levantarl
 
 ## Convenciones generales
 
-- `SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_URL` deben apuntar al **mismo proyecto Supabase nuevo**.
+- `SUPABASE_URL` y .`NEXT_PUBLIC_SUPABASE_URL` deben apuntar al **mismo proyecto Supabase nuevo**.
 - `SUPABASE_SERVICE_ROLE_KEY` se usa solo en backend (API routes/server).
 - `APP_CRON_SECRET` es el secreto preferido para jobs; `CRON_SECRET` se mantiene por compatibilidad.
 - En migración controlada, `*_DB_SCHEMA` puede iniciar en `public` y luego moverse a su schema final.
@@ -14,13 +14,16 @@ Este documento define **qué variables debe tener cada proyecto** para levantarl
 Archivo sugerido: `.env.local`
 
 Obligatorias:
+
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 Opcionales:
+
 - `NEXT_PUBLIC_SUPABASE_URL` (fallback de `SUPABASE_URL`)
 
 Ejemplo:
+
 ```env
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
@@ -32,6 +35,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 Archivo base: `.env.example`
 
 Obligatorias:
+
 - `NEXT_PUBLIC_APP_URL`
 - `SUPABASE_URL` (o `NEXT_PUBLIC_SUPABASE_URL`, recomendado definir ambas)
 - `NEXT_PUBLIC_SUPABASE_URL`
@@ -41,11 +45,13 @@ Obligatorias:
 - `APP_CRON_SECRET` (y opcional `CRON_SECRET` igual valor)
 
 Email (según operación):
+
 - `EMAIL_PROVIDER`
 - `EMAIL_FROM`
 - `EMAIL_ADMIN_INBOX`
 
 Ejemplo:
+
 ```env
 NEXT_PUBLIC_APP_URL=https://kumera-clientes.vercel.app
 SUPABASE_URL=https://<project-ref>.supabase.co
@@ -65,6 +71,7 @@ EMAIL_ADMIN_INBOX=admin@kumeraweb.com
 Archivo base: `.env.example`
 
 Obligatorias:
+
 - `SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_ANON_KEY` (recomendado)
@@ -72,6 +79,7 @@ Obligatorias:
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 Migración controlada:
+
 - `TUEJECUTIVA_DB_SCHEMA`:
   - `public` al inicio
   - luego `tuejecutiva`
@@ -81,10 +89,12 @@ Migración controlada:
 - `TUEJECUTIVA_SERVICE_SUBJECT_ID` (id lógico para consulta a billing)
 
 Recomendadas adicionales:
+
 - `NEXT_PUBLIC_SITE_URL`
 - `RESEND_API_KEY` (si usas endpoint de contacto)
 
 Ejemplo:
+
 ```env
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_ANON_KEY=<anon-key>
@@ -103,6 +113,7 @@ RESEND_API_KEY=<resend-key>
 Archivo base: `.env.example`
 
 Obligatorias:
+
 - `SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
@@ -114,6 +125,7 @@ Obligatorias:
 - `APP_CRON_SECRET` (o `CRON_SECRET`)
 
 Migración controlada:
+
 - `LEADOS_DB_SCHEMA`:
   - `public` al inicio
   - luego `leados`
@@ -122,12 +134,14 @@ Migración controlada:
   - luego `true`
 
 Operativas recomendadas:
+
 - `OPENAI_API_KEY`
 - `RESEND_API_KEY`
 - `META_API_BASE_URL`
 - límites anti-abuso y horarios de recordatorio
 
 Ejemplo:
+
 ```env
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_ANON_KEY=<anon-key>
@@ -161,11 +175,13 @@ REMINDER_ALLOWED_END_HOUR=19
 Archivo base: `.env.example`
 
 Obligatorias (si operas panel + contacto):
+
 - `RESEND_API_KEY`
 - `ALLOWED_ORIGINS`
 - `PANEL_PASSWORD`
 
 Recomendadas:
+
 - rate limits `PANEL_*` y `CONTACT_*`
 
 ## 6) `apps/kumera-web` (Astro)
@@ -175,6 +191,7 @@ Actualmente no requiere variables obligatorias para build básico.
 ## 7) Recomendación de gestión en Vercel
 
 Para cada proyecto en Vercel:
+
 - Definir variables por **Environment** (`Development`, `Preview`, `Production`).
 - No reutilizar `SERVICE_ROLE_KEY` en proyectos donde no sea necesario.
 - Rotar secretos (`APP_CRON_SECRET`, `PANEL_PASSWORD`, tokens de terceros) cada vez que hagas reset de infraestructura.
