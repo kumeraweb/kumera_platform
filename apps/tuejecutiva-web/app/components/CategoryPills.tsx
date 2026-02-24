@@ -20,7 +20,13 @@ const iconMap: Record<string, ElementType> = {
 };
 
 export default async function CategoryPills() {
-  const categories = await getCategoriesWithExecutives();
+  let categories: Awaited<ReturnType<typeof getCategoriesWithExecutives>> = [];
+  try {
+    categories = await getCategoriesWithExecutives();
+  } catch (error) {
+    console.error("CategoryPills failed to load categories", error);
+    categories = [];
+  }
 
   return (
     <section id="buscar" className="py-12 bg-white border-b border-gray-100">
@@ -49,6 +55,11 @@ export default async function CategoryPills() {
             );
           })}
         </div>
+        {categories.length === 0 ? (
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Aun no hay categorias publicadas.
+          </p>
+        ) : null}
       </div>
     </section>
   );
