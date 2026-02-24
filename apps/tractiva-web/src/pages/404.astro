@@ -1,0 +1,78 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="404 — Página no encontrada | tractiva"
+  description="La página que buscas no está disponible. Vuelve al inicio para seguir revisando nuestra gestión de Google Ads."
+  canonical="https://tractiva.cl/404"
+>
+  <main class="not-found">
+    <section class="not-found__section">
+      <p class="not-found__code">404</p>
+      <h1 class="not-found__title">Página no encontrada</h1>
+      <p class="not-found__description">
+        Esta URL no existe o fue movida. Puedes volver al inicio para continuar con la información de
+        gestión de Google Ads.
+      </p>
+      <div class="not-found__actions">
+        <a href="/" class="btn-primary">Volver al inicio</a>
+        <a href="/#cta" class="btn-secondary">Agendar evaluación gratuita</a>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .not-found {
+    min-height: 100svh;
+    background: radial-gradient(circle at 20% 20%, rgba(22, 163, 74, 0.14), transparent 35%),
+      radial-gradient(circle at 80% 80%, rgba(22, 163, 74, 0.1), transparent 30%),
+      #0a0a0a;
+    display: grid;
+    place-items: center;
+    padding: 7rem var(--section-px) 5rem;
+  }
+
+  .not-found__section {
+    width: min(100%, 40rem);
+    text-align: center;
+    background: rgba(23, 23, 23, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.25rem;
+    padding: clamp(2rem, 5vw, 3.25rem);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+  }
+
+  .not-found__code {
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 9vw, 5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--accent-light);
+  }
+
+  .not-found__title {
+    margin-top: 0.8rem;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: var(--white);
+  }
+
+  .not-found__description {
+    margin: 1rem auto 0;
+    max-width: 34rem;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--gray-300);
+  }
+
+  .not-found__actions {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+</style>

@@ -1,0 +1,19 @@
+{
+  "name": "tractiva-web",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/vercel": "^8.2.6",
+    "@lucide/astro": "^0.564.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.17.1",
+    "resend": "^6.9.2",
+    "tailwindcss": "^4.1.18"
+  }
+}

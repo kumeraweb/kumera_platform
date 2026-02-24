@@ -1,0 +1,103 @@
+---
+import { MessageCircle } from '@lucide/astro'
+---
+
+<footer class="footer">
+  <div class="footer__container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="footer__name"
+          ><span class="brand-flip"
+            ><span class="brand-flip__face brand-flip__front"
+              >tractiva<span class="brand-dot"></span></span
+            ><span class="brand-flip__face brand-flip__back">tracción activa</span></span
+          ></span
+        >
+        >
+        <span class="footer__tagline">Google Ads para profesionales en Chile.</span>
+      </div>
+      <div class="footer__links">
+        <a
+          href="https://wa.me/56987435207?text=Hola!%20Te%20escribo%20desde%20tractiva.cl%20y%20me%20gustar%C3%ADa%20potenciar%20mi%20negocio%20con%20Google%20Ads&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=footer"
+          target="_blank"
+          rel="noopener"
+          class="footer__link"><MessageCircle size={14} /> WhatsApp</a
+        >
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copy"
+        >© {new Date().getFullYear()} tractiva. Todos los derechos reservados.</span
+      >
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--black);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .footer__container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 2.5rem var(--section-px) 2rem;
+  }
+  .footer__top {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  @media (min-width: 640px) {
+    .footer__top {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+  .footer__name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.03em;
+  }
+  .footer__tagline {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+  }
+  .footer__links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  @media (min-width: 640px) {
+    .footer__links {
+      flex-direction: row;
+      gap: 1.5rem;
+    }
+  }
+  .footer__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    transition: color 0.3s;
+  }
+  .footer__link:hover {
+    color: var(--white);
+  }
+  .footer__bottom {
+    padding-top: 1.5rem;
+  }
+  .footer__copy {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+  }
+</style>

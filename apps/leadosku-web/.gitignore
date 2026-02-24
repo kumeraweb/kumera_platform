@@ -1,0 +1,52 @@
+# Node / JS / TS
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+coverage/
+*.tsbuildinfo
+
+# Env & secrets (global and nested)
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
+*.ovpn
+*.kubeconfig
+
+# API keys / service account files (common names)
+*service-account*.json
+*credentials*.json
+*secret*.json
+*secrets*.json
+
+# Logs / temp
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.tmp/
+tmp/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Runtime uploads / generated
+uploads/
+public/uploads/

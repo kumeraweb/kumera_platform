@@ -1,0 +1,24 @@
+{
+  "name": "kumera-platform",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/kumera-admin",
+    "apps/kumerabilling-web",
+    "apps/tuejecutiva-web",
+    "apps/leadosku-web/leados-system",
+    "apps/kumera-web",
+    "apps/tractiva-web",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.6"
+  }
+}

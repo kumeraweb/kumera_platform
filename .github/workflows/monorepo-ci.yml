@@ -1,0 +1,32 @@
+name: Monorepo CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-apps:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - apps/kumerabilling-web
+          - apps/tuejecutiva-web
+          - apps/leadosku-web/leados-system
+          - apps/kumera-web
+          - apps/tractiva-web
+          - apps/kumera-admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+        working-directory: ${{ matrix.app }}
+      - name: Build app
+        run: npm run build
+        working-directory: ${{ matrix.app }}

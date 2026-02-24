@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment & secrets
+.env*
+!.env.example
+
+# Supabase / database artifacts
+.supabase/
+*.dump
+*.sql.gz
+*.bak
+
+# Caches / temp
+.cache/
+.turbo/
+tmp/
+temp/
+*.tmp
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test artifacts
+playwright-report/
+test-results/
+
+# Misc
+.vercel/

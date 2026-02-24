@@ -1,0 +1,71 @@
+---
+const services = [
+  {
+    number: "01",
+    title: "Más consultas, menos gasto",
+    desc: "Cada peso invertido se optimiza para traer personas que realmente quieren contratar. No tráfico vacío.",
+  },
+  {
+    number: "02",
+    title: "Sabes exactamente qué funciona",
+    desc: "Cada llamada, formulario y contacto se rastrea. Ves cuánto cuesta cada cliente potencial y cómo baja ese costo mes a mes.",
+  },
+  {
+    number: "03",
+    title: "Tu negocio aparece primero",
+    desc: "Cuando alguien busca lo que tú ofreces en Google, tu negocio es el primero que ve. Todos los días, todas las semanas.",
+  },
+];
+---
+
+<section class="services" id="servicios">
+  <div class="services__container">
+    <div class="services__header reveal">
+      <span class="section-label">Qué ganas</span>
+      <h2 class="services__title">
+        <span class="line-reveal"><span>Tu inversión trabaja.</span></span>
+        <span class="line-reveal line-reveal-d1"
+          ><span>Tus <span class="keyword">clientes</span> llegan.</span></span
+        >
+      </h2>
+    </div>
+
+    <div class="services__list">
+      {
+        services.map((s, i) => (
+          <div class={`service-item reveal reveal-delay-${Math.min(i + 1, 4)}`}>
+            <div class="service-row">
+              <span class="service-number">{s.number}</span>
+              <h3 class="service-title">{s.title}</h3>
+              <span class="service-arrow">→</span>
+            </div>
+            <div class="service-detail">
+              <p class="service-desc">{s.desc}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .services {
+    background: var(--white);
+    padding: var(--section-py) 0;
+  }
+  .services__container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--section-px);
+  }
+  .services__header {
+    margin-bottom: 3.5rem;
+  }
+  .services__title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.05;
+  }
+</style>

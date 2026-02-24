@@ -1,0 +1,82 @@
+---
+const { logoText = "KÜMERA" } = Astro.props;
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-black/5 bg-white/85 backdrop-blur transition-shadow"
+>
+  <div
+    class="mx-auto w-full max-w-[1120px] px-6 flex items-center justify-between py-5 md:py-6"
+  >
+    <a
+      href="/"
+      class="font-['Space_Grotesk'] text-xl font-semibold tracking-tight text-black"
+    >
+      {logoText}
+    </a>
+
+    <nav
+      class="hidden items-center gap-9 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-black/75 md:flex"
+    >
+      <a href="/" class="transition hover:text-black">Inicio</a>
+      <a
+        href="#contacto"
+        class="relative inline-flex items-center gap-2 text-black after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-black after:transition-transform hover:after:scale-x-100"
+      >
+        Contacto
+      </a>
+    </nav>
+
+    <button
+      class="md:hidden"
+      id="kmMobileToggle"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      type="button"
+    >
+      <span class="block h-[2px] w-7 bg-black transition-transform"></span>
+      <span class="mt-2 block h-[2px] w-7 bg-black transition-transform"></span>
+    </button>
+  </div>
+</header>
+
+<div
+  id="kmMobilePanel"
+  class="fixed inset-0 z-40 hidden bg-white/95 backdrop-blur"
+  aria-hidden="true"
+>
+  <div
+    class="mx-auto w-full max-w-[1120px] px-6 flex h-full flex-col justify-between pt-24 pb-10"
+  >
+    <nav class="flex flex-col gap-6 font-['Space_Grotesk'] text-2xl text-black">
+      <a href="/">Inicio</a>
+      <a href="#contacto" class="text-black/70">Contacto</a>
+    </nav>
+
+    <p class="text-sm uppercase tracking-[0.2em] text-black/50">
+      Kümera Web Servicios Digitales SpA
+    </p>
+  </div>
+</div>
+
+<script is:inline>
+  const toggle = document.getElementById("kmMobileToggle");
+  const panel = document.getElementById("kmMobilePanel");
+
+  if (toggle && panel) {
+    toggle.addEventListener("click", () => {
+      const isOpen = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      panel.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    });
+
+    panel.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        panel.classList.add("hidden");
+        toggle.setAttribute("aria-expanded", "false");
+        panel.setAttribute("aria-hidden", "true");
+      });
+    });
+  }
+</script>

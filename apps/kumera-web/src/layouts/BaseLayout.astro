@@ -1,0 +1,75 @@
+---
+import { SEO } from "../data/kumera-seo";
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import FloatingCTA from "../components/FloatingCTA.astro";
+
+const {
+  title = SEO.defaultMeta.title,
+  description = SEO.defaultMeta.description,
+  canonical,
+  noindex = false,
+} = Astro.props;
+
+const pageUrl = canonical ?? SEO.site.url + Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang={SEO.site.language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={SEO.defaultMeta.keywords.join(", ")} />
+    <meta name="theme-color" content={SEO.site.themeColor} />
+
+    <link rel="canonical" href={pageUrl} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    <meta property="og:type" content={SEO.openGraph.type} />
+    <meta property="og:site_name" content={SEO.site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta
+      property="og:image"
+      content={`${SEO.site.url}${SEO.openGraph.image}`}
+    />
+
+    <meta name="twitter:card" content={SEO.twitter.card} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={SEO.openGraph.image} />
+
+    <link rel="icon" href="/favicon.png" />
+  </head>
+  <body>
+    <Header logoText="KÜMERA" />
+    <FloatingCTA />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script is:inline>
+  const revealEls = document.querySelectorAll(".reveal-on-scroll");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2 },
+  );
+
+  revealEls.forEach((el) => observer.observe(el));
+</script>

@@ -1,0 +1,396 @@
+---
+import { ArrowRight, Check } from "@lucide/astro";
+const baseFeatures = [
+  "Estructuración completa de campañas",
+  "1–2 campañas activas",
+  "Optimización semanal de pujas y negativos",
+  "Diseño y testeo de anuncios",
+  "Configuración de conversiones",
+  "Reporte mensual claro",
+  "Acceso directo con tu gestor",
+];
+
+const crecimientoExtras = [
+  "Mayor estructura de cuenta",
+  "Más grupos y variantes de anuncios",
+  "Testing continuo A/B",
+  "Optimización avanzada de presupuesto",
+  "Seguimiento estratégico mensual",
+];
+---
+
+<section class="pricing" id="planes">
+  <div class="pricing__container">
+    <div class="pricing__header reveal">
+      <span class="section-label">Inversión</span>
+      <h2 class="pricing__title">
+        <span class="line-reveal"><span>Estructura de servicio</span></span>
+        <span class="line-reveal line-reveal-d1"
+          ><span><span class="keyword">según inversión.</span></span></span
+        >
+      </h2>
+      <p class="pricing__subtitle">
+        Gestión de Google Ads diferenciada por nivel de inversión mensual.
+      </p>
+    </div>
+
+    <div class="pricing__body">
+      <article
+        class="pricing__plan reveal reveal-delay-1"
+        aria-label="Plan Base"
+      >
+        <div class="pricing__plan-head">
+          <p class="pricing__plan-name">Plan Base</p>
+          <p class="pricing__plan-range">
+            Para negocios que invierten hasta $300.000 CLP mensuales en Google
+            Ads.
+          </p>
+        </div>
+
+        <div class="pricing__plan-prices">
+          <p class="pricing__plan-price">$59.000 + IVA <span>/ mes</span></p>
+          <p class="pricing__plan-setup">
+            Setup inicial (una vez): $79.000 + IVA
+          </p>
+        </div>
+
+        <div class="pricing__plan-benefits">
+          <ul class="pricing__plan-list">
+            {
+              baseFeatures.map((feature) => (
+                <li>
+                  <Check size={16} class="check-icon" />
+                  {feature}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="pricing__plan-actions">
+          <a class="btn-primary pricing__plan-cta-inline" href="#contacto">
+            Empezar ahora
+            <ArrowRight size={16} />
+          </a>
+        </div>
+      </article>
+
+      <article
+        class="pricing__plan pricing__plan--recommended reveal reveal-delay-2"
+        aria-label="Plan Crecimiento"
+      >
+        <div class="pricing__plan-head">
+          <p class="pricing__plan-badge">Plan recomendado</p>
+          <p class="pricing__plan-name">Plan Crecimiento</p>
+          <p class="pricing__plan-range">
+            Para negocios que invierten entre $300.000 y $1.000.000 CLP
+            mensuales.
+          </p>
+        </div>
+
+        <div class="pricing__plan-prices">
+          <p class="pricing__plan-price">$89.000 + IVA <span>/ mes</span></p>
+          <p class="pricing__plan-setup">Setup inicial: $99.000 + IVA</p>
+        </div>
+
+        <div class="pricing__plan-benefits">
+          <p class="pricing__plan-note">Incluye todo lo anterior más:</p>
+          <ul class="pricing__plan-list">
+            {
+              crecimientoExtras.map((feature) => (
+                <li>
+                  <Check size={16} class="check-icon" />
+                  {feature}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="pricing__plan-actions">
+          <a class="btn-primary pricing__plan-cta-inline" href="#contacto">
+            Empezar ahora
+            <ArrowRight size={16} />
+          </a>
+        </div>
+      </article>
+
+      <article
+        class="pricing__plan reveal reveal-delay-3"
+        aria-label="Plan Escala"
+      >
+        <div class="pricing__plan-head">
+          <p class="pricing__plan-name">Plan Escala</p>
+          <p class="pricing__plan-range">
+            Para inversiones superiores a $1.000.000 CLP mensuales.
+          </p>
+        </div>
+
+        <div class="pricing__plan-benefits">
+          <p class="pricing__plan-scale-copy">
+            Estructuras avanzadas, automatización estratégica y gestión
+            personalizada.
+          </p>
+        </div>
+
+        <div class="pricing__plan-actions">
+          <a class="pricing__plan-cta btn-secondary" href="#contacto">
+            Solicitar evaluación personalizada
+          </a>
+        </div>
+      </article>
+    </div>
+
+    <div class="pricing__web-note reveal reveal-delay-4">
+      <p class="pricing__web-note-title">
+        ¿No tienes sitio web para usar Google Ads?
+      </p>
+      <p class="pricing__web-note-text">
+        No hay problema. Incluimos una plantilla de landing page profesional sin
+        costo adicional dentro del setup inicial.
+      </p>
+    </div>
+
+    <div class="pricing__footer reveal reveal-delay-4">
+      <p>Sin contrato de permanencia. Cancelas cuando quieras.</p>
+      <p>
+        La inversión en Google Ads se paga directamente a Google. Nosotros
+        gestionamos la estrategia.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pricing {
+    background: var(--white);
+    padding: var(--section-py) 0;
+  }
+
+  .pricing__container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--section-px);
+  }
+
+  .pricing__header {
+    margin-bottom: 3.5rem;
+    max-width: 42rem;
+  }
+
+  .pricing__title {
+    font-size: clamp(2.3rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.05;
+  }
+
+  .pricing__subtitle {
+    margin-top: 1rem;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--gray-500);
+  }
+
+  .pricing__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .pricing__plan {
+    position: relative;
+    display: grid;
+    gap: 1.15rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  @media (min-width: 860px) {
+    .pricing__plan {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1.4fr);
+      align-items: start;
+      column-gap: 2rem;
+    }
+  }
+
+  .pricing__plan--recommended {
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    background: var(--accent-soft);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin: 0 -0.5rem;
+  }
+
+  .pricing__plan-badge {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--gray-500);
+    margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 859px) {
+    .pricing__plan--recommended {
+      margin: 0;
+    }
+  }
+
+  .pricing__plan-head {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .pricing__plan-name {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--black);
+  }
+
+  .pricing__plan-range {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--gray-500);
+  }
+
+  .pricing__plan-prices {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .pricing__plan-benefits {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .pricing__plan-actions {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .pricing__plan-price {
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--black);
+    font-weight: 700;
+  }
+
+  .pricing__plan-price span {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    letter-spacing: 0;
+    color: var(--gray-500);
+    font-weight: 500;
+  }
+
+  .pricing__plan-setup {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--gray-500);
+  }
+
+  .pricing__plan-note {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--gray-400);
+    margin-top: 0.05rem;
+  }
+
+  .pricing__plan-list {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .pricing__plan-list li {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--gray-600);
+  }
+
+  .pricing__plan-list li :global(.check-icon) {
+    flex-shrink: 0;
+    color: var(--accent);
+    margin-top: 0.2em;
+  }
+
+  .pricing__plan-cta-inline {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  @media (min-width: 860px) {
+    .pricing__plan-cta-inline {
+      width: auto;
+    }
+  }
+
+  .pricing__plan-scale-copy {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--gray-500);
+    max-width: 32rem;
+  }
+
+  .pricing__plan-cta {
+    margin-top: 0.2rem;
+    justify-content: flex-start;
+    width: fit-content;
+    border-color: var(--gray-300);
+    background: var(--white);
+  }
+
+  .pricing__plan-cta:hover {
+    border-color: var(--black);
+    background: var(--white);
+  }
+
+  .pricing__footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .pricing__web-note {
+    margin-top: 1.5rem;
+    padding: 1rem 1.125rem;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: var(--radius-md);
+    display: grid;
+    gap: 0.4rem;
+    max-width: 56rem;
+  }
+
+  .pricing__web-note-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  .pricing__web-note-text {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--gray-600);
+  }
+
+  .pricing__footer p {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--gray-500);
+  }
+</style>

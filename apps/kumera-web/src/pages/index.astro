@@ -1,0 +1,18 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import QuienesSomos from "../components/QuienesSomos.astro";
+import AreasDeTrabajo from "../components/AreasDeTrabajo.astro";
+import Proyectos from "../components/Proyectos.astro";
+import CTA from "../components/CTA.astro";
+---
+
+<BaseLayout>
+  <Hero />
+  <QuienesSomos />
+  <AreasDeTrabajo />
+  <Proyectos />
+  <CTA />
+</BaseLayout>

@@ -1,0 +1,247 @@
+---
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel Tractiva</title>
+    <style>
+      :root {
+        --bg: #050505;
+        --panel: #111111;
+        --border: #232323;
+        --text: #f5f5f5;
+        --muted: #9ca3af;
+        --green: #16a34a;
+        --green-hover: #15803d;
+        --danger: #ef4444;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+      .hidden { display: none !important; }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+      }
+      h1,h2 { margin: 0 0 12px; }
+      p { color: var(--muted); margin: 0 0 12px; }
+      label { display: block; font-size: .92rem; margin-bottom: 8px; color: #d1d5db; }
+      input, textarea, select {
+        width: 100%; margin-top: 6px; border-radius: 10px; border: 1px solid #2a2a2a;
+        background: #0a0a0a; color: var(--text); padding: 10px 12px; font: inherit;
+      }
+      textarea { min-height: 190px; resize: vertical; }
+      button {
+        border: 0; border-radius: 10px; padding: 11px 14px;
+        background: var(--green); color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+      }
+      button:hover { background: var(--green-hover); }
+      .btn-secondary { background: #262626; }
+      .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+      .status { min-height: 20px; font-size: .92rem; margin-top: 8px; }
+      .ok { color: #4ade80; }
+      .err { color: var(--danger); }
+      .small { font-size: .82rem; color: var(--muted); }
+      .row { display: flex; gap: 8px; align-items: end; }
+      .row > * { flex: 1; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section id="loginView" class="card">
+        <h1>Panel Tractiva</h1>
+        <p>Acceso protegido por contraseña.</p>
+        <form id="loginForm">
+          <label>Contraseña<input type="password" name="password" required /></label>
+          <button type="submit" id="loginBtn">Entrar</button>
+        </form>
+        <div id="loginStatus" class="status" aria-live="polite"></div>
+      </section>
+
+      <section id="panelView" class="hidden">
+        <div class="toolbar">
+          <div>
+            <h1>Panel Tractiva</h1>
+            <p class="small">Sesión activa</p>
+          </div>
+          <button id="logoutBtn" class="btn-secondary" type="button">Cerrar sesión</button>
+        </div>
+
+        <article class="card">
+          <h2>Responder manual</h2>
+          <p>Enviar correo de prueba desde <strong>hola@tractiva.cl</strong>.</p>
+          <form id="sendForm">
+            <label>Destinatario<input type="email" name="to" required /></label>
+            <label>Asunto<input type="text" name="subject" required /></label>
+            <div class="row">
+              <label>
+                Formato
+                <select name="format" id="formatSelect">
+                  <option value="text">Texto plano</option>
+                  <option value="html">HTML</option>
+                </select>
+              </label>
+              <button type="button" id="templateBtn" class="btn-secondary">Cargar template</button>
+            </div>
+            <label>Mensaje<textarea name="body" id="messageBody" required></textarea></label>
+            <button type="submit" id="sendBtn">Enviar correo</button>
+          </form>
+          <div id="sendStatus" class="status" aria-live="polite"></div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const loginView = document.getElementById('loginView');
+      const panelView = document.getElementById('panelView');
+
+      const loginForm = document.getElementById('loginForm');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginStatus = document.getElementById('loginStatus');
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      const sendForm = document.getElementById('sendForm');
+      const sendBtn = document.getElementById('sendBtn');
+      const sendStatus = document.getElementById('sendStatus');
+      const templateBtn = document.getElementById('templateBtn');
+      const formatSelect = document.getElementById('formatSelect');
+      const messageBody = document.getElementById('messageBody');
+
+      const setStatus = (el, message, kind = '') => {
+        if (!el) return;
+        el.textContent = message || '';
+        el.className = `status ${kind}`.trim();
+      };
+
+      const TEXT_TEMPLATE = `Hola {{nombre}},
+
+Gracias por tu mensaje.
+
+Quedo atento(a) a tus comentarios para avanzar.
+
+Saludos,
+Equipo Tractiva
+hola@tractiva.cl
+https://tractiva.cl`;
+
+      const HTML_TEMPLATE = `<p>Hola {{nombre}},</p>
+<p>Gracias por tu mensaje.</p>
+<p>Quedo atento(a) a tus comentarios para avanzar.</p>
+<br />
+<p>Saludos,<br />Equipo Tractiva<br />
+<a href="mailto:hola@tractiva.cl">hola@tractiva.cl</a><br />
+<a href="https://tractiva.cl">tractiva.cl</a></p>`;
+
+      const showPanel = () => {
+        loginView?.classList.add('hidden');
+        panelView?.classList.remove('hidden');
+      };
+
+      const checkSession = async () => {
+        try {
+          const response = await fetch('/api/panel/me');
+          if (!response.ok) return;
+          showPanel();
+        } catch {
+          // no-op
+        }
+      };
+
+      loginForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!loginForm) return;
+        setStatus(loginStatus, '');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Entrando...';
+
+        const formData = new FormData(loginForm);
+        const payload = {
+          password: (formData.get('password') || '').toString()
+        };
+
+        try {
+          const response = await fetch('/api/panel/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            setStatus(loginStatus, data?.error || 'No se pudo iniciar sesión.', 'err');
+            return;
+          }
+          setStatus(loginStatus, 'Sesión iniciada.', 'ok');
+          showPanel();
+        } catch {
+          setStatus(loginStatus, 'Error de red al iniciar sesión.', 'err');
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Entrar';
+        }
+      });
+
+      logoutBtn?.addEventListener('click', async () => {
+        await fetch('/api/panel/logout', { method: 'POST' });
+        panelView?.classList.add('hidden');
+        loginView?.classList.remove('hidden');
+        setStatus(loginStatus, 'Sesión cerrada.');
+      });
+
+      sendForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!sendForm) return;
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Enviando...';
+        setStatus(sendStatus, '');
+
+        const formData = new FormData(sendForm);
+        const payload = {
+          to: (formData.get('to') || '').toString().trim(),
+          subject: (formData.get('subject') || '').toString().trim(),
+          format: (formData.get('format') || 'text').toString(),
+          body: (formData.get('body') || '').toString()
+        };
+
+        try {
+          const response = await fetch('/api/responder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            setStatus(sendStatus, data?.error || 'No se pudo enviar.', 'err');
+            return;
+          }
+          setStatus(sendStatus, 'Correo enviado correctamente.', 'ok');
+          sendForm.reset();
+        } catch {
+          setStatus(sendStatus, 'Error de red enviando correo.', 'err');
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Enviar correo';
+        }
+      });
+
+      templateBtn?.addEventListener('click', () => {
+        const format = formatSelect?.value || 'text';
+        if (!messageBody) return;
+        messageBody.value = format === 'html' ? HTML_TEMPLATE : TEXT_TEMPLATE;
+      });
+
+      checkSession();
+    </script>
+  </body>
+</html>

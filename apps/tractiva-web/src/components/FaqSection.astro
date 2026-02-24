@@ -1,0 +1,108 @@
+---
+import { Plus } from "@lucide/astro";
+
+const faqs = [
+    {
+        q: "¿Tengo que pagar aparte la inversión en Google Ads?",
+        a: "Sí. Nuestro servicio cubre la gestión y optimización de tus campañas. La inversión publicitaria se paga directo a Google y es un costo aparte que tú controlas. Nosotros te asesoramos cuánto invertir según tu rubro y objetivos.",
+    },
+    {
+        q: "¿Cuánto tiempo toma ver resultados?",
+        a: "Las campañas se activan en los primeros 5 días. La primera semana empiezas a recibir tráfico. Entre las semanas 2 y 4 optimizamos y empiezas a ver consultas consistentes. Desde el mes 2, las campañas están en su punto óptimo.",
+    },
+    {
+        q: "¿Hay contrato de permanencia?",
+        a: "No. Trabajamos mes a mes. Si en algún momento quieres pausar o cancelar, lo haces sin penalización. Creemos que te quedas porque ves resultados, no porque te amarramos.",
+    },
+    {
+        q: "¿Qué pasa si mis campañas no funcionan?",
+        a: "Cada semana revisamos métricas y ajustamos. Si algo no rinde, lo cambiamos. Si después de un período razonable los resultados no son los esperados, lo conversamos transparentemente y evaluamos opciones juntos.",
+    },
+    {
+        q: "¿Quién gestiona mi cuenta?",
+        a: "Un especialista dedicado que conoce tu industria. Tienes acceso directo por WhatsApp o email para consultas, y recibes un reporte mensual con todo lo que se hizo y los resultados obtenidos.",
+    },
+    {
+        q: "¿Qué incluye la gestión mensual?",
+        a: "Estructura de campañas, optimización semanal, gestión de palabras negativas, testeo de anuncios, seguimiento de conversiones y reporte mensual. No incluye la inversión publicitaria ni diseño web.",
+    },
+];
+---
+
+<section class="faq" id="faq">
+    <div class="faq__container">
+        <div class="faq__header reveal">
+            <span class="section-label">FAQ</span>
+            <h2 class="faq__title">
+                <span class="line-reveal"><span>Preguntas</span></span>
+                <span class="line-reveal line-reveal-d1"
+                    ><span>frecuentes.</span></span
+                >
+            </h2>
+        </div>
+
+        <div class="faq__list">
+            {
+                faqs.map((faq, i) => (
+                    <div
+                        class={`faq-item reveal reveal-delay-${Math.min(i + 1, 4)}`}
+                    >
+                        <button
+                            class="faq-trigger"
+                            type="button"
+                            aria-expanded="false"
+                        >
+                            <span>{faq.q}</span>
+                            <span class="faq-trigger-icon">
+                                <Plus size={20} />
+                            </span>
+                        </button>
+                        <div class="faq-content">
+                            <p class="faq-answer">{faq.a}</p>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+
+        <div class="faq__cta reveal reveal-delay-4">
+            <p class="faq__cta-text">¿Tienes otra pregunta?</p>
+            <a href="#contacto" class="btn-primary"> Conversemos → </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .faq {
+        background: var(--off-white);
+        padding: var(--section-py) 0;
+    }
+    .faq__container {
+        max-width: 48rem;
+        margin: 0 auto;
+        padding: 0 var(--section-px);
+    }
+    .faq__header {
+        margin-bottom: 3rem;
+    }
+    .faq__title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 700;
+        color: var(--black);
+        line-height: 1.05;
+    }
+    .faq__list {
+        border-top: 1px solid var(--gray-200);
+    }
+    .faq__cta {
+        margin-top: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    .faq__cta-text {
+        font-size: 0.9375rem;
+        color: var(--gray-500);
+    }
+</style>

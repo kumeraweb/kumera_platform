@@ -1,0 +1,251 @@
+---
+import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
+---
+
+<section class="cta" id="contacto">
+  <div class="cta__container">
+    <div class="cta__grid">
+      <!-- Left: headline + WA -->
+      <div class="cta__left reveal">
+        <h2 class="cta__title">
+          <span class="line-reveal"><span>Conversemos sobre</span></span>
+          <span class="line-reveal line-reveal-d1"
+            ><span>tu próximo <em>cliente.</em></span></span
+          >
+        </h2>
+        <p class="cta__subtitle">
+          Sin compromiso. 15 minutos. Analizamos tu caso gratis.
+        </p>
+        <a
+          href="https://wa.me/56987435207?text=Hola!%20Te%20escribo%20desde%20tractiva.cl%20y%20me%20gustar%C3%ADa%20potenciar%20mi%20negocio%20con%20Google%20Ads&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=cta_main"
+          target="_blank"
+          rel="noopener"
+          class="btn-wa cta-wa-main"
+        >
+          <MessageCircle size={20} />
+          Hablar por WhatsApp
+        </a>
+      </div>
+
+      <div class="cta__right reveal reveal-delay-1">
+        <p class="cta__form-label">O si prefieres, escríbenos:</p>
+        <form class="cta-form" id="contact-form">
+          <div class="cta-form__field">
+            <label for="cf-nombre" class="cta-form__label">Nombre</label>
+            <input
+              type="text"
+              id="cf-nombre"
+              name="nombre"
+              required
+              autocomplete="name"
+              class="cta-form__input"
+              placeholder="Tu nombre"
+            />
+          </div>
+          <div class="cta-form__field">
+            <label for="cf-email" class="cta-form__label">Email</label>
+            <input
+              type="email"
+              id="cf-email"
+              name="email"
+              required
+              autocomplete="email"
+              class="cta-form__input"
+              placeholder="tu@email.com"
+            />
+          </div>
+          <div class="cta-form__field">
+            <label for="cf-mensaje" class="cta-form__label"
+              >Mensaje <span class="cta-form__optional">(opcional)</span></label
+            >
+            <textarea
+              id="cf-mensaje"
+              name="mensaje"
+              rows="3"
+              class="cta-form__input cta-form__textarea"
+              placeholder="Cuéntanos sobre tu negocio..."></textarea>
+          </div>
+          <button
+            type="submit"
+            class="btn-primary btn-primary--dark cta-form__submit"
+            id="cf-submit"
+          >
+            <Mail size={16} />
+            <span id="cf-btn-text">Enviar mensaje</span>
+          </button>
+          <p class="cta-form__status" id="cf-status"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement;
+  const btn = document.getElementById("cf-submit") as HTMLButtonElement;
+  const btnText = document.getElementById("cf-btn-text")!;
+  const status = document.getElementById("cf-status")!;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btnText.textContent = "Enviando...";
+    status.textContent = "";
+    status.className = "cta-form__status";
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        body: new FormData(form),
+      });
+
+      if (res.ok) {
+        sessionStorage.setItem("tractiva_form_submitted", String(Date.now()));
+        window.location.href = "/gracias";
+        return;
+      } else {
+        const payload = await res.json().catch(() => null);
+        const backendMessage =
+          payload?.error ||
+          (res.status === 403
+            ? "Solicitud bloqueada por seguridad. Intenta recargar la página."
+            : "Error al enviar. Intenta por WhatsApp.");
+        throw new Error(backendMessage);
+      }
+    } catch (err) {
+      status.textContent =
+        err instanceof Error
+          ? err.message
+          : "Error al enviar. Intenta por WhatsApp.";
+      status.classList.add("cta-form__status--err");
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = "Enviar mensaje";
+    }
+  });
+</script>
+
+<style>
+  .cta {
+    background: var(--black);
+    padding: var(--section-py) 0;
+  }
+  .cta__container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--section-px);
+  }
+  .cta__grid {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 768px) {
+    .cta__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+  }
+
+  .cta__left {
+    max-width: 28rem;
+  }
+  .cta__title {
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+  }
+  .cta__title em {
+    font-style: normal;
+    color: var(--accent-light);
+  }
+  .cta__subtitle {
+    margin-top: 1.25rem;
+    font-size: 1rem;
+    color: var(--gray-400);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .cta-wa-main {
+    font-size: 1.0625rem;
+    padding: 1.125rem 2.25rem;
+  }
+  @media (max-width: 767px) {
+    .cta-wa-main {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  .cta__form-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+  }
+
+  /* Form */
+  .cta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .cta-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .cta-form__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-400);
+    letter-spacing: 0.02em;
+  }
+  .cta-form__optional {
+    color: var(--gray-600);
+    font-weight: 400;
+  }
+  .cta-form__input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--white);
+    transition: border-color 0.2s ease;
+    outline: none;
+  }
+  .cta-form__input::placeholder {
+    color: var(--gray-600);
+  }
+  .cta-form__input:focus {
+    border-color: var(--accent);
+  }
+  .cta-form__textarea {
+    resize: vertical;
+    min-height: 4.5rem;
+  }
+  .cta-form__submit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.25rem;
+  }
+  .cta-form__submit:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+  .cta-form__status {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    min-height: 1.5em;
+  }
+  .cta-form__status--ok {
+    color: var(--accent-light);
+  }
+  .cta-form__status--err {
+    color: #f87171;
+  }
+</style>

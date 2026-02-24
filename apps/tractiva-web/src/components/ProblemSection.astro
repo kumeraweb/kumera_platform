@@ -1,0 +1,156 @@
+---
+import { TriangleAlert, UserX, Clock } from "@lucide/astro";
+
+const problems = [
+  {
+    icon: "alert",
+    title: "¿Gastas en Google y no llegan consultas?",
+    description:
+      "Pagas cada mes, los clics aparecen, pero el teléfono no suena. Sientes que la inversión se pierde sin que nadie te explique por qué.",
+  },
+  {
+    icon: "contacts",
+    title: "¿Te contactan personas que no son tu cliente?",
+    description:
+      "Recibes llamadas que no convierten: presupuestos que nunca avanzan, preguntas genéricas, gente que nunca pensó en contratar.",
+  },
+  {
+    icon: "time",
+    title: "¿No tienes tiempo para revisar campañas?",
+    description:
+      "Tu negocio necesita toda tu atención. No puedes además convertirte en experto en Google Ads, pujas y segmentación.",
+  },
+];
+---
+
+<section class="problem-section" id="problema">
+  <div class="problem-container">
+    <div class="problem-header reveal">
+      <span class="section-tag section-tag-dark">
+        <span class="tag-line"></span>
+        ¿Te pasa esto?
+      </span>
+      <h2 class="problem-title">
+        El problema no es <span class="gradient-text-amber">Google Ads.</span
+        ><br />
+        Es no tener a alguien que lo gestione bien.
+      </h2>
+    </div>
+
+    <div class="problem-grid">
+      {
+        problems.map((problem, i) => (
+          <article class={`problem-card reveal reveal-delay-${i + 1}`}>
+            <div class="problem-card__accent" />
+            <div class="problem-card__icon">
+              {problem.icon === "alert" && <TriangleAlert size={22} />}
+              {problem.icon === "contacts" && <UserX size={22} />}
+              {problem.icon === "time" && <Clock size={22} />}
+            </div>
+            <h3 class="problem-card__title">{problem.title}</h3>
+            <p class="problem-card__desc">{problem.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .problem-section {
+    background: var(--bg-light);
+    padding: var(--section-py) 0;
+  }
+
+  .problem-container {
+    width: 100%;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--section-px);
+  }
+
+  .problem-header {
+    max-width: 40rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .problem-title {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.15;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .problem-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  .problem-card {
+    position: relative;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: 2rem 1.75rem;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+  }
+  .problem-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.06);
+  }
+
+  .problem-card__accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--amber), #fbbf24);
+    border-radius: 3px 3px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .problem-card:hover .problem-card__accent {
+    opacity: 1;
+  }
+
+  .problem-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-md);
+    background: var(--amber-soft);
+    color: var(--amber);
+    margin-bottom: 1.25rem;
+    transition: transform 0.3s;
+  }
+  .problem-card:hover .problem-card__icon {
+    transform: scale(1.08);
+  }
+
+  .problem-card__title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.625rem;
+    line-height: 1.3;
+  }
+
+  .problem-card__desc {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--text-body);
+  }
+</style>

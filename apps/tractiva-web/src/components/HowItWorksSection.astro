@@ -1,0 +1,117 @@
+---
+const steps = [
+  {
+    number: "01",
+    title: "Conversación inicial",
+    desc: "Analizamos tu negocio, tu mercado y tus objetivos en 15 minutos. Sin compromiso.",
+  },
+  {
+    number: "02",
+    title: "Auditoría y propuesta",
+    desc: "Si ya tienes campañas, las revisamos. Si partes de cero, diseñamos la estrategia.",
+  },
+  {
+    number: "03",
+    title: "Lanzamiento",
+    desc: "Activamos campañas y las optimizamos cada semana. Ajustes reales, no piloto automático.",
+  },
+  {
+    number: "04",
+    title: "Resultados medibles",
+    desc: "Reporte mensual con métricas claras: consultas, costo por lead, acciones del próximo mes.",
+  },
+];
+---
+
+<section class="process" id="proceso">
+  <div class="process__container">
+    <div class="process__header reveal">
+      <span class="section-label">Proceso</span>
+      <h2 class="process__title">
+        <span class="line-reveal"><span>De cero a</span></span>
+        <span class="line-reveal line-reveal-d1"
+          ><span><span class="keyword">resultados.</span></span></span
+        >
+      </h2>
+    </div>
+
+    <div class="process__grid">
+      {
+        steps.map((step, i) => (
+          <div
+            class={`process__step reveal reveal-delay-${Math.min(i + 1, 4)}`}
+          >
+            <span class="process__number">{step.number}</span>
+            <h3 class="process__step-title">{step.title}</h3>
+            <p class="process__step-desc">{step.desc}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .process {
+    background: var(--off-white);
+    padding: var(--section-py) 0;
+  }
+  .process__container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--section-px);
+  }
+  .process__header {
+    margin-bottom: 4rem;
+  }
+  .process__title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.05;
+  }
+
+  .process__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  @media (min-width: 640px) {
+    .process__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3rem 2rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .process__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .process__step {
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--gray-200);
+  }
+  .process__number {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 1rem;
+  }
+  .process__step-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--black);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+  .process__step-desc {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--gray-500);
+  }
+</style>

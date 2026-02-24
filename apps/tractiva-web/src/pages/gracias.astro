@@ -1,0 +1,91 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Gracias por contactarnos | tractiva"
+  description="Recibimos tu mensaje correctamente. Te responderemos dentro de las próximas 24 horas hábiles."
+  canonical="https://tractiva.cl/gracias"
+>
+  <main class="thanks">
+    <section class="thanks__card">
+      <p class="thanks__eyebrow">Mensaje recibido</p>
+      <h1 class="thanks__title">Gracias por contactarnos</h1>
+      <p class="thanks__description">
+        Tu solicitud fue enviada con éxito. Te responderemos dentro de las próximas 24 horas hábiles.
+      </p>
+      <div class="thanks__actions">
+        <a href="/" class="btn-primary">Volver al inicio</a>
+        <a
+          href="https://wa.me/56987435207?text=Hola!%20Ya%20les%20escrib%C3%AD%20por%20el%20formulario%20y%20quiero%20dar%20m%C3%A1s%20detalles.&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=thanks_page"
+          target="_blank"
+          rel="noopener"
+          class="btn-secondary btn-secondary--dark">Hablar por WhatsApp</a
+        >
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const key = "tractiva_form_submitted";
+  const value = sessionStorage.getItem(key);
+  if (value && typeof window.gtag_report_form_conversion === "function") {
+    window.gtag_report_form_conversion();
+    sessionStorage.removeItem(key);
+  }
+</script>
+
+<style>
+  .thanks {
+    min-height: 100svh;
+    background:
+      radial-gradient(circle at 10% 12%, rgba(22, 163, 74, 0.16), transparent 34%),
+      radial-gradient(circle at 88% 78%, rgba(22, 163, 74, 0.1), transparent 32%),
+      #0a0a0a;
+    display: grid;
+    place-items: center;
+    padding: 7rem var(--section-px) 5rem;
+  }
+
+  .thanks__card {
+    width: min(100%, 42rem);
+    text-align: center;
+    background: rgba(23, 23, 23, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.25rem;
+    padding: clamp(2rem, 4vw, 3rem);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+  }
+
+  .thanks__eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--accent-light);
+  }
+
+  .thanks__title {
+    margin-top: 0.75rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    color: var(--white);
+  }
+
+  .thanks__description {
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-300);
+  }
+
+  .thanks__actions {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+</style>

@@ -1,0 +1,50 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CTA from "../components/CTA.astro";
+import { contact } from "../data/site";
+---
+
+<BaseLayout
+  title="Contacto | Kumera Web Servicios Digitales SpA"
+  description="Contacto institucional para Kumera Web Servicios Digitales SpA. Consultas comerciales, alianzas y soporte."
+  canonical="https://www.kumeraweb.com/contacto"
+>
+  <section class="bg-white">
+    <div
+      class="mx-auto w-full max-w-[1120px] px-6 py-16 md:py-24 space-y-8 md:space-y-12"
+    >
+      <p
+        class="py-1.5 text-xs font-semibold uppercase tracking-[0.26em] text-black/40"
+      >
+        Contacto
+      </p>
+      <h1
+        class="font-['Space_Grotesk'] text-5xl tracking-tight text-black md:text-7xl"
+      >
+        Información Corporativa
+      </h1>
+      <p class="py-1.5 max-w-[65ch] text-lg text-black/70 md:text-xl">
+        Canales oficiales de comunicación para clientes, proveedores y consultas
+        generales.
+      </p>
+      <div class="grid gap-2 text-sm text-black/70">
+        <p>
+          <span class="font-semibold text-black">Email Corporativo:</span>
+          {contact.email}
+        </p>
+        <p>
+          <span class="font-semibold text-black">Teléfono / WhatsApp:</span>
+          {contact.phone}
+        </p>
+        <p>
+          <span class="font-semibold text-black">Dirección:</span>
+          {contact.address}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CTA />
+</BaseLayout>

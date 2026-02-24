@@ -1,0 +1,37 @@
+name: Daily Jobs
+
+on:
+  schedule:
+    # 12:00 UTC ~= 09:00 Chile (ajustar por DST)
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminders
+        run: |
+          curl -sS -X POST "${{ secrets.APP_URL }}/api/jobs/reminders" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
+
+  overdue-marking:
+    runs-on: ubuntu-latest
+    needs: reminders
+    steps:
+      - name: Trigger overdue marking
+        run: |
+          curl -sS -X POST "${{ secrets.APP_URL }}/api/jobs/overdue-marking" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
+
+  generate-next-payments:
+    runs-on: ubuntu-latest
+    needs: overdue-marking
+    steps:
+      - name: Trigger next payment generation
+        run: |
+          curl -sS -X POST "${{ secrets.APP_URL }}/api/jobs/generate-next-payments" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"

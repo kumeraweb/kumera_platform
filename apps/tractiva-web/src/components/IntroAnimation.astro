@@ -1,0 +1,151 @@
+---
+
+---
+
+<div class="intro" id="intro-splash">
+    <div class="intro__stage">
+        <!-- Phase 1: "tractiva" whole -->
+        <div class="intro__word" id="intro-word">
+            <span class="intro__syl intro__syl--left" id="syl-left">trac</span
+            ><span class="intro__syl intro__syl--right" id="syl-right"
+                >tiva</span
+            >
+        </div>
+        <!-- Phase 2: "tracción activa" + subtitle -->
+        <div class="intro__reveal" id="intro-reveal">
+            <span class="intro__phrase">tracción activa</span>
+            <span class="intro__sub">para clientes con google ads</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .intro {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .intro__stage {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .intro__word {
+        display: flex;
+        align-items: baseline;
+        opacity: 0;
+    }
+    .intro__syl {
+        font-family: var(--font-display);
+        font-size: clamp(3.5rem, 12vw, 8rem);
+        font-weight: 700;
+        letter-spacing: -0.05em;
+        color: #fff;
+        display: inline-block;
+        transition:
+            transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.25s ease;
+    }
+    .intro__reveal {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .intro__phrase {
+        font-family: var(--font-display);
+        font-size: clamp(1.5rem, 4.5vw, 3rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--accent-light);
+        white-space: nowrap;
+    }
+    .intro__sub {
+        font-family: var(--font-body);
+        font-size: clamp(0.75rem, 1.5vw, 1rem);
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        white-space: nowrap;
+    }
+
+    /* States */
+    .intro__word.fade-in {
+        opacity: 1;
+    }
+    .intro__word.split .intro__syl--left {
+        transform: translateX(-1.5em);
+        opacity: 0;
+    }
+    .intro__word.split .intro__syl--right {
+        transform: translateX(1.5em);
+        opacity: 0;
+    }
+    .intro__reveal.show {
+        opacity: 1;
+    }
+    .intro__word.final {
+        opacity: 1;
+    }
+    .intro__word.final .intro__syl--left,
+    .intro__word.final .intro__syl--right {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    .intro.exit {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    const intro = document.getElementById("intro-splash")!;
+    const word = document.getElementById("intro-word")!;
+    const reveal = document.getElementById("intro-reveal")!;
+
+    document.body.style.overflow = "hidden";
+
+    const t = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    (async () => {
+        await t(100);
+        // 1 — "tractiva" fades in
+        word.classList.add("fade-in");
+        await t(350);
+
+        // 2 — split: trac ← → tiva
+        word.classList.add("split");
+        await t(250);
+
+        // 3 — "tracción activa" appears
+        reveal.classList.add("show");
+        await t(450);
+
+        // 4 — phrase fades out
+        reveal.classList.remove("show");
+        await t(150);
+
+        // 5 — "tractiva" comes back together
+        word.classList.remove("split");
+        word.classList.add("final");
+        await t(200);
+
+        // 6 — exit splash
+        intro.classList.add("exit");
+        document.body.style.overflow = "";
+        await t(300);
+        intro.remove();
+        document.dispatchEvent(new Event("intro-done"));
+    })();
+</script>

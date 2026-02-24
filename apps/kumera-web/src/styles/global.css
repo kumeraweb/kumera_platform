@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-bg: #ffffff;
+  --color-bg-deep: #f7f7f7;
+  --color-text: #111111;
+  --color-text-soft: #333333;
+  --color-muted: #7a7a7a;
+  --color-brand: #0d1f2e;
+  --color-accent: #f46a1c;
+  --color-dark: #000000;
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.65;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}

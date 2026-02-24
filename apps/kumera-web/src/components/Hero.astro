@@ -1,0 +1,99 @@
+<section class="relative overflow-hidden bg-white">
+  <div class="pointer-events-none absolute inset-0 flex justify-center">
+    <div class="relative w-full max-w-[1120px]">
+      <div
+        class="absolute right-[-10%] top-[62%] h-[2px] w-[140%] bg-orange-500/10 rotate-[-6deg] animate-line-drift-slow"
+      >
+      </div>
+    </div>
+  </div>
+
+  <div class="relative z-10 mx-auto w-full max-w-[1120px] px-6 py-24 md:py-36">
+    <div class="max-w-4xl">
+      <p
+        class="hero-eyebrow text-xs font-medium uppercase tracking-[0.38em] text-black/40"
+      >
+        KÜMERA WEB SERVICIOS DIGITALES SPA
+      </p>
+
+      <h1
+        class="pt-6 md:pt-8 hero-title font-['Space_Grotesk'] text-[3.4rem] leading-[1.02] tracking-tight text-black md:text-[5.2rem]"
+      >
+        <span class="block">Empresa chilena</span>
+        <span class="block text-black/40">de desarrollo y</span>
+        <span class="block">soluciones digitales.</span>
+      </h1>
+
+      <p class="hero-sub py-6 max-w-[60ch] text-lg text-black/70 md:text-xl">
+        Diseñamos, desarrollamos y gestionamos productos digitales para empresas
+        y proyectos propios. Operamos desde Santiago y Concepción con enfoque en
+        ingeniería, diseño y escalabilidad.
+      </p>
+
+      <div class="hero-cta mt-10">
+        <a
+          href="#contacto"
+          class="inline-flex items-center justify-center rounded-full bg-black px-10 py-4 text-xs font-semibold uppercase tracking-[0.24em] text-white transition-all duration-300 hover:translate-y-[-2px] hover:opacity-90"
+        >
+          Contacto institucional
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-eyebrow,
+  .hero-title,
+  .hero-sub,
+  .hero-cta {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .hero-eyebrow {
+    animation-delay: 0.15s;
+  }
+  .hero-title {
+    animation-delay: 0.3s;
+  }
+  .hero-sub {
+    animation-delay: 0.5s;
+  }
+  .hero-cta {
+    animation-delay: 0.65s;
+  }
+
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lineDrift {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-120px);
+    }
+  }
+
+  .animate-line-drift-slow {
+    animation: lineDrift 32s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow,
+    .hero-title,
+    .hero-sub,
+    .hero-cta,
+    .animate-line-drift-slow {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

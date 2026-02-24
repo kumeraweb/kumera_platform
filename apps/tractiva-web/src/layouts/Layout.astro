@@ -1,0 +1,317 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+}
+const SITE_URL = "https://tractiva.cl";
+const {
+  title = "Gestion de Google Ads en Chile - Campanas que Generan Clientes | tractiva",
+  description = "Gestionamos campanas de Google Ads para profesionales y pymes en Chile. Optimizacion semanal, reportes claros y clientes reales desde $50.000/mes. Sin contratos de permanencia.",
+  canonical = SITE_URL,
+} = Astro.props;
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonical} />
+
+    <!-- SEO Core -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="google ads chile, gestión google ads, agencia google ads santiago, campañas google ads pymes, publicidad google chile, sem chile, google ads profesionales, ads para emprendedores chile"
+    />
+    <meta name="author" content="tractiva" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="tractiva" />
+    <meta property="og:locale" content="es_CL" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17952824212"
+    ></script>
+    <script is:inline>
+      const ADS_ID = "AW-17952824212";
+      const ADS_WA_LABEL = "RoL-CLqotvgbEJS3yfBC";
+      const ADS_PHONE_LABEL = "REEMPLAZAR_LABEL_PHONE";
+      const ADS_FORM_LABEL = "REEMPLAZAR_LABEL_FORM";
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", ADS_ID);
+
+      function gtag_report_ads_conversion(label, url) {
+        const callback = function () {
+          if (typeof url !== "undefined") {
+            window.location = url;
+          }
+        };
+        gtag("event", "conversion", {
+          send_to: `${ADS_ID}/${label}`,
+          value: 1.0,
+          currency: "CLP",
+          event_callback: callback,
+        });
+        return false;
+      }
+
+      function gtag_report_wa_conversion(url) {
+        return gtag_report_ads_conversion(ADS_WA_LABEL, url);
+      }
+
+      function gtag_report_phone_conversion(url) {
+        return gtag_report_ads_conversion(ADS_PHONE_LABEL, url);
+      }
+
+      function gtag_report_form_conversion() {
+        return gtag_report_ads_conversion(ADS_FORM_LABEL);
+      }
+
+      // Backwards compatibility with old tracker name.
+      window.gtag_report_conversion = gtag_report_wa_conversion;
+      window.gtag_report_wa_conversion = gtag_report_wa_conversion;
+      window.gtag_report_phone_conversion = gtag_report_phone_conversion;
+      window.gtag_report_form_conversion = gtag_report_form_conversion;
+    </script>
+
+    <!-- Schema.org Structured Data -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        name: "tractiva",
+        description:
+          "Gestión profesional de campañas de Google Ads para pymes y profesionales en Chile.",
+        url: SITE_URL,
+        telephone: "+56987435207",
+        email: "contacto@kumeraweb.com",
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "CL",
+          addressLocality: "Santiago",
+        },
+        areaServed: {
+          "@type": "Country",
+          name: "Chile",
+        },
+        priceRange: "$$",
+        currenciesAccepted: "CLP",
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: "Servicios Google Ads",
+          itemListElement: [
+            {
+              "@type": "Offer",
+              name: "Setup inicial de campaña Google Ads",
+              price: "75000",
+              priceCurrency: "CLP",
+              description:
+                "Configuración completa de cuenta, campañas, grupos de anuncios y landing page incluida.",
+            },
+            {
+              "@type": "Offer",
+              name: "Gestión mensual de Google Ads",
+              price: "50000",
+              priceCurrency: "CLP",
+              description:
+                "Optimización semanal, reportes de costo por lead, acceso total a la cuenta.",
+            },
+          ],
+        },
+        sameAs: ["https://wa.me/56987435207"],
+      })}
+    />
+  </head>
+  <body>
+    <div class="scroll-progress" id="scroll-progress"></div>
+    <slot />
+    <a
+      href="https://wa.me/56987435207?text=Hola!%20Te%20escribo%20desde%20tractiva.cl%20y%20me%20gustar%C3%ADa%20potenciar%20mi%20negocio%20con%20Google%20Ads&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=floating_mobile"
+      class="ws-float"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Necesitas un ejecutivo? Escríbenos por WhatsApp"
+    >
+      <svg
+        class="ws-float__orbit"
+        viewBox="0 0 120 120"
+        aria-hidden="true"
+      >
+        <defs>
+          <path
+            id="wsTextPath"
+            d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"
+          ></path>
+        </defs>
+        <text>
+          <textPath href="#wsTextPath" startOffset="0%">
+            • NECESITAS UN EJECUTIVO • ESCRÍBENOS POR WHATSAPP •
+          </textPath>
+        </text>
+      </svg>
+      <span class="ws-float__btn" aria-hidden="true">
+        <svg viewBox="0 0 24 24" class="ws-float__icon">
+          <path
+            fill="currentColor"
+            d="M19.1 4.9A9.93 9.93 0 0 0 12 2C6.49 2 2 6.49 2 12c0 1.76.46 3.48 1.34 5L2 22l5.15-1.31A9.96 9.96 0 0 0 12 22c5.51 0 10-4.49 10-10 0-2.67-1.04-5.18-2.9-7.1zM12 20a7.9 7.9 0 0 1-4.03-1.1l-.29-.17-3.06.78.82-2.98-.19-.31A7.95 7.95 0 1 1 12 20zm4.43-5.96c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.22-.72-.64-1.2-1.44-1.34-1.68-.14-.24-.01-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.48-.4-.42-.54-.42h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.65.58.25 1.04.4 1.4.52.59.19 1.12.16 1.54.1.47-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"
+          ></path>
+        </svg>
+      </span>
+    </a>
+    <script>
+      // Scroll reveals + keyword underlines
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-visible");
+              obs.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      );
+      document
+        .querySelectorAll(".reveal, .line-reveal, .keyword")
+        .forEach((el) => obs.observe(el));
+
+      // Scroll progress line
+      const prog = document.getElementById("scroll-progress");
+      if (prog) {
+        const updateProgress = () => {
+          const h = document.documentElement.scrollHeight - window.innerHeight;
+          const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+          prog.style.height = pct + "%";
+          prog.classList.toggle("is-active", pct > 1 && pct < 99);
+        };
+        window.addEventListener("scroll", updateProgress, { passive: true });
+        updateProgress();
+      }
+
+      // Navbar scroll
+      const nav = document.getElementById("site-nav");
+      if (nav) {
+        const onScroll = () =>
+          nav.classList.toggle("is-scrolled", window.scrollY > 40);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      }
+
+      // Brand flip loop
+      const flips = document.querySelectorAll(".brand-flip");
+      if (flips.length) {
+        setInterval(() => {
+          flips.forEach((f) => f.classList.add("is-flipped"));
+          setTimeout(
+            () => flips.forEach((f) => f.classList.remove("is-flipped")),
+            1500,
+          );
+        }, 5000);
+      }
+
+      // Service list toggle
+      document.querySelectorAll(".service-row").forEach((row) => {
+        row.addEventListener("click", () => {
+          const item = row.closest(".service-item");
+          if (!item) return;
+          const wasOpen = item.classList.contains("is-open");
+          document
+            .querySelectorAll(".service-item.is-open")
+            .forEach((i) => i.classList.remove("is-open"));
+          if (!wasOpen) item.classList.add("is-open");
+        });
+      });
+
+      // FAQ accordion
+      document.querySelectorAll(".faq-trigger").forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          const item = trigger.closest(".faq-item");
+          if (!item) return;
+          const wasOpen = item.classList.contains("is-open");
+          document.querySelectorAll(".faq-item.is-open").forEach((i) => {
+            i.classList.remove("is-open");
+            i.querySelector(".faq-trigger")?.setAttribute(
+              "aria-expanded",
+              "false",
+            );
+          });
+          if (!wasOpen) {
+            item.classList.add("is-open");
+            trigger.setAttribute("aria-expanded", "true");
+          }
+        });
+      });
+
+      // Google Ads conversion tracking for WhatsApp and call clicks
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const link = target.closest("a");
+        if (!link) return;
+
+        const href = link.getAttribute("href") || "";
+        const isWhatsapp =
+          href.startsWith("https://wa.me/") ||
+          href.startsWith("http://wa.me/") ||
+          href.includes("api.whatsapp.com");
+        const isPhoneCall = href.startsWith("tel:");
+        if (!isWhatsapp && !isPhoneCall) return;
+
+        if (typeof window.gtag_report_conversion !== "function") return;
+
+        const isModifiedClick =
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey ||
+          event.button !== 0;
+        const opensNewTab = link.target === "_blank";
+        const reportFn = isPhoneCall
+          ? window.gtag_report_phone_conversion
+          : window.gtag_report_wa_conversion;
+
+        if (typeof reportFn !== "function") return;
+
+        if (isModifiedClick || opensNewTab) {
+          reportFn();
+          return;
+        }
+
+        event.preventDefault();
+        reportFn(link.href);
+      });
+    </script>
+  </body>
+</html>

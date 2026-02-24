@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tractiva.cl/sitemap.xml

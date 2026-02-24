@@ -1,0 +1,217 @@
+---
+import { ArrowRight, MessageCircle } from "@lucide/astro";
+---
+
+<section class="hero" id="hero-section">
+  <div class="hero__container">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        <span class="hero-line hero-line--1"
+          ><span>Inviertes en Google Ads y</span></span
+        >
+        <span class="hero-line hero-line--2"
+          ><span><span class="hero__no">NO</span> llegan clientes.</span></span
+        >
+        <span class="hero-line hero-line--3"
+          ><span class="hero__accent">Eso se acaba hoy.</span></span
+        >
+      </h1>
+
+      <div class="hero__bottom">
+        <p class="hero__sub">
+          Gestión semanal de campañas que convierte tu presupuesto<br
+            class="hide-mobile"
+          />
+          en consultas reales. Sin contratos. Sin piloto automático.
+        </p>
+        <div class="hero__cta-group">
+          <a href="#contacto" class="btn-primary">
+            Agendar evaluación gratuita
+            <ArrowRight size={16} />
+          </a>
+          <a
+            href="https://wa.me/56987435207?text=Hola!%20Te%20escribo%20desde%20tractiva.cl%20y%20me%20gustar%C3%ADa%20potenciar%20mi%20negocio%20con%20Google%20Ads&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=hero_wa"
+            target="_blank"
+            rel="noopener"
+            class="btn-wa"
+          >
+            <MessageCircle size={18} />
+            Hablar por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const markHeroReady = () => {
+    document.getElementById("hero-section")?.classList.add("hero--ready");
+  };
+
+  document.addEventListener("intro-done", markHeroReady, { once: true });
+  window.addEventListener(
+    "load",
+    () => {
+      // Fallback: if intro animation is skipped/blocked, hero still renders correctly.
+      setTimeout(markHeroReady, 1200);
+    },
+    { once: true },
+  );
+</script>
+
+<style>
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    padding: clamp(6.25rem, 12vh, 8.5rem) 0 clamp(3rem, 6vh, 5rem);
+  }
+  .hero__container {
+    width: 100%;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--section-px);
+  }
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3rem, 5vh, 4.5rem);
+  }
+
+  .hero__title {
+    font-size: clamp(2.75rem, 8.5vw, 7rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    color: var(--black);
+  }
+  .hero-line {
+    display: block;
+    overflow: hidden;
+  }
+  .hero-line > span {
+    display: block;
+  }
+  .hero--ready .hero-line > span {
+    animation: heroSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero--ready .hero-line--1 > span {
+    animation-delay: 0.2s;
+  }
+  .hero--ready .hero-line--2 > span {
+    animation-delay: 0.7s;
+  }
+  .hero--ready .hero-line--3 > span {
+    animation-delay: 1.2s;
+  }
+  @keyframes heroSlideUp {
+    from {
+      transform: translateY(110%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .hero__accent {
+    color: var(--accent);
+  }
+  .hero__no {
+    display: inline-block;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .hero--ready .hero__no {
+    animation: heroNoEmphasis 1.1s ease 1.25s both;
+  }
+  @keyframes heroNoEmphasis {
+    0% {
+      color: var(--black);
+      transform: translateY(0);
+    }
+    45% {
+      color: #dc2626;
+      transform: translateY(-1px) scale(1.03);
+    }
+    100% {
+      color: var(--black);
+      transform: translateY(0);
+    }
+  }
+
+  .hero__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-top: clamp(1.5rem, 3vh, 2.5rem);
+    border-top: 1px solid var(--gray-200);
+  }
+  .hero--ready .hero__bottom {
+    animation: heroFadeIn 0.6s ease both 1.8s;
+  }
+  @keyframes heroFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media (min-width: 768px) {
+    .hero__bottom {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+  @media (max-width: 767px) {
+    .hero {
+      min-height: auto;
+      align-items: flex-start;
+      padding-top: 5.7rem;
+      padding-bottom: 1.4rem;
+    }
+    .hero__content {
+      gap: 1.6rem;
+    }
+    .hero__bottom {
+      padding-top: 1rem;
+      gap: 0.95rem;
+    }
+  }
+
+  .hero__sub {
+    font-size: clamp(1rem, 1.2vw, 1.0625rem);
+    line-height: 1.58;
+    color: var(--gray-600);
+    max-width: 30rem;
+  }
+  .hero__cta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  @media (min-width: 768px) {
+    .hero__cta-group {
+      flex-direction: row;
+      gap: 1rem;
+    }
+  }
+  @media (max-width: 767px) {
+    .hero__cta-group .btn-primary,
+    .hero__cta-group .btn-wa {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  .hide-mobile {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .hide-mobile {
+      display: inline;
+    }
+  }
+</style>
