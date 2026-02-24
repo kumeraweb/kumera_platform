@@ -23,6 +23,11 @@ export default async function CategoryPills() {
   let categories: Awaited<ReturnType<typeof getCategoriesWithExecutives>> = [];
   try {
     categories = await getCategoriesWithExecutives();
+    console.log("[CategoryPills] categories loaded", {
+      count: categories.length,
+      slugs: categories.map((c) => c.slug),
+      schema: process.env.TUEJECUTIVA_DB_SCHEMA ?? "tuejecutiva(default)",
+    });
   } catch (error) {
     console.error("CategoryPills failed to load categories", error);
     categories = [];
