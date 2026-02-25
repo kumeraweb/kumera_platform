@@ -19,6 +19,8 @@ Variables recomendadas (estandarizadas):
 
 1. `CONTACT_INBOX_EMAIL` (default en código: `contacto@kumeraweb.com`)
 2. `CONTACT_FROM_EMAIL` (default en código por proyecto)
+3. `AUTOREPLY_FROM_EMAIL` (default en código: `noreply@kumeraweb.com` por marca)
+4. `CONTACT_REPLY_TO_EMAIL` (default en código: `contacto@kumeraweb.com`)
 
 ## Configuracion recomendada por proyecto
 
@@ -27,13 +29,26 @@ Variables recomendadas (estandarizadas):
 1. `RESEND_API_KEY=<tu_resend_key>`
 2. `CONTACT_INBOX_EMAIL=contacto@kumeraweb.com`
 3. `CONTACT_FROM_EMAIL=Tractiva.cl <contacto@kumeraweb.com>`
-4. `ALLOWED_ORIGINS=https://tractiva.cl,https://www.tractiva.cl,https://kumera-platform-tractiva-web.vercel.app`
+4. `AUTOREPLY_FROM_EMAIL=Tractiva.cl <noreply@kumeraweb.com>`
+5. `CONTACT_REPLY_TO_EMAIL=contacto@kumeraweb.com`
+6. `ALLOWED_ORIGINS=https://tractiva.cl,https://www.tractiva.cl,https://kumera-platform-tractiva-web.vercel.app`
 
 ### apps/tuejecutiva-web
 
 1. `RESEND_API_KEY=<tu_resend_key>`
 2. `CONTACT_INBOX_EMAIL=contacto@kumeraweb.com`
 3. `CONTACT_FROM_EMAIL=TuEjecutiva.cl <contacto@kumeraweb.com>`
+4. `AUTOREPLY_FROM_EMAIL=TuEjecutiva.cl <noreply@kumeraweb.com>`
+5. `CONTACT_REPLY_TO_EMAIL=contacto@kumeraweb.com`
+
+### apps/kumera-web
+
+1. `RESEND_API_KEY=<tu_resend_key>`
+2. `CONTACT_INBOX_EMAIL=contacto@kumeraweb.com`
+3. `CONTACT_FROM_EMAIL=Kumera Web <contacto@kumeraweb.com>`
+4. `AUTOREPLY_FROM_EMAIL=Kumera Web <noreply@kumeraweb.com>`
+5. `CONTACT_REPLY_TO_EMAIL=contacto@kumeraweb.com`
+6. `ALLOWED_ORIGINS=https://kumeraweb.com,https://www.kumeraweb.com,https://kumera-platform-kumera-web.vercel.app`
 
 ## Comportamiento esperado
 

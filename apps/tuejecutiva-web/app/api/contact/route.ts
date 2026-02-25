@@ -63,12 +63,17 @@ export async function POST(request: Request) {
   }
 
   const resend = new Resend(apiKey);
-  const from = process.env.CONTACT_FROM_EMAIL || "TuEjecutiva.cl <contacto@kumeraweb.com>";
+  const contactFromEmail =
+    process.env.CONTACT_FROM_EMAIL || "TuEjecutiva.cl <contacto@kumeraweb.com>";
+  const autoreplyFromEmail =
+    process.env.AUTOREPLY_FROM_EMAIL || "TuEjecutiva.cl <noreply@kumeraweb.com>";
   const toInternal = process.env.CONTACT_INBOX_EMAIL || "contacto@kumeraweb.com";
+  const contactReplyToEmail =
+    process.env.CONTACT_REPLY_TO_EMAIL || "contacto@kumeraweb.com";
 
   try {
     const internalResult = await resend.emails.send({
-      from,
+      from: contactFromEmail,
       to: toInternal,
       replyTo: email || undefined,
       subject: "Nueva postulación desde TuEjecutiva.cl",
@@ -84,8 +89,9 @@ export async function POST(request: Request) {
 
     if (email) {
       const autoReplyResult = await resend.emails.send({
-        from,
+        from: autoreplyFromEmail,
         to: email,
+        replyTo: contactReplyToEmail,
         subject: "Recibimos tu postulación ✔️",
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; background-color: #f8fafc; padding: 24px;">

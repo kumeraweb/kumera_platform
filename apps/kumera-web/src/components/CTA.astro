@@ -117,6 +117,107 @@
           </div>
         </div>
       </div>
+
+      <div class="mt-10 border border-black/10 bg-black/[0.02] p-6 md:p-8">
+        <h3 class="font-['Space_Grotesk'] text-2xl text-black md:text-3xl">
+          Escríbenos
+        </h3>
+        <p class="mt-2 text-sm text-black/60">
+          Completa el formulario y te contactamos a la brevedad.
+        </p>
+
+        <form id="kumera-contact-form" class="mt-6 grid gap-4 md:grid-cols-2">
+          <label class="block">
+            <span class="mb-2 block text-xs uppercase tracking-[0.2em] text-black/50">Nombre</span>
+            <input
+              type="text"
+              name="nombre"
+              required
+              class="w-full border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none transition-colors focus:border-black/40"
+              placeholder="Tu nombre"
+            />
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-xs uppercase tracking-[0.2em] text-black/50">Correo</span>
+            <input
+              type="email"
+              name="email"
+              required
+              class="w-full border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none transition-colors focus:border-black/40"
+              placeholder="tu@correo.com"
+            />
+          </label>
+
+          <label class="block md:col-span-2">
+            <span class="mb-2 block text-xs uppercase tracking-[0.2em] text-black/50">Mensaje</span>
+            <textarea
+              name="mensaje"
+              rows="4"
+              required
+              class="w-full resize-y border border-black/15 bg-white px-4 py-3 text-sm text-black outline-none transition-colors focus:border-black/40"
+              placeholder="Cuéntanos brevemente tu necesidad"
+            ></textarea>
+          </label>
+
+          <div class="md:col-span-2 flex flex-col gap-3 md:flex-row md:items-center">
+            <button
+              id="kumera-contact-submit"
+              type="submit"
+              class="inline-flex items-center justify-center bg-black px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black/85 disabled:cursor-not-allowed disabled:bg-black/50"
+            >
+              <span id="kumera-contact-submit-text">Enviar mensaje</span>
+            </button>
+            <p id="kumera-contact-status" class="text-sm text-black/60"></p>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </section>
+
+<script>
+  const form = document.getElementById("kumera-contact-form");
+  const submitBtn = document.getElementById("kumera-contact-submit");
+  const submitText = document.getElementById("kumera-contact-submit-text");
+  const status = document.getElementById("kumera-contact-status");
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    submitBtn?.setAttribute("disabled", "true");
+    if (submitText) submitText.textContent = "Enviando...";
+    if (status) {
+      status.textContent = "";
+      status.className = "text-sm text-black/60";
+    }
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: new FormData(form),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload?.error || "No se pudo enviar tu mensaje.");
+      }
+
+      form.reset();
+      if (status) {
+        status.textContent = "Gracias por contactarnos. Te responderemos pronto.";
+        status.className = "text-sm text-emerald-700";
+      }
+    } catch (error) {
+      if (status) {
+        status.textContent =
+          error instanceof Error
+            ? error.message
+            : "No se pudo enviar. Intenta nuevamente.";
+        status.className = "text-sm text-rose-700";
+      }
+    } finally {
+      submitBtn?.removeAttribute("disabled");
+      if (submitText) submitText.textContent = "Enviar mensaje";
+    }
+  });
+</script>

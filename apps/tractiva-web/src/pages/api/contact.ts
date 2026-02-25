@@ -3,8 +3,13 @@ import { Resend } from 'resend'
 import { consumeRateLimit } from '../../lib/server/rate-limit'
 import { getClientIp, rejectUntrustedOrigin } from '../../lib/server/security'
 
-const FROM_EMAIL = import.meta.env.CONTACT_FROM_EMAIL || 'Tractiva <contacto@kumeraweb.com>'
+const CONTACT_FROM_EMAIL =
+  import.meta.env.CONTACT_FROM_EMAIL || 'Tractiva.cl <contacto@kumeraweb.com>'
+const AUTOREPLY_FROM_EMAIL =
+  import.meta.env.AUTOREPLY_FROM_EMAIL || 'Tractiva.cl <noreply@kumeraweb.com>'
 const INBOX_EMAIL = import.meta.env.CONTACT_INBOX_EMAIL || 'contacto@kumeraweb.com'
+const CONTACT_REPLY_TO_EMAIL =
+  import.meta.env.CONTACT_REPLY_TO_EMAIL || 'contacto@kumeraweb.com'
 const LOGO_URL = 'https://tractiva.cl/tractiva.png'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const CONTACT_RATE_LIMIT_MAX = Number(import.meta.env.CONTACT_RATE_LIMIT_MAX || 6)
@@ -73,7 +78,7 @@ export const POST: APIRoute = async (context) => {
 
     // 1) Email interno
     const internalEmailResult = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: CONTACT_FROM_EMAIL,
       to: INBOX_EMAIL,
       replyTo: email,
       subject: `Nuevo contacto — ${nombre}`,
@@ -116,9 +121,9 @@ export const POST: APIRoute = async (context) => {
 
     // 2) Auto-reply al usuario
     const autoReplyResult = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: AUTOREPLY_FROM_EMAIL,
       to: email,
-      replyTo: INBOX_EMAIL,
+      replyTo: CONTACT_REPLY_TO_EMAIL,
       subject: 'Recibimos tu mensaje',
       text: `Hola ${nombre},
 
