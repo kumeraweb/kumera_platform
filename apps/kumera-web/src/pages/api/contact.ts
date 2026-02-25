@@ -70,6 +70,7 @@ const parseAllowedOriginsFromEnv = () =>
 
 const isTrustedOriginRequest = (request: Request) => {
   const trusted = new Set<string>(parseAllowedOriginsFromEnv());
+  let hostOrigin: string | null = null;
 
   if (import.meta.env.VERCEL_URL) {
     const vercelOrigin = normalizeOrigin(`https://${import.meta.env.VERCEL_URL}`);
@@ -82,8 +83,8 @@ const isTrustedOriginRequest = (request: Request) => {
     new URL(request.url).protocol.replace(":", "");
   if (host && proto) {
     const hostOnly = host.split(":")[0].toLowerCase();
-    const origin = normalizeOrigin(`${proto}://${hostOnly}`);
-    if (origin) trusted.add(origin);
+    hostOrigin = normalizeOrigin(`${proto}://${hostOnly}`);
+    if (hostOrigin) trusted.add(hostOrigin);
     const alternateHost = hostOnly.startsWith("www.")
       ? hostOnly.slice(4)
       : `www.${hostOnly}`;
@@ -98,6 +99,9 @@ const isTrustedOriginRequest = (request: Request) => {
   const refererHeader = request.headers.get("referer");
   const referer = refererHeader ? normalizeOrigin(refererHeader) : null;
   if (referer && trusted.has(referer)) return true;
+
+  // Some clients/proxies may omit origin/referer on same-origin POST requests.
+  if (!origin && !referer && hostOrigin && trusted.has(hostOrigin)) return true;
 
   return false;
 };

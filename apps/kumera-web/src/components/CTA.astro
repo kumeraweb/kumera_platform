@@ -197,9 +197,19 @@
         body: new FormData(form),
       });
 
-      const payload = await response.json().catch(() => ({}));
+      const raw = await response.text();
+      let payload = {};
+      try {
+        payload = raw ? JSON.parse(raw) : {};
+      } catch {
+        payload = {};
+      }
       if (!response.ok) {
-        throw new Error(payload?.error || "No se pudo enviar tu mensaje.");
+        const backendError =
+          (payload && typeof payload === "object" && "error" in payload
+            ? payload.error
+            : null) || raw || "No se pudo enviar tu mensaje.";
+        throw new Error(`[${response.status}] ${backendError}`);
       }
 
       form.reset();
