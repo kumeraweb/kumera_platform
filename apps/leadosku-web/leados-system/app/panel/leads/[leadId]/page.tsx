@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { ArrowLeft, LogOut, UserCheck, XCircle, Send } from 'lucide-react';
+import { ArrowLeft, LogOut, UserCheck, XCircle, Send, RotateCcw } from 'lucide-react';
 
 type Lead = {
   id: string;
@@ -137,6 +137,16 @@ export default function LeadConversationPage() {
     await load();
   }
 
+  async function onReopenLead() {
+    const response = await fetch(`/api/panel/leads/${params.leadId}/reopen`, { method: 'POST' });
+    if (!response.ok) {
+      const payload = await response.json();
+      setError(payload.error ?? 'No se pudo reabrir');
+      return;
+    }
+    await load();
+  }
+
   async function onSend(event: FormEvent) {
     event.preventDefault();
     if (!messageText.trim()) return;
@@ -256,6 +266,21 @@ export default function LeadConversationPage() {
             >
               <XCircle size={12} />
               Cerrar
+            </button>
+            <button
+              onClick={onReopenLead}
+              disabled={lead.conversation_status !== 'CLOSED'}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                background: lead.conversation_status === 'CLOSED' ? '#059669' : '#1f2937',
+                border: 'none',
+                color: lead.conversation_status === 'CLOSED' ? 'white' : '#4b5563',
+                cursor: lead.conversation_status === 'CLOSED' ? 'pointer' : 'not-allowed'
+              }}
+            >
+              <RotateCcw size={12} />
+              Reabrir
             </button>
           </div>
         </div>
