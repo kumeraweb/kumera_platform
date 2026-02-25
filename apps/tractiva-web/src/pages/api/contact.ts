@@ -4,7 +4,7 @@ import { consumeRateLimit } from '../../lib/server/rate-limit'
 import { getClientIp, rejectUntrustedOrigin } from '../../lib/server/security'
 
 const FROM_EMAIL = 'Tractiva <hola@tractiva.cl>'
-const INBOX_EMAIL = 'hola@tractiva.cl'
+const INBOX_EMAIL = import.meta.env.CONTACT_INBOX_EMAIL || 'contacto@kumeraweb.com'
 const LOGO_URL = 'https://tractiva.cl/tractiva.png'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const CONTACT_RATE_LIMIT_MAX = Number(import.meta.env.CONTACT_RATE_LIMIT_MAX || 6)
@@ -128,7 +128,7 @@ Te responderemos dentro de las próximas 24 horas.
 Si prefieres, también puedes escribirnos por WhatsApp:
 https://wa.me/56987435207
 
-Tractiva`,
+Tractiva.cl, una empresa de Kumera Servicios Digitales SpA`,
       headers: {
         'Auto-Submitted': 'auto-replied',
         'X-Auto-Response-Suppress': 'All'
@@ -190,7 +190,8 @@ Tractiva`,
             </a>
             <hr class="email-divider" style="margin: 24px 0; border: 0; border-top: 1px solid #e2e8f0;" />
             <p class="email-footer" style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.6;">
-              Tractiva — Google Ads para profesionales en Chile<br />
+              Tractiva.cl, una empresa de Kumera Servicios Digitales SpA<br />
+              Google Ads para profesionales en Chile<br />
               © ${new Date().getFullYear()} Tractiva
             </p>
           </div>

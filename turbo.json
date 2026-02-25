@@ -34,6 +34,7 @@
         "LEAD_MAX_SAME_STEP_EVENTS",
         "OPENAI_API_KEY",
         "RESEND_API_KEY",
+        "CONTACT_INBOX_EMAIL",
         "META_API_BASE_URL",
         "NOTIFICATION_FROM_EMAIL",
         "NEXT_PUBLIC_SITE_URL",

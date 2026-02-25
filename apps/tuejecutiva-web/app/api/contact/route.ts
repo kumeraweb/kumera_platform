@@ -59,7 +59,7 @@ export async function POST(request: Request) {
 
   const resend = new Resend(apiKey);
   const from = "TuEjecutiva.cl <hola@tractiva.cl>";
-  const toInternal = "hola@tractiva.cl";
+  const toInternal = process.env.CONTACT_INBOX_EMAIL || "contacto@kumeraweb.com";
 
   try {
     await resend.emails.send({
@@ -83,7 +83,8 @@ export async function POST(request: Request) {
               <h2 style="margin: 0 0 12px; font-size: 20px;">Gracias por postular a TuEjecutiva.cl</h2>
               <p>Hola ${nombreFinal},</p>
               <p>Recibimos tu postulación correctamente. Nuestro equipo la revisará y te contactará si necesitamos más información.</p>
-              <p style="margin-top: 16px;">Equipo TuEjecutiva.cl</p>
+              <p style="margin-top: 16px;">TuEjecutiva.cl, una empresa de Kumera Servicios Digitales SpA.</p>
+              <p style="margin-top: 8px;">Equipo TuEjecutiva.cl</p>
             </div>
           </div>
         `,
