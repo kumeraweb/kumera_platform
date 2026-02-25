@@ -121,6 +121,12 @@ const INBOUND_RATE_MAX_MESSAGES = Number(process.env.WEBHOOK_RATE_LIMIT_MAX_MESS
 const LEAD_MAX_BOT_TURNS = Number(process.env.LEAD_MAX_BOT_TURNS ?? 40);
 const LEAD_MAX_SAME_STEP_EVENTS = Number(process.env.LEAD_MAX_SAME_STEP_EVENTS ?? 8);
 const SKIP_SIGNATURE_CHECK = process.env.WHATSAPP_SKIP_SIGNATURE_CHECK === 'true';
+const WEBHOOK_DEBUG = process.env.WHATSAPP_WEBHOOK_DEBUG === 'true';
+
+function debugLog(event: string, meta?: Record<string, unknown>) {
+  if (!WEBHOOK_DEBUG) return;
+  console.log('[webhook.whatsapp]', event, meta ?? {});
+}
 
 function parsePayload(payload: unknown): ParsedPayload | null {
   const parsed = webhookSchema.safeParse(payload);
@@ -277,8 +283,14 @@ export async function POST(req: Request) {
   }
   const parsed = parsePayload(payload);
   if (!parsed) {
+    debugLog('ignored_invalid_payload');
     return ok({ received: true, ignored: true });
   }
+  debugLog('payload_parsed', {
+    phoneNumberId: parsed.phoneNumberId,
+    waUserId: parsed.waUserId,
+    hasText: Boolean(parsed.text),
+  });
 
   const service = createSupabaseServiceClient();
 
@@ -290,6 +302,7 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   if (!channel) {
+    debugLog('ignored_channel_not_found', { phoneNumberId: parsed.phoneNumberId });
     return ok({ received: true, ignored: true });
   }
 
@@ -301,6 +314,7 @@ export async function POST(req: Request) {
     return fail('Invalid channel app secret encryption', 500);
   }
   if (!SKIP_SIGNATURE_CHECK && !isValidMetaSignature({ rawBody, appSecret, signatureHeader })) {
+    debugLog('rejected_invalid_signature', { phoneNumberId: parsed.phoneNumberId });
     return fail('Invalid webhook signature', 401);
   }
 
@@ -310,6 +324,7 @@ export async function POST(req: Request) {
     .eq('id', channel.client_id)
     .maybeSingle();
   if (!client) {
+    debugLog('ignored_client_not_found', { clientId: channel.client_id });
     return ok({ received: true, ignored: true });
   }
 
@@ -342,11 +357,13 @@ export async function POST(req: Request) {
       .limit(1)
       .maybeSingle();
     if (recentClosedLead) {
+      debugLog('ignored_reopen_cooldown', { clientId: client.id, waUserId: parsed.waUserId });
       return ok({ received: true, ignored: true, reason: 'reopen_cooldown' });
     }
 
     const flowBundle = await getActiveFlowBundle(service, client.id);
     if (!flowBundle) {
+      debugLog('ignored_no_active_flow', { clientId: client.id });
       return ok({ received: true, ignored: true, reason: 'no_active_flow' });
     }
 
@@ -388,6 +405,7 @@ export async function POST(req: Request) {
     .eq('direction', 'INBOUND')
     .gt('created_at', inboundWindowCutoff);
   if ((recentInboundCount ?? 0) >= INBOUND_RATE_MAX_MESSAGES) {
+    debugLog('ignored_rate_limited', { clientId: client.id, leadId: lead.id });
     return ok({ received: true, ignored: true, reason: 'rate_limited' });
   }
 
@@ -401,6 +419,7 @@ export async function POST(req: Request) {
     raw_payload: parsed.rawPayload ?? {}
   });
   if (inboundInsert.error?.code === '23505') {
+    debugLog('ignored_deduplicated_message', { clientId: client.id, leadId: lead.id });
     return ok({ received: true, deduplicated: true });
   }
   if (inboundInsert.error) {
@@ -408,6 +427,7 @@ export async function POST(req: Request) {
   }
 
   if (lead.conversation_status !== 'ACTIVE') {
+    debugLog('ignored_lead_not_active', { leadId: lead.id, status: lead.conversation_status });
     return ok({ received: true, suppressed: true });
   }
 

@@ -35,6 +35,10 @@ export function createLeadosServiceClient() {
   return createServiceClient("leados");
 }
 
+export function createTuejecutivaServiceClient() {
+  return createServiceClient("tuejecutiva");
+}
+
 export function getAdminSupabaseUrl() {
   return getSupabaseUrl();
 }

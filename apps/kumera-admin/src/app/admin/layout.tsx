@@ -17,6 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link className="rounded-lg border border-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100" href="/admin">Dashboard</Link>
           <Link className="rounded-lg border border-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100" href="/admin/roles">Roles</Link>
           <Link className="rounded-lg border border-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100" href="/admin/subscriptions">Billing</Link>
+          <Link className="rounded-lg border border-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100" href="/admin/tuejecutiva">TuEjecutiva</Link>
           <Link className="rounded-lg border border-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-100" href="/admin/leados">LeadOS</Link>
         </nav>
         <form action="/logout" method="post">

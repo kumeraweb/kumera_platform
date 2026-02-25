@@ -21,6 +21,23 @@ function buildAdminLoginRedirect(request: NextRequest) {
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const kumeraAdminUrl =
+    process.env.KUMERA_ADMIN_URL || "https://kumera-platform-kumera-admin.vercel.app";
+  const isLegacyAdminPage = pathname.startsWith("/admin");
+  const isLegacyAdminApi = pathname.startsWith("/api/admin");
+
+  if (isLegacyAdminApi) {
+    return NextResponse.json(
+      { error: "Legacy Tuejecutiva admin API disabled. Use kumera-admin (/admin/tuejecutiva)." },
+      { status: 410 }
+    );
+  }
+
+  if (isLegacyAdminPage) {
+    const target = new URL("/admin/tuejecutiva?legacy=tuejecutiva_admin_disabled", kumeraAdminUrl);
+    return NextResponse.redirect(target, { status: 307 });
+  }
+
   const isAdminPage = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin");
   const isAdminLogin = pathname === "/admin/login";
