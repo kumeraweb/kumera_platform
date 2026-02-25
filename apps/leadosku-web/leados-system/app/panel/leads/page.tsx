@@ -33,8 +33,10 @@ export default function PanelLeadsPage() {
   const [page, setPage] = useState(0);
   const [closingLeadId, setClosingLeadId] = useState<string | null>(null);
 
-  const totalPages = Math.max(1, Math.ceil(leads.length / PAGE_SIZE));
-  const pagedLeads = leads.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const activeLeads = leads.filter((lead) => lead.conversation_status !== 'CLOSED');
+  const closedLeads = leads.filter((lead) => lead.conversation_status === 'CLOSED');
+  const totalPages = Math.max(1, Math.ceil(activeLeads.length / PAGE_SIZE));
+  const pagedLeads = activeLeads.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const loadLeads = useCallback(
     async (options?: { silent?: boolean; keepPage?: boolean }) => {
@@ -215,93 +217,99 @@ export default function PanelLeadsPage() {
             background: '#0f172a', border: '1px solid #1e293b',
             borderRadius: 10, overflow: 'hidden'
           }}>
-            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #1e293b' }}>
-                    {['Nombre', 'Número', 'Estado', 'Score', 'Último mensaje', ''].map((h) => (
-                      <th key={h} style={{
-                        textAlign: 'left', padding: '8px 10px',
-                        fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-                        letterSpacing: '0.06em', color: '#64748b', whiteSpace: 'nowrap'
-                      }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagedLeads.map((lead) => (
-                    <tr key={lead.id} style={{ borderBottom: '1px solid #1e293b' }}>
-                      <td style={{ padding: '10px', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
-                        {lead.wa_profile_name ?? 'Sin nombre'}
-                      </td>
-                      <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: 11, color: '#94a3b8' }}>
-                        {lead.wa_user_id}
-                      </td>
-                      <td style={{ padding: '10px' }}>
-                        <span className={`badge ${lead.conversation_status}`} style={{ fontSize: 10 }}>
-                          {lead.conversation_status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontWeight: 700, color: '#f1f5f9', minWidth: 24 }}>{lead.score}</span>
-                          <div style={{ width: 40, height: 4, borderRadius: 2, background: '#1e293b', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', borderRadius: 2, background: '#3b82f6', width: `${Math.min(lead.score, 100)}%` }} />
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{
-                        padding: '10px', maxWidth: 160, overflow: 'hidden',
-                        textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#64748b', fontSize: 12
-                      }}>
-                        {lead.last_message || '-'}
-                      </td>
-                      <td style={{ padding: '10px' }}>
-                        <div style={{ display: 'inline-flex', gap: 6 }}>
-                          <button
-                            onClick={() => void onCloseLead(lead.id)}
-                            disabled={lead.conversation_status === 'CLOSED' || closingLeadId === lead.id}
-                            style={{
-                              display: 'inline-flex', alignItems: 'center', gap: 4,
-                              padding: '5px 10px', borderRadius: 6,
-                              background: 'transparent', border: '1px solid #334155',
-                              color: lead.conversation_status === 'CLOSED' ? '#4b5563' : '#fca5a5',
-                              fontSize: 11, fontWeight: 600,
-                              cursor: lead.conversation_status === 'CLOSED' || closingLeadId === lead.id ? 'not-allowed' : 'pointer',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            <XCircle size={12} />
-                            {closingLeadId === lead.id ? 'Cerrando...' : 'Cerrar'}
-                          </button>
-                          <Link href={`/panel/leads/${lead.id}`}>
-                            <button style={{
-                              display: 'inline-flex', alignItems: 'center', gap: 4,
-                              padding: '5px 10px', borderRadius: 6,
-                              background: '#1e293b', border: '1px solid #334155',
-                              color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              <Eye size={12} />
-                              Ver
-                            </button>
-                          </Link>
-                        </div>
-                      </td>
+            {activeLeads.length > 0 ? (
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                      {['Nombre', 'Número', 'Estado', 'Score', 'Último mensaje', 'Acciones'].map((h) => (
+                        <th key={h} style={{
+                          textAlign: 'left', padding: '8px 10px',
+                          fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+                          letterSpacing: '0.06em', color: '#64748b', whiteSpace: 'nowrap'
+                        }}>{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {pagedLeads.map((lead) => (
+                      <tr key={lead.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                        <td style={{ padding: '10px', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
+                          {lead.wa_profile_name ?? 'Sin nombre'}
+                        </td>
+                        <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: 11, color: '#94a3b8' }}>
+                          {lead.wa_user_id}
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <span className={`badge ${lead.conversation_status}`} style={{ fontSize: 10 }}>
+                            {lead.conversation_status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontWeight: 700, color: '#f1f5f9', minWidth: 24 }}>{lead.score}</span>
+                            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#1e293b', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', borderRadius: 2, background: '#3b82f6', width: `${Math.min(lead.score, 100)}%` }} />
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{
+                          padding: '10px', maxWidth: 160, overflow: 'hidden',
+                          textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#64748b', fontSize: 12
+                        }}>
+                          {lead.last_message || '-'}
+                        </td>
+                        <td style={{ padding: '10px 6px 10px 10px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: 6, justifyContent: 'flex-end' }}>
+                            <Link href={`/panel/leads/${lead.id}`}>
+                              <button style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 4,
+                                padding: '5px 10px', borderRadius: 6,
+                                background: '#1e293b', border: '1px solid #334155',
+                                color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                <Eye size={12} />
+                                Ver
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => void onCloseLead(lead.id)}
+                              disabled={closingLeadId === lead.id}
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 4,
+                                padding: '5px 10px', borderRadius: 6,
+                                background: 'transparent', border: '1px solid #334155',
+                                color: '#fca5a5',
+                                fontSize: 11, fontWeight: 600,
+                                cursor: closingLeadId === lead.id ? 'not-allowed' : 'pointer',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              <XCircle size={12} />
+                              {closingLeadId === lead.id ? 'Cerrando...' : 'Cerrar'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ padding: '14px 12px', color: '#64748b', fontSize: 13 }}>
+                No hay leads activos en este momento.
+              </div>
+            )}
 
             {/* ─── Pagination ─── */}
-            {leads.length > PAGE_SIZE ? (
+            {activeLeads.length > PAGE_SIZE ? (
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '8px 12px', borderTop: '1px solid #1e293b',
                 fontSize: 12, color: '#64748b'
               }}>
-                <span>{leads.length} leads · página {page + 1} de {totalPages}</span>
+                <span>{activeLeads.length} leads activos · página {page + 1} de {totalPages}</span>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <button
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
@@ -335,6 +343,76 @@ export default function PanelLeadsPage() {
               </div>
             ) : null}
           </div>
+        ) : null}
+
+        {!loading && !error && closedLeads.length > 0 ? (
+          <details style={{
+            marginTop: 12,
+            background: '#0f172a',
+            border: '1px solid #1e293b',
+            borderRadius: 10,
+            overflow: 'hidden'
+          }}>
+            <summary style={{
+              cursor: 'pointer',
+              listStyle: 'none',
+              padding: '10px 12px',
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#94a3b8',
+              borderBottom: '1px solid #1e293b'
+            }}>
+              Leads cerrados ({closedLeads.length})
+            </summary>
+            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                    {['Nombre', 'Número', 'Score', 'Último mensaje', 'Acciones'].map((h) => (
+                      <th key={h} style={{
+                        textAlign: 'left', padding: '8px 10px',
+                        fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+                        letterSpacing: '0.06em', color: '#64748b', whiteSpace: 'nowrap'
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {closedLeads.map((lead) => (
+                    <tr key={lead.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                      <td style={{ padding: '10px', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
+                        {lead.wa_profile_name ?? 'Sin nombre'}
+                      </td>
+                      <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: 11, color: '#94a3b8' }}>
+                        {lead.wa_user_id}
+                      </td>
+                      <td style={{ padding: '10px', fontWeight: 700, color: '#f1f5f9' }}>{lead.score}</td>
+                      <td style={{
+                        padding: '10px', maxWidth: 160, overflow: 'hidden',
+                        textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#64748b', fontSize: 12
+                      }}>
+                        {lead.last_message || '-'}
+                      </td>
+                      <td style={{ padding: '10px 6px 10px 10px', textAlign: 'right' }}>
+                        <Link href={`/panel/leads/${lead.id}`}>
+                          <button style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            padding: '5px 10px', borderRadius: 6,
+                            background: '#1e293b', border: '1px solid #334155',
+                            color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            <Eye size={12} />
+                            Ver
+                          </button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
         ) : null}
 
         {!loading && !error && leads.length === 0 ? (
