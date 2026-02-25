@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 type BuilderOption = {
   id: string;
@@ -38,6 +38,42 @@ type TemplateStep = {
   prompt_text: string;
   allow_free_text: boolean;
   options: TemplateOption[];
+};
+
+type ApiFlowOption = {
+  id: string;
+  option_order: number;
+  option_code: string;
+  label_text: string;
+  score_delta: number;
+  is_contact_human: boolean;
+  is_terminal: boolean;
+  next_step_id: string | null;
+  next_node_key: string | null;
+};
+
+type ApiFlowStep = {
+  id: string;
+  flow_id: string;
+  step_order: number;
+  node_key: string;
+  prompt_text: string;
+  allow_free_text: boolean;
+  options: ApiFlowOption[];
+};
+
+type ApiFlow = {
+  id: string;
+  client_id: string;
+  name: string;
+  welcome_message: string;
+  is_active: boolean;
+  max_steps: number;
+  max_irrelevant_streak: number;
+  max_reminders: number;
+  reminder_delay_minutes: number;
+  created_at: string;
+  steps: ApiFlowStep[];
 };
 
 const MAX_NODES = 12;
@@ -260,16 +296,8 @@ function templateToBuilderNodes(template: TemplateStep[]): BuilderNode[] {
     }));
 }
 
-export default function FlowBuilderClient({ clientId }: Props) {
-  const [name, setName] = useState("Flujo comercial");
-  const [welcomeMessage, setWelcomeMessage] = useState(
-    "Hola, soy el asistente comercial. Te haré unas preguntas breves para ayudarte mejor."
-  );
-  const [maxSteps, setMaxSteps] = useState(8);
-  const [maxIrrelevantStreak, setMaxIrrelevantStreak] = useState(2);
-  const [maxReminders, setMaxReminders] = useState(1);
-  const [reminderDelayMinutes, setReminderDelayMinutes] = useState(30);
-  const [nodes, setNodes] = useState<BuilderNode[]>([
+function buildDefaultNodes(): BuilderNode[] {
+  return [
     {
       id: makeId(),
       node_key: "inicio",
@@ -287,14 +315,86 @@ export default function FlowBuilderClient({ clientId }: Props) {
       allow_free_text: true,
       options: [{ id: makeId(), label_text: "Continuar", score_delta: 10, next_type: "terminal", next_node_key: "" }],
     },
-  ]);
+  ];
+}
+
+function mapApiFlowToBuilderNodes(flow: ApiFlow): BuilderNode[] {
+  const orderedSteps = [...flow.steps].sort((a, b) => a.step_order - b.step_order);
+  return orderedSteps.map((step) => ({
+    id: makeId(),
+    node_key: step.node_key,
+    prompt_text: step.prompt_text,
+    allow_free_text: step.allow_free_text,
+    options: [...step.options]
+      .sort((a, b) => a.option_order - b.option_order)
+      .map((option) => ({
+        id: makeId(),
+        label_text: option.label_text,
+        score_delta: Number(option.score_delta ?? 0),
+        next_type: option.is_contact_human ? "human" : option.is_terminal ? "terminal" : "node",
+        next_node_key: option.next_node_key ?? "",
+      })),
+  }));
+}
+
+export default function FlowBuilderClient({ clientId }: Props) {
+  const [name, setName] = useState("Flujo comercial");
+  const [welcomeMessage, setWelcomeMessage] = useState(
+    "Hola, soy el asistente comercial. Te haré unas preguntas breves para ayudarte mejor."
+  );
+  const [maxSteps, setMaxSteps] = useState(8);
+  const [maxIrrelevantStreak, setMaxIrrelevantStreak] = useState(2);
+  const [maxReminders, setMaxReminders] = useState(1);
+  const [reminderDelayMinutes, setReminderDelayMinutes] = useState(30);
+  const [nodes, setNodes] = useState<BuilderNode[]>(buildDefaultNodes());
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingActiveFlow, setLoadingActiveFlow] = useState(true);
+  const [activeFlowLabel, setActiveFlowLabel] = useState<string | null>(null);
 
   const nodeKeyOptions = useMemo(() => nodes.map((n) => n.node_key).filter(Boolean), [nodes]);
   const payloadPreview = useMemo(() => JSON.stringify(toPayload(nodes), null, 2), [nodes]);
+
+  const loadActiveFlow = useCallback(async () => {
+    setLoadingActiveFlow(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/leados/client-flows?client_id=${clientId}`);
+      const payload = await response.json();
+      if (!response.ok) {
+        setError(payload.error ?? "No se pudo cargar flujo activo");
+        setLoadingActiveFlow(false);
+        return;
+      }
+
+      const flow = payload.flow as ApiFlow | null;
+      if (!flow) {
+        setActiveFlowLabel(null);
+        setLoadingActiveFlow(false);
+        return;
+      }
+
+      setName(flow.name);
+      setWelcomeMessage(flow.welcome_message);
+      setMaxSteps(flow.max_steps);
+      setMaxIrrelevantStreak(flow.max_irrelevant_streak);
+      setMaxReminders(flow.max_reminders);
+      setReminderDelayMinutes(flow.reminder_delay_minutes);
+      setNodes(mapApiFlowToBuilderNodes(flow));
+      setActiveFlowLabel(`${flow.name} · ${new Date(flow.created_at).toLocaleString()}`);
+      setSuccess("Flujo activo cargado para edición.");
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "No se pudo cargar flujo activo");
+    } finally {
+      setLoadingActiveFlow(false);
+    }
+  }, [clientId]);
+
+  useEffect(() => {
+    void loadActiveFlow();
+  }, [loadActiveFlow]);
 
   function applyTractivaTemplate() {
     setNodes(templateToBuilderNodes(TRACTIVA_TEMPLATE));
@@ -468,25 +568,37 @@ export default function FlowBuilderClient({ clientId }: Props) {
       return;
     }
 
-    setSuccess("Flujo creado y activado correctamente.");
+    setSuccess("Flujo guardado y activado. Se creó una nueva versión.");
     setSubmitting(false);
+    void loadActiveFlow();
   }
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4">
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
       {success ? <p className="text-sm text-emerald-400">{success}</p> : null}
+      {loadingActiveFlow ? <p className="text-xs text-slate-400">Cargando flujo activo...</p> : null}
+      {activeFlowLabel ? <p className="text-xs text-slate-400">Editando: {activeFlowLabel}</p> : null}
 
       <div className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="m-0 text-sm font-bold text-slate-100">Configuración general</h3>
-          <button
-            type="button"
-            onClick={applyTractivaTemplate}
-            className="rounded-lg border border-blue-500/40 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
-          >
-            Usar template Tractiva
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void loadActiveFlow()}
+              className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-100 hover:bg-slate-700"
+            >
+              Recargar flujo activo
+            </button>
+            <button
+              type="button"
+              onClick={applyTractivaTemplate}
+              className="rounded-lg border border-blue-500/40 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
+            >
+              Usar template Tractiva
+            </button>
+          </div>
         </div>
         <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre flujo" required />
         <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={welcomeMessage} onChange={(e) => setWelcomeMessage(e.target.value)} placeholder="Mensaje de bienvenida" required />

@@ -33,6 +33,129 @@ const createFlowSchema = z.object({
   steps: z.array(stepSchema).min(1).max(20),
 });
 
+const getFlowQuerySchema = z.object({
+  client_id: z.string().uuid(),
+});
+
+type FlowRow = {
+  id: string;
+  client_id: string;
+  name: string;
+  welcome_message: string;
+  is_active: boolean;
+  max_steps: number;
+  max_irrelevant_streak: number;
+  max_reminders: number;
+  reminder_delay_minutes: number;
+  created_at: string;
+};
+
+type StepRow = {
+  id: string;
+  flow_id: string;
+  step_order: number;
+  node_key: string;
+  prompt_text: string;
+  allow_free_text: boolean;
+};
+
+type OptionRow = {
+  id: string;
+  step_id: string;
+  option_order: number;
+  option_code: string;
+  label_text: string;
+  score_delta: number;
+  is_contact_human: boolean;
+  is_terminal: boolean;
+  next_step_id: string | null;
+};
+
+async function getClientFlowBundle(clientId: string) {
+  const leados = createLeadosServiceClient();
+
+  const { data: activeFlow, error: activeFlowError } = await leados
+    .from("client_flows")
+    .select(
+      "id, client_id, name, welcome_message, is_active, max_steps, max_irrelevant_streak, max_reminders, reminder_delay_minutes, created_at"
+    )
+    .eq("client_id", clientId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<FlowRow>();
+  if (activeFlowError) {
+    return { error: activeFlowError.message } as const;
+  }
+
+  if (!activeFlow) {
+    return { flow: null } as const;
+  }
+
+  const { data: steps, error: stepsError } = await leados
+    .from("flow_steps")
+    .select("id, flow_id, step_order, node_key, prompt_text, allow_free_text")
+    .eq("flow_id", activeFlow.id)
+    .order("step_order", { ascending: true });
+  if (stepsError) {
+    return { error: stepsError.message } as const;
+  }
+
+  const stepRows = (steps ?? []) as StepRow[];
+  if (stepRows.length === 0) {
+    return { flow: { ...activeFlow, steps: [] } } as const;
+  }
+
+  const stepIds = stepRows.map((step) => step.id);
+  const { data: options, error: optionsError } = await leados
+    .from("flow_step_options")
+    .select("id, step_id, option_order, option_code, label_text, score_delta, is_contact_human, is_terminal, next_step_id")
+    .in("step_id", stepIds)
+    .order("option_order", { ascending: true });
+  if (optionsError) {
+    return { error: optionsError.message } as const;
+  }
+
+  const stepById = new Map(stepRows.map((step) => [step.id, step]));
+  const optionsByStepId = new Map<string, OptionRow[]>();
+  for (const option of (options ?? []) as OptionRow[]) {
+    const optionList = optionsByStepId.get(option.step_id) ?? [];
+    optionList.push(option);
+    optionsByStepId.set(option.step_id, optionList);
+  }
+
+  const stepsPayload = stepRows.map((step) => ({
+    ...step,
+    options: (optionsByStepId.get(step.id) ?? []).map((option) => ({
+      ...option,
+      next_node_key: option.next_step_id ? stepById.get(option.next_step_id)?.node_key ?? null : null,
+    })),
+  }));
+
+  return {
+    flow: {
+      ...activeFlow,
+      steps: stepsPayload,
+    },
+  } as const;
+}
+
+export async function GET(req: Request) {
+  const auth = await requireAdminApi([ROLE.LEADOS]);
+  if (!auth.ok) return auth.response;
+
+  const url = new URL(req.url);
+  const parsedQuery = getFlowQuerySchema.safeParse({
+    client_id: url.searchParams.get("client_id"),
+  });
+  if (!parsedQuery.success) return fail("Invalid client_id", 400);
+
+  const flowBundle = await getClientFlowBundle(parsedQuery.data.client_id);
+  if ("error" in flowBundle) return fail(flowBundle.error ?? "Could not load client flow", 500);
+
+  return ok(flowBundle);
+}
+
 export async function POST(req: Request) {
   const auth = await requireAdminApi([ROLE.LEADOS]);
   if (!auth.ok) return auth.response;

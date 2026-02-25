@@ -9,19 +9,36 @@ export async function sendLeadNotificationEmail(params: {
     return { sent: false as const, reason: 'missing_resend_api_key' as const };
   }
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.resendApiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: env.notificationFromEmail,
-      to: [params.to],
-      subject: params.subject,
-      html: params.html
-    })
-  });
+  const recipients = params.to
+    .split(/[;,]/)
+    .map((email) => email.trim())
+    .filter(Boolean);
+  if (recipients.length === 0) {
+    return { sent: false as const, reason: 'missing_recipient' as const };
+  }
+
+  let response: Response;
+  try {
+    response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: env.notificationFromEmail,
+        to: recipients,
+        subject: params.subject,
+        html: params.html
+      })
+    });
+  } catch (error) {
+    return {
+      sent: false as const,
+      reason: 'provider_network_error' as const,
+      detail: error instanceof Error ? error.message : 'unknown_error'
+    };
+  }
 
   if (!response.ok) {
     return {

@@ -1001,17 +1001,51 @@ export async function POST(req: Request) {
   }
 
   if (!nextStep) {
+    const shouldNotify = !lead.notified_at;
     const closeLead = await service
       .from('leads')
       .update({
         ...baseLeadUpdate,
         conversation_status: 'HUMAN_REQUIRED',
         human_required_reason: 'FLOW_COMPLETED',
+        notified_at: shouldNotify ? new Date().toISOString() : lead.notified_at,
         next_reminder_at: null
       })
       .eq('id', lead.id);
     if (closeLead.error) {
       return fail(closeLead.error.message, 500);
+    }
+
+    const handoffText = client.human_forward_number
+      ? `Gracias. Te derivaré con un ejecutivo. También puedes escribir a ${client.human_forward_number}.`
+      : 'Gracias. Te derivaré con un ejecutivo del equipo.';
+    try {
+      await sendBotMessage({
+        service,
+        clientId: client.id,
+        leadId: lead.id,
+        phoneNumberId: parsed.phoneNumberId,
+        waUserId: parsed.waUserId,
+        accessTokenEnc: channel.meta_access_token_enc,
+        text: handoffText
+      });
+    } catch (error) {
+      return fail(error instanceof Error ? error.message : 'Could not send completion handoff', 500);
+    }
+
+    if (shouldNotify) {
+      const emailResult = await sendLeadNotificationEmail({
+        to: client.notification_email,
+        subject: 'LeadOS: Lead requiere intervención humana',
+        html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${nextScore}</p><p>Razón: FLOW_COMPLETED</p>`
+      });
+      if (!emailResult.sent) {
+        console.error('Lead notification email failed', {
+          leadId: lead.id,
+          clientId: client.id,
+          reason: emailResult.reason
+        });
+      }
     }
     return ok({ received: true, flow_completed: true });
   }
