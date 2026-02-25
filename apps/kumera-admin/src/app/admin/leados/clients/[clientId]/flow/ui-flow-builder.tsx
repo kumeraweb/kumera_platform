@@ -22,8 +22,182 @@ type Props = {
   clientId: string;
 };
 
+type TemplateOption = {
+  option_order: number;
+  option_code: string;
+  label_text: string;
+  score_delta: number;
+  is_contact_human: boolean;
+  is_terminal: boolean;
+  next_node_key: string | null;
+};
+
+type TemplateStep = {
+  step_order: number;
+  node_key: string;
+  prompt_text: string;
+  allow_free_text: boolean;
+  options: TemplateOption[];
+};
+
 const MAX_NODES = 12;
 const MAX_OPTIONS = 8;
+
+const TRACTIVA_TEMPLATE: TemplateStep[] = [
+  {
+    step_order: 1,
+    node_key: "inicio",
+    prompt_text:
+      "Hola 👋 Soy Tractiva. Somos expertos en administración de campañas en Google Ads 🚀 ¿Qué te gustaría hacer hoy?",
+    allow_free_text: false,
+    options: [
+      {
+        option_order: 1,
+        option_code: "contratar_servicio",
+        label_text: "Quiero contratar el servicio de Google Ads",
+        score_delta: 40,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "pedir_datos_negocio",
+      },
+      {
+        option_order: 2,
+        option_code: "ver_planes",
+        label_text: "Quiero conocer sus planes",
+        score_delta: 20,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "mostrar_planes",
+      },
+      {
+        option_order: 3,
+        option_code: "que_es_google_ads",
+        label_text: "No entiendo qué es Google Ads",
+        score_delta: 10,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "explicacion_google_ads",
+      },
+      {
+        option_order: 4,
+        option_code: "hablar_ejecutiva",
+        label_text: "Me gustaría hablar con una ejecutiva",
+        score_delta: 100,
+        is_contact_human: true,
+        is_terminal: false,
+        next_node_key: null,
+      },
+    ],
+  },
+  {
+    step_order: 2,
+    node_key: "explicacion_google_ads",
+    prompt_text:
+      "Google Ads es la plataforma de publicidad de Google que permite que tu negocio aparezca cuando las personas buscan tus productos o servicios. Pagas solo cuando alguien hace clic en tu anuncio y puedes atraer clientes que ya están interesados 🔎🚀",
+    allow_free_text: false,
+    options: [
+      {
+        option_order: 1,
+        option_code: "quiero_contratar",
+        label_text: "Perfecto, quiero contratar el servicio",
+        score_delta: 40,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "pedir_datos_negocio",
+      },
+      {
+        option_order: 2,
+        option_code: "ver_planes",
+        label_text: "Quiero conocer los planes",
+        score_delta: 20,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "mostrar_planes",
+      },
+      {
+        option_order: 3,
+        option_code: "volver_inicio",
+        label_text: "Volver al menú principal",
+        score_delta: 0,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "inicio",
+      },
+    ],
+  },
+  {
+    step_order: 3,
+    node_key: "mostrar_planes",
+    prompt_text:
+      "Estos son nuestros planes de gestión de Google Ads 📊\n\n1️⃣ Plan Base – $59.000 + IVA / mes\n2️⃣ Plan Crecimiento – $89.000 + IVA / mes\n3️⃣ Plan Escala – Evaluación personalizada\n\nLa inversión publicitaria se paga directamente a Google.",
+    allow_free_text: false,
+    options: [
+      {
+        option_order: 1,
+        option_code: "plan_base",
+        label_text: "Quiero el Plan Base",
+        score_delta: 30,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "pedir_datos_negocio",
+      },
+      {
+        option_order: 2,
+        option_code: "plan_crecimiento",
+        label_text: "Quiero el Plan Crecimiento",
+        score_delta: 40,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "pedir_datos_negocio",
+      },
+      {
+        option_order: 3,
+        option_code: "plan_escala",
+        label_text: "Quiero el Plan Escala",
+        score_delta: 50,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "pedir_datos_negocio",
+      },
+      {
+        option_order: 4,
+        option_code: "hablar_ejecutiva",
+        label_text: "Prefiero hablar con una ejecutiva",
+        score_delta: 100,
+        is_contact_human: true,
+        is_terminal: false,
+        next_node_key: null,
+      },
+    ],
+  },
+  {
+    step_order: 4,
+    node_key: "pedir_datos_negocio",
+    prompt_text:
+      "Perfecto 👍 Para comenzar necesito algunos datos:\n\n• Nombre de tu negocio\n• Rubro\n• Ciudad\n• Presupuesto mensual estimado en Google Ads\n• Objetivo principal (ventas, contactos, visitas, etc.)\n\nEnvíame esa información y avanzamos 🚀",
+    allow_free_text: true,
+    options: [
+      {
+        option_order: 1,
+        option_code: "datos_enviados",
+        label_text: "Listo, ya envié mis datos",
+        score_delta: 30,
+        is_contact_human: true,
+        is_terminal: true,
+        next_node_key: null,
+      },
+      {
+        option_order: 2,
+        option_code: "volver_inicio",
+        label_text: "Volver al menú principal",
+        score_delta: 0,
+        is_contact_human: false,
+        is_terminal: false,
+        next_node_key: "inicio",
+      },
+    ],
+  },
+];
 
 function makeId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
@@ -66,6 +240,26 @@ function toPayload(nodes: BuilderNode[]) {
   }));
 }
 
+function templateToBuilderNodes(template: TemplateStep[]): BuilderNode[] {
+  return [...template]
+    .sort((a, b) => a.step_order - b.step_order)
+    .map((step) => ({
+      id: makeId(),
+      node_key: step.node_key,
+      prompt_text: step.prompt_text,
+      allow_free_text: step.allow_free_text,
+      options: [...step.options]
+        .sort((a, b) => a.option_order - b.option_order)
+        .map((option) => ({
+          id: makeId(),
+          label_text: option.label_text,
+          score_delta: option.score_delta,
+          next_type: option.is_contact_human ? "human" : option.is_terminal ? "terminal" : "node",
+          next_node_key: option.next_node_key ?? "",
+        })),
+    }));
+}
+
 export default function FlowBuilderClient({ clientId }: Props) {
   const [name, setName] = useState("Flujo comercial");
   const [welcomeMessage, setWelcomeMessage] = useState(
@@ -101,6 +295,20 @@ export default function FlowBuilderClient({ clientId }: Props) {
 
   const nodeKeyOptions = useMemo(() => nodes.map((n) => n.node_key).filter(Boolean), [nodes]);
   const payloadPreview = useMemo(() => JSON.stringify(toPayload(nodes), null, 2), [nodes]);
+
+  function applyTractivaTemplate() {
+    setNodes(templateToBuilderNodes(TRACTIVA_TEMPLATE));
+    setName("Flujo Tractiva Google Ads");
+    setWelcomeMessage(
+      "Hola 👋 Soy Tractiva. Somos expertos en administración de campañas en Google Ads 🚀 ¿Qué te gustaría hacer hoy?"
+    );
+    setMaxSteps(8);
+    setMaxIrrelevantStreak(2);
+    setMaxReminders(1);
+    setReminderDelayMinutes(30);
+    setError(null);
+    setSuccess("Template Tractiva cargado.");
+  }
 
   function updateNode(nodeId: string, patch: Partial<BuilderNode>) {
     setNodes((prev) => prev.map((node) => (node.id === nodeId ? { ...node, ...patch } : node)));
@@ -270,7 +478,16 @@ export default function FlowBuilderClient({ clientId }: Props) {
       {success ? <p className="text-sm text-emerald-400">{success}</p> : null}
 
       <div className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <h3 className="m-0 text-sm font-bold text-slate-100">Configuración general</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="m-0 text-sm font-bold text-slate-100">Configuración general</h3>
+          <button
+            type="button"
+            onClick={applyTractivaTemplate}
+            className="rounded-lg border border-blue-500/40 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
+          >
+            Usar template Tractiva
+          </button>
+        </div>
         <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre flujo" required />
         <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={welcomeMessage} onChange={(e) => setWelcomeMessage(e.target.value)} placeholder="Mensaje de bienvenida" required />
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
