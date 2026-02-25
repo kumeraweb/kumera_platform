@@ -1,0 +1,14 @@
+{
+  "company_legal_name": { "type": "string", "required": true, "label": "Razón social" },
+  "company_rut": { "type": "string", "required": true, "label": "RUT" },
+  "company_address": { "type": "string", "required": true, "label": "Dirección" },
+  "company_email": { "type": "string", "required": true, "label": "Email" },
+  "company_phone": { "type": "string", "required": true, "label": "Teléfono" },
+  "tax_document_type": { "type": "string", "required": true, "label": "Documento tributario" },
+  "service_name": { "type": "string", "required": true, "label": "Servicio" },
+  "service_slug": { "type": "string", "required": true, "label": "Service slug" },
+  "plan_name": { "type": "string", "required": true, "label": "Plan" },
+  "monthly_amount_clp": { "type": "string", "required": true, "label": "Monto mensual CLP" },
+  "generated_date": { "type": "string", "required": true, "label": "Fecha generación" },
+  "subscription_id": { "type": "string", "required": true, "label": "ID suscripción" }
+}

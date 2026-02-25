@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Acuerdo de Prestación de Servicios - {{service_name}}</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: #0f172a;
+        line-height: 1.5;
+        background: #ffffff;
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+        line-height: 1.2;
+      }
+      h2 {
+        margin: 22px 0 8px;
+        font-size: 18px;
+      }
+      p {
+        margin: 0 0 10px;
+      }
+      .meta {
+        margin: 0 0 16px;
+        font-size: 13px;
+        color: #334155;
+      }
+      .box {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        margin: 10px 0;
+      }
+      ul {
+        margin: 8px 0 12px 20px;
+        padding: 0;
+      }
+      li { margin: 4px 0; }
+      .signature {
+        margin-top: 32px;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 1fr 1fr;
+      }
+      .sign-box {
+        border-top: 1px solid #334155;
+        padding-top: 8px;
+        min-height: 48px;
+      }
+      .small {
+        font-size: 12px;
+        color: #475569;
+      }
+      @media print {
+        body { padding: 0; }
+        .wrap { max-width: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>Acuerdo de Prestación de Servicios</h1>
+      <p class="meta">Servicio: {{service_name}} · Plan: {{plan_name}} · Fecha: {{generated_date}}</p>
+
+      <h2>1. Partes</h2>
+      <div class="box">
+        <p><strong>Prestador:</strong> Servicios Digitales Kumera SpA, RUT 78.299.262-7, correo contacto@kumeraweb.com, representada por Javier Nicolás Figueroa Aguayo, RUT 16.370.698-9 ("Kumera").</p>
+        <p><strong>Cliente:</strong> {{company_legal_name}}, RUT {{company_rut}}, domicilio {{company_address}}, correo {{company_email}}, teléfono {{company_phone}}.</p>
+      </div>
+
+      <h2>2. Objeto</h2>
+      <p>El Cliente encarga y Kumera acepta la prestación de servicios de administración y optimización de campañas publicitarias en Google Ads, de acuerdo con las condiciones de este acuerdo.</p>
+
+      <h2>3. Alcance del servicio (Plan {{plan_name}})</h2>
+      <ul>
+        <li>Configuración y administración mensual de campañas de búsqueda.</li>
+        <li>Estructura inicial de cuenta (grupos, palabras clave y anuncios).</li>
+        <li>Implementación de extensiones y configuraciones básicas de seguimiento.</li>
+        <li>Monitoreo y optimización continua (negativas, calidad y rendimiento).</li>
+        <li>Reporte periódico con métricas y acciones ejecutadas.</li>
+        <li>Recomendaciones estratégicas para mejora de resultados.</li>
+      </ul>
+
+      <h2>4. Exclusiones</h2>
+      <ul>
+        <li>Diseño o rediseño de sitio web o landing pages.</li>
+        <li>Gestión de campañas en plataformas distintas a Google Ads.</li>
+        <li>Producción audiovisual avanzada no incluida expresamente.</li>
+        <li>Asesoría legal, contable o tributaria.</li>
+      </ul>
+
+      <h2>5. Obligaciones del cliente</h2>
+      <ul>
+        <li>Entregar información veraz y oportuna sobre su negocio.</li>
+        <li>Aprobar contenidos y feedback en plazos razonables.</li>
+        <li>Mantener operativo su sitio/activos digitales vinculados.</li>
+        <li>Pagar directamente a Google su presupuesto publicitario.</li>
+        <li>Facilitar accesos necesarios (Google Ads, Analytics y equivalentes).</li>
+      </ul>
+
+      <h2>6. Honorarios y pagos</h2>
+      <p>Honorario mensual por el servicio: <strong>${{monthly_amount_clp}} CLP + IVA</strong>.</p>
+      <p>Forma de pago acordada para este onboarding: <strong>{{tax_document_type}}</strong>.</p>
+
+      <h2>7. Vigencia y terminación</h2>
+      <p>Este acuerdo tiene vigencia mensual y se renueva automáticamente mientras la suscripción permanezca activa. Cualquiera de las partes podrá terminarlo con aviso previo de 30 días corridos.</p>
+
+      <h2>8. Confidencialidad y limitación de responsabilidad</h2>
+      <p>Las partes se obligan a mantener la confidencialidad de la información comercial y operativa. Kumera no garantiza un volumen específico de resultados y su responsabilidad se limita al valor mensual del servicio, salvo dolo o culpa grave.</p>
+
+      <h2>9. Notificaciones, jurisdicción y ley aplicable</h2>
+      <p>Las comunicaciones se realizarán preferentemente por correo electrónico. Para efectos legales, las partes fijan domicilio en Chile y se someten a la jurisdicción de sus tribunales ordinarios de justicia.</p>
+
+      <h2>10. Trazabilidad del acuerdo</h2>
+      <p class="small">ID Suscripción: {{subscription_id}}</p>
+      <p class="small">Versión de plantilla: v1</p>
+
+      <div class="signature">
+        <div>
+          <div class="sign-box"></div>
+          <p class="small"><strong>Kumera SpA</strong><br />RUT 78.299.262-7</p>
+        </div>
+        <div>
+          <div class="sign-box"></div>
+          <p class="small"><strong>{{company_legal_name}}</strong><br />RUT {{company_rut}}</p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

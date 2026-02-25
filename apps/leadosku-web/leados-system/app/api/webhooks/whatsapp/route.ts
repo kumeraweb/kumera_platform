@@ -123,10 +123,33 @@ const LEAD_MAX_BOT_TURNS = Number(process.env.LEAD_MAX_BOT_TURNS ?? 40);
 const LEAD_MAX_SAME_STEP_EVENTS = Number(process.env.LEAD_MAX_SAME_STEP_EVENTS ?? 8);
 const SKIP_SIGNATURE_CHECK = process.env.WHATSAPP_SKIP_SIGNATURE_CHECK === 'true';
 const WEBHOOK_DEBUG = process.env.WHATSAPP_WEBHOOK_DEBUG === 'true';
+type LeadNotificationResult = Awaited<ReturnType<typeof sendLeadNotificationEmail>>;
 
 function debugLog(event: string, meta?: Record<string, unknown>) {
   if (!WEBHOOK_DEBUG) return;
   console.log('[webhook.whatsapp]', event, meta ?? {});
+}
+
+function logNotificationFailure(params: {
+  emailResult: LeadNotificationResult;
+  leadId: string;
+  clientId: string;
+  to: string;
+  reason: string;
+}) {
+  if (params.emailResult.sent) return;
+  console.error('Lead notification email failed', {
+    leadId: params.leadId,
+    clientId: params.clientId,
+    to: params.to,
+    triggerReason: params.reason,
+    mailReason: params.emailResult.reason,
+    status: 'status' in params.emailResult ? params.emailResult.status : undefined,
+    body: 'body' in params.emailResult ? params.emailResult.body : undefined,
+    detail: 'detail' in params.emailResult ? params.emailResult.detail : undefined,
+    from: env.notificationFromEmail,
+    subject: env.notificationEmailSubject
+  });
 }
 
 function parsePayload(payload: unknown): ParsedPayload | null {
@@ -559,13 +582,13 @@ export async function POST(req: Request) {
         subject: env.notificationEmailSubject,
         html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${lead.score}</p><p>Razón: ${reason}</p>`
       });
-      if (!emailResult.sent) {
-        console.error('Lead notification email failed', {
-          leadId: lead.id,
-          clientId: client.id,
-          reason: emailResult.reason
-        });
-      }
+      logNotificationFailure({
+        emailResult,
+        leadId: lead.id,
+        clientId: client.id,
+        to: client.notification_email,
+        reason
+      });
     }
 
     return ok({ received: true, safety_escalation: true });
@@ -615,13 +638,13 @@ export async function POST(req: Request) {
           subject: env.notificationEmailSubject,
           html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${lead.score}</p><p>Razón: REENTRY_ESCALATION</p>`
         });
-        if (!emailResult.sent) {
-          console.error('Lead notification email failed', {
-            leadId: lead.id,
-            clientId: client.id,
-            reason: emailResult.reason
-          });
-        }
+        logNotificationFailure({
+          emailResult,
+          leadId: lead.id,
+          clientId: client.id,
+          to: client.notification_email,
+          reason: 'REENTRY_ESCALATION'
+        });
       }
 
       return ok({ received: true, escalated: true, reentry: true });
@@ -946,13 +969,13 @@ export async function POST(req: Request) {
         subject: env.notificationEmailSubject,
         html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${nextScore}</p><p>Razón: ${reason}</p>`
       });
-      if (!emailResult.sent) {
-        console.error('Lead notification email failed', {
-          leadId: lead.id,
-          clientId: client.id,
-          reason: emailResult.reason
-        });
-      }
+      logNotificationFailure({
+        emailResult,
+        leadId: lead.id,
+        clientId: client.id,
+        to: client.notification_email,
+        reason
+      });
     }
 
     return ok({ received: true, escalated: true });
@@ -1040,13 +1063,13 @@ export async function POST(req: Request) {
         subject: env.notificationEmailSubject,
         html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${nextScore}</p><p>Razón: FLOW_COMPLETED</p>`
       });
-      if (!emailResult.sent) {
-        console.error('Lead notification email failed', {
-          leadId: lead.id,
-          clientId: client.id,
-          reason: emailResult.reason
-        });
-      }
+      logNotificationFailure({
+        emailResult,
+        leadId: lead.id,
+        clientId: client.id,
+        to: client.notification_email,
+        reason: 'FLOW_COMPLETED'
+      });
     }
     return ok({ received: true, flow_completed: true });
   }

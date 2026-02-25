@@ -12,6 +12,9 @@ export default function AdminHomePage() {
         <Link className="rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-slate-700" href="/admin/subscriptions">
           Suscripciones (billing)
         </Link>
+        <Link className="rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-slate-700" href="/admin/billing">
+          Billing admin central
+        </Link>
         <Link className="rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-slate-700" href="/admin/tuejecutiva">
           TuEjecutiva admin
         </Link>

@@ -9,6 +9,14 @@ type ApiData = {
     plan: { name: string; price_cents: number };
     payments: Array<{ id: string; status: string }>;
   };
+  contract: {
+    id: string;
+    version: string;
+    accepted: boolean;
+    accepted_at: string | null;
+    html_rendered: string | null;
+    content_hash: string | null;
+  } | null;
   expiresAt: string;
 };
 
@@ -68,9 +76,21 @@ export default async function OnboardingPage({
       <section className="grid gap-6 md:grid-cols-2">
         <article className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-900">Paso 1: contrato</h2>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-            Contrato PDF con datos del cliente (versión simple V1).
-          </div>
+          {data.contract?.html_rendered ? (
+            <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <p className="m-0 text-xs text-slate-500">
+                  Versión: {data.contract.version} · Hash:{" "}
+                  <span className="font-mono">{data.contract.content_hash?.slice(0, 16) ?? "-"}</span>
+                </p>
+              </div>
+              <article className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: data.contract.html_rendered }} />
+            </div>
+          ) : (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              No hay contrato disponible para esta suscripción. Solicita un nuevo enlace.
+            </div>
+          )}
           <ContractAcceptForm token={token} subscriptionId={data.subscription.id} />
         </article>
 

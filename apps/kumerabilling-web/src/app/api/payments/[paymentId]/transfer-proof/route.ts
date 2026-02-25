@@ -90,5 +90,12 @@ export async function POST(
     path,
   });
 
+  await supabase.from("onboarding_events").insert({
+    subscription_id: payment.subscription_id,
+    token_id: tokenStatus.record.id,
+    event_type: "payment.transfer_proof.uploaded",
+    payload: { paymentId, path },
+  });
+
   return ok({ uploaded: true, path });
 }
