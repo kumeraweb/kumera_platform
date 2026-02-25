@@ -38,14 +38,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-shell">
-      <section className="auth-card">
-        <h1>Kumera Admin Login</h1>
-        <p>Acceso unificado para operación de Billing, Tuejecutiva y LeadOS.</p>
-        <form onSubmit={onSubmit} className="auth-form">
-          <label>
+    <main className="grid min-h-screen place-items-center p-6">
+      <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h1 className="m-0 text-2xl font-bold tracking-tight">Kumera Admin Login</h1>
+        <p className="mt-2 text-sm text-slate-600">Acceso unificado para operación de Billing, Tuejecutiva y LeadOS.</p>
+        <form onSubmit={onSubmit} className="mt-4 grid gap-3">
+          <label className="grid gap-1.5 text-sm">
             Email
             <input
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -53,9 +54,10 @@ export default function LoginPage() {
               autoComplete="email"
             />
           </label>
-          <label>
+          <label className="grid gap-1.5 text-sm">
             Contraseña
             <input
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-100"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -63,8 +65,8 @@ export default function LoginPage() {
               autoComplete="current-password"
             />
           </label>
-          {error ? <p className="auth-error">{error}</p> : null}
-          <button type="submit" disabled={loading}>
+          {error ? <p className="text-sm text-red-700">{error}</p> : null}
+          <button className="cursor-pointer rounded-lg border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60" type="submit" disabled={loading}>
             {loading ? "Ingresando..." : "Entrar"}
           </button>
         </form>

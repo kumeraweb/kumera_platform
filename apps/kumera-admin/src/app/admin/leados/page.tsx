@@ -13,9 +13,9 @@ export default async function LeadosAdminPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <section className="card">
-      <h2>LeadOS Admin (centralizado)</h2>
-      {error ? <p>Error loading clients: {error.message}</p> : null}
+    <section className="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 className="m-0 text-base font-bold">LeadOS Admin (centralizado)</h2>
+      {error ? <p className="mt-2 text-sm text-red-700">Error loading clients: {error.message}</p> : null}
       <LeadosAdminClient initialClients={data ?? []} />
     </section>
   );
