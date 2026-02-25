@@ -17,8 +17,8 @@ Obligatorias:
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `ADMIN_BASIC_AUTH_USER`
-- `ADMIN_BASIC_AUTH_PASS`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (o `SUPABASE_ANON_KEY`)
+- `LEADOS_SECRETS_KEY` (si usarás módulo LeadOS admin para crear/rotar canales)
 
 Opcionales:
 
@@ -30,8 +30,9 @@ Ejemplo:
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-ADMIN_BASIC_AUTH_USER=<admin-user>
-ADMIN_BASIC_AUTH_PASS=<admin-password-largo>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+SUPABASE_ANON_KEY=<anon-key>
+LEADOS_SECRETS_KEY=<base64-32-bytes>
 ```
 
 ## 2) `apps/kumerabilling-web`

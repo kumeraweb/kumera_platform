@@ -1,10 +1,12 @@
-import { createBillingAdminClient } from "@/lib/db";
+import { requireAdminPage, ROLE } from "@/lib/auth";
+import { createBillingServiceClient } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function SubscriptionsPage() {
   try {
-    const client = createBillingAdminClient();
+    await requireAdminPage([ROLE.BILLING]);
+    const client = createBillingServiceClient();
     const { data, error } = await client
       .from("subscriptions")
       .select("id, service_key, service_subject_id, status, plan_id, period_start, period_end, created_at")

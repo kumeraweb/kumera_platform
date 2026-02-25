@@ -1,10 +1,12 @@
-import { createCoreAdminClient } from "@/lib/db";
+import { requireAdminPage, ROLE } from "@/lib/auth";
+import { createCoreServiceClient } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function RolesPage() {
   try {
-    const client = createCoreAdminClient();
+    await requireAdminPage([ROLE.SUPERADMIN]);
+    const client = createCoreServiceClient();
     const { data, error } = await client
       .from("user_roles")
       .select("user_id, role, active, created_at")

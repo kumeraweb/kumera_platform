@@ -34,8 +34,8 @@ Referencia completa de variables:
 
 1. `SUPABASE_URL`
 2. `SUPABASE_SERVICE_ROLE_KEY`
-3. `ADMIN_BASIC_AUTH_USER`
-4. `ADMIN_BASIC_AUTH_PASS`
+3. `NEXT_PUBLIC_SUPABASE_ANON_KEY` (o `SUPABASE_ANON_KEY`)
+4. `LEADOS_SECRETS_KEY` (requerido si usarás módulo LeadOS admin)
 5. opcional `NEXT_PUBLIC_SUPABASE_URL`
 
 ## Tuejecutiva (`apps/tuejecutiva-web`)
