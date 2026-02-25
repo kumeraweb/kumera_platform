@@ -7,6 +7,7 @@ import { decryptSecret } from '@/lib/domain/crypto';
 import { sendWhatsappText } from '@/lib/domain/messaging';
 import { sendLeadNotificationEmail } from '@/lib/domain/email';
 import { mapTextToOptionDefensively } from '@/lib/domain/ai';
+import { env } from '@/lib/env';
 import {
   clampScore,
   extractDirectOption,
@@ -555,7 +556,7 @@ export async function POST(req: Request) {
     if (shouldNotify) {
       const emailResult = await sendLeadNotificationEmail({
         to: client.notification_email,
-        subject: 'LeadOS: Lead requiere intervención humana',
+        subject: env.notificationEmailSubject,
         html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${lead.score}</p><p>Razón: ${reason}</p>`
       });
       if (!emailResult.sent) {
@@ -611,7 +612,7 @@ export async function POST(req: Request) {
       if (shouldNotify) {
         const emailResult = await sendLeadNotificationEmail({
           to: client.notification_email,
-          subject: 'LeadOS: Lead requiere intervención humana',
+          subject: env.notificationEmailSubject,
           html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${lead.score}</p><p>Razón: REENTRY_ESCALATION</p>`
         });
         if (!emailResult.sent) {
@@ -942,7 +943,7 @@ export async function POST(req: Request) {
     if (shouldNotify) {
       const emailResult = await sendLeadNotificationEmail({
         to: client.notification_email,
-        subject: 'LeadOS: Lead requiere intervención humana',
+        subject: env.notificationEmailSubject,
         html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${nextScore}</p><p>Razón: ${reason}</p>`
       });
       if (!emailResult.sent) {
@@ -1036,7 +1037,7 @@ export async function POST(req: Request) {
     if (shouldNotify) {
       const emailResult = await sendLeadNotificationEmail({
         to: client.notification_email,
-        subject: 'LeadOS: Lead requiere intervención humana',
+        subject: env.notificationEmailSubject,
         html: `<p>Lead: ${parsed.waProfileName ?? parsed.waUserId}</p><p>Score: ${nextScore}</p><p>Razón: FLOW_COMPLETED</p>`
       });
       if (!emailResult.sent) {
