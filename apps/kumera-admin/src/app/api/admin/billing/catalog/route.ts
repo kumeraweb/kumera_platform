@@ -16,7 +16,7 @@ export async function GET() {
     billing.from("plans").select("id,service_id,name,price_cents,billing_cycle_days").order("name", { ascending: true }),
     billing
       .from("contract_templates")
-      .select("id,service_id,name,version,status,variables_schema,created_at,updated_at")
+      .select("id,service_id,name,version,status,target_customer_type,variables_schema,created_at,updated_at")
       .order("created_at", { ascending: false }),
   ]);
 

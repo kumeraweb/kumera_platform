@@ -17,6 +17,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ templ
   if (parsed.data.name !== undefined) patch.name = parsed.data.name;
   if (parsed.data.version !== undefined) patch.version = parsed.data.version;
   if (parsed.data.status !== undefined) patch.status = parsed.data.status;
+  if (parsed.data.targetCustomerType !== undefined) patch.target_customer_type = parsed.data.targetCustomerType;
   if (parsed.data.htmlTemplate !== undefined) patch.html_template = parsed.data.htmlTemplate;
   if (parsed.data.variablesSchema !== undefined) patch.variables_schema = parsed.data.variablesSchema;
 
@@ -24,7 +25,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ templ
     .from("contract_templates")
     .update(patch)
     .eq("id", templateId)
-    .select("id,service_id,name,version,status,html_template,variables_schema,created_at,updated_at")
+    .select("id,service_id,name,version,status,target_customer_type,html_template,variables_schema,created_at,updated_at")
     .single();
 
   if (error || !data) return fail(error?.message ?? "Could not update template", 500);

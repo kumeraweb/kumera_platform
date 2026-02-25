@@ -5,18 +5,25 @@ import { FormEvent, useState } from "react";
 type Props = {
   token: string;
   paymentId: string;
+  disabled?: boolean;
+  contractDownloadUrl?: string | null;
 };
 
-export function TransferProofForm({ token, paymentId }: Props) {
+export function TransferProofForm({ token, paymentId, disabled = false, contractDownloadUrl = null }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploaded, setUploaded] = useState(false);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
 
     if (!file) {
       setMessage("Selecciona una imagen de comprobante.");
+      return;
+    }
+    if (disabled) {
+      setMessage("Primero debes aceptar el contrato para habilitar este paso.");
       return;
     }
 
@@ -38,6 +45,7 @@ export function TransferProofForm({ token, paymentId }: Props) {
         setMessage(payload.error?.message ?? "No se pudo subir comprobante.");
       } else {
         setMessage("Comprobante enviado. Queda pendiente validación admin.");
+        setUploaded(true);
       }
     } catch {
       setMessage("Error inesperado subiendo comprobante.");
@@ -53,17 +61,28 @@ export function TransferProofForm({ token, paymentId }: Props) {
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp,image/heic"
+          disabled={disabled}
           onChange={(event) => setFile(event.target.files?.[0] ?? null)}
           className="mt-2 block w-full text-sm text-slate-700"
         />
       </label>
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || disabled}
         className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-60"
       >
         {loading ? "Enviando..." : "Subir comprobante"}
       </button>
+      {uploaded && contractDownloadUrl ? (
+        <a
+          href={contractDownloadUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+        >
+          Descargar contrato
+        </a>
+      ) : null}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </form>
   );

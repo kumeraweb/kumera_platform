@@ -90,6 +90,11 @@ export async function POST(
     path,
   });
 
+  await supabase
+    .from("onboarding_tokens")
+    .update({ consumed_at: new Date().toISOString() })
+    .eq("id", tokenStatus.record.id);
+
   await supabase.from("onboarding_events").insert({
     subscription_id: payment.subscription_id,
     token_id: tokenStatus.record.id,

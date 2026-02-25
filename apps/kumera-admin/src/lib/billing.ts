@@ -1,24 +1,56 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { createBillingServiceClient } from "@/lib/db";
+import { formatChileanRut, isValidChileanRut } from "@/lib/rut";
 
-export const onboardingSchema = z.object({
-  companyName: z.string().min(2),
-  rut: z.string().min(6),
-  address: z.string().min(5),
-  email: z.string().email(),
-  phone: z.string().min(6),
-  serviceSlug: z.string().min(2),
-  planId: z.string().uuid(),
-  contractTemplateId: z.string().uuid(),
-  taxDocumentType: z.enum(["boleta", "factura"]),
-});
+export const onboardingSchema = z
+  .object({
+    customerType: z.enum(["company", "person"]).default("company"),
+    companyName: z.string().min(2),
+    rut: z.string().min(6),
+    address: z.string().min(5),
+    email: z.string().email(),
+    phone: z.string().min(6),
+    legalRepresentativeName: z.string().optional(),
+    legalRepresentativeRut: z.string().optional(),
+    serviceSlug: z.string().min(2),
+    planId: z.string().uuid(),
+    contractTemplateId: z.string().uuid(),
+    taxDocumentType: z.enum(["boleta", "factura"]),
+  })
+  .superRefine((data, ctx) => {
+    if (!isValidChileanRut(data.rut)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "RUT inválido. Usa formato 12345678-9",
+        path: ["rut"],
+      });
+    }
+    if (data.customerType === "company" && data.legalRepresentativeRut?.trim()) {
+      if (!isValidChileanRut(data.legalRepresentativeRut)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "RUT representante inválido. Usa formato 12345678-9",
+          path: ["legalRepresentativeRut"],
+        });
+      }
+    }
+  })
+  .transform((data) => ({
+    ...data,
+    rut: formatChileanRut(data.rut),
+    legalRepresentativeRut: data.legalRepresentativeRut?.trim()
+      ? formatChileanRut(data.legalRepresentativeRut)
+      : "",
+    legalRepresentativeName: data.legalRepresentativeName?.trim() ?? "",
+  }));
 
 export const contractTemplateCreateSchema = z.object({
   serviceId: z.string().uuid(),
   name: z.string().min(2),
   version: z.string().min(1),
   status: z.enum(["draft", "active", "archived"]).default("draft"),
+  targetCustomerType: z.enum(["company", "person", "any"]).default("company"),
   htmlTemplate: z.string().min(20),
   variablesSchema: z.record(z.string(), z.unknown()).default({}),
 });
@@ -27,6 +59,7 @@ export const contractTemplateUpdateSchema = z.object({
   name: z.string().min(2).optional(),
   version: z.string().min(1).optional(),
   status: z.enum(["draft", "active", "archived"]).optional(),
+  targetCustomerType: z.enum(["company", "person", "any"]).optional(),
   htmlTemplate: z.string().min(20).optional(),
   variablesSchema: z.record(z.string(), z.unknown()).optional(),
 });

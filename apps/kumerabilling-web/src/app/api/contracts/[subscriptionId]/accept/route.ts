@@ -26,11 +26,12 @@ export async function POST(
 
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   const userAgent = headerStore.get("user-agent") ?? "unknown";
+  const acceptedAt = new Date().toISOString();
 
   const { error } = await supabase.from("contracts").insert({
     subscription_id: subscriptionId,
     version: "v1",
-    accepted_at: new Date().toISOString(),
+    accepted_at: acceptedAt,
     accepted_ip: ip,
     accepted_user_agent: userAgent,
     accepted: true,
@@ -52,7 +53,7 @@ export async function POST(
       .from("contracts")
       .update({
         accepted: true,
-        accepted_at: new Date().toISOString(),
+        accepted_at: acceptedAt,
         accepted_ip: ip,
         accepted_user_agent: userAgent,
       })
@@ -62,21 +63,28 @@ export async function POST(
     }
   }
 
-  await supabase
-    .from("onboarding_tokens")
-    .update({ consumed_at: new Date().toISOString() })
-    .eq("id", tokenStatus.record.id);
-
   await writeAuditLog("contract.accepted", "onboarding-token", {
     subscriptionId,
     tokenId: tokenStatus.record.id,
+    signerName: parsed.data.signerName,
+    signerRut: parsed.data.signerRut,
+    signerEmail: parsed.data.signerEmail,
+    acceptedAt,
+    acceptedIp: ip,
   });
 
   await supabase.from("onboarding_events").insert({
     subscription_id: subscriptionId,
     token_id: tokenStatus.record.id,
     event_type: "contract.accepted",
-    payload: {},
+    payload: {
+      signerName: parsed.data.signerName,
+      signerRut: parsed.data.signerRut,
+      signerEmail: parsed.data.signerEmail,
+      acceptedAt,
+      acceptedIp: ip,
+      acceptedUserAgent: userAgent,
+    },
   });
 
   return ok({ accepted: true });

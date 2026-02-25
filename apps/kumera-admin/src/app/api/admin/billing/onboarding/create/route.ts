@@ -29,6 +29,9 @@ export async function POST(request: Request) {
       address: payload.address,
       email: payload.email,
       phone: payload.phone,
+      customer_type: payload.customerType,
+      legal_representative_name: payload.legalRepresentativeName || null,
+      legal_representative_rut: payload.legalRepresentativeRut || null,
       tax_document_type: payload.taxDocumentType,
     })
     .select("id")
@@ -52,12 +55,15 @@ export async function POST(request: Request) {
 
   const { data: template, error: templateError } = await billing
     .from("contract_templates")
-    .select("id,name,version,status,service_id,html_template")
+    .select("id,name,version,status,service_id,target_customer_type,html_template")
     .eq("id", payload.contractTemplateId)
     .single();
   if (templateError || !template) return fail("Contract template not found", 404);
   if (template.service_id !== service.id) return fail("Template does not belong to selected service", 400);
   if (template.status !== "active") return fail("Contract template is not active", 400);
+  if (template.target_customer_type !== "any" && template.target_customer_type !== payload.customerType) {
+    return fail("Contract template does not match customer type", 400);
+  }
 
   const { data: subscription, error: subscriptionError } = await billing
     .from("subscriptions")
@@ -88,18 +94,23 @@ export async function POST(request: Request) {
   if (tokenError || !tokenRow) return fail(tokenError?.message ?? "Could not create token", 500);
 
   const monthlyAmountCents = Number(plan.price_cents ?? 0);
+  const generatedDate = new Date().toLocaleDateString("es-CL");
   const renderedContract = renderContractTemplate(template.html_template, {
+    customer_type: payload.customerType,
     company_legal_name: payload.companyName,
     company_rut: payload.rut,
     company_address: payload.address,
     company_email: payload.email,
     company_phone: payload.phone,
+    legal_representative_name: payload.legalRepresentativeName || "-",
+    legal_representative_rut: payload.legalRepresentativeRut || "-",
     tax_document_type: payload.taxDocumentType,
     service_name: service.name,
     service_slug: service.slug,
     plan_name: plan.name,
     monthly_amount_clp: String(Math.floor(monthlyAmountCents / 100)),
-    generated_date: new Date().toLocaleDateString("es-CL"),
+    generated_date: generatedDate,
+    kumera_signed_date: generatedDate,
     subscription_id: subscription.id,
   });
   const contentHash = hashContractContent(renderedContract);

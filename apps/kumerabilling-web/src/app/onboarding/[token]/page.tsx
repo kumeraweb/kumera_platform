@@ -59,6 +59,9 @@ export default async function OnboardingPage({
   }
 
   const firstPayment = data.subscription.payments[0];
+  const contractDownloadUrl = data.contract?.id
+    ? `/api/contracts/${data.contract.id}/download?token=${encodeURIComponent(token)}`
+    : null;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-12">
@@ -97,12 +100,30 @@ export default async function OnboardingPage({
         <article className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-900">Paso 2: pago por transferencia</h2>
           <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-            Banco: Banco de Chile<br />
-            Cuenta: 00-000-0000<br />
-            Titular: Kumera Servicios Digitales SpA
+            Titular: Servicios Digitales Kumera Spa
+            <br />
+            RUT: 78.299.262-7
+            <br />
+            Banco: Banco Bci
+            <br />
+            Tipo de cuenta: Cuenta corriente en pesos
+            <br />
+            N. cuenta: 70818970
+            <br />
+            Correo: CONTACTO@KUMERAWEB.COM
           </div>
+          {!data.contract?.accepted ? (
+            <p className="rounded-lg bg-amber-100 p-3 text-sm text-amber-900">
+              Debes aceptar el contrato primero para habilitar la carga de comprobante.
+            </p>
+          ) : null}
           {firstPayment ? (
-            <TransferProofForm token={token} paymentId={firstPayment.id} />
+            <TransferProofForm
+              token={token}
+              paymentId={firstPayment.id}
+              disabled={!data.contract?.accepted}
+              contractDownloadUrl={contractDownloadUrl}
+            />
           ) : (
             <p className="rounded-lg bg-amber-100 p-3 text-sm text-amber-900">No hay pago pendiente asociado.</p>
           )}

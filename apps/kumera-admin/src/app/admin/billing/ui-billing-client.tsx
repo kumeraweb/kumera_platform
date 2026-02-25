@@ -10,6 +10,7 @@ type ContractTemplate = {
   name: string;
   version: string;
   status: "draft" | "active" | "archived";
+  target_customer_type: "company" | "person" | "any";
   variables_schema: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -38,6 +39,37 @@ type SubscriptionRow = {
 };
 
 type Props = { legacyAdminUrl: string };
+const PLATFORM_SERVICE_SLUGS = new Set(["tractiva", "tuejecutiva", "leadosku"]);
+
+function normalizeRut(raw: string) {
+  return raw.replace(/[^0-9kK]/g, "").toUpperCase();
+}
+
+function formatRut(raw: string) {
+  const normalized = normalizeRut(raw);
+  if (normalized.length < 2) return normalized;
+  const body = normalized.slice(0, -1);
+  const dv = normalized.slice(-1);
+  return `${Number(body).toLocaleString("es-CL").replace(/\./g, "")}-${dv}`;
+}
+
+function isValidRut(raw: string) {
+  const normalized = normalizeRut(raw);
+  if (!/^\d{7,8}[0-9K]$/.test(normalized)) return false;
+  const body = normalized.slice(0, -1);
+  const expectedDv = normalized.slice(-1);
+  let sum = 0;
+  let multiplier = 2;
+
+  for (let i = body.length - 1; i >= 0; i -= 1) {
+    sum += Number(body[i]) * multiplier;
+    multiplier = multiplier === 7 ? 2 : multiplier + 1;
+  }
+
+  const remainder = 11 - (sum % 11);
+  const computedDv = remainder === 11 ? "0" : remainder === 10 ? "K" : String(remainder);
+  return expectedDv === computedDv;
+}
 
 export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   const [services, setServices] = useState<Service[]>([]);
@@ -50,31 +82,51 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{
+    htmlRendered: string;
+    contentHash: string;
+    serviceName: string;
+    planName: string;
+    templateName: string;
+  } | null>(null);
+  const [previewFormSnapshot, setPreviewFormSnapshot] = useState<string | null>(null);
 
   const [form, setForm] = useState({
+    customerType: "company" as "company" | "person",
     companyName: "",
     rut: "",
     address: "",
     email: "",
     phone: "",
+    legalRepresentativeName: "",
+    legalRepresentativeRut: "",
     serviceSlug: "",
     planId: "",
     contractTemplateId: "",
     taxDocumentType: "factura",
   });
 
+  const platformServices = useMemo(
+    () => services.filter((service) => PLATFORM_SERVICE_SLUGS.has(service.slug)),
+    [services],
+  );
+
   const plansForService = useMemo(() => {
-    const selectedService = services.find((service) => service.slug === form.serviceSlug);
+    const selectedService = platformServices.find((service) => service.slug === form.serviceSlug);
     if (!selectedService) return [];
     return plans.filter((plan) => plan.service_id === selectedService.id);
-  }, [form.serviceSlug, plans, services]);
+  }, [form.serviceSlug, plans, platformServices]);
   const templatesForService = useMemo(() => {
-    const selectedService = services.find((service) => service.slug === form.serviceSlug);
+    const selectedService = platformServices.find((service) => service.slug === form.serviceSlug);
     if (!selectedService) return [];
     return templates.filter(
-      (template) => template.service_id === selectedService.id && template.status === "active",
+      (template) =>
+        template.service_id === selectedService.id &&
+        template.status === "active" &&
+        (template.target_customer_type === "any" || template.target_customer_type === form.customerType),
     );
-  }, [form.serviceSlug, services, templates]);
+  }, [form.customerType, form.serviceSlug, platformServices, templates]);
+  const currentFormSnapshot = useMemo(() => JSON.stringify(form), [form]);
 
   async function loadAll() {
     setLoading(true);
@@ -121,10 +173,10 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!form.serviceSlug && services.length > 0) {
-      setForm((prev) => ({ ...prev, serviceSlug: services[0].slug }));
+    if (!form.serviceSlug && platformServices.length > 0) {
+      setForm((prev) => ({ ...prev, serviceSlug: platformServices[0].slug }));
     }
-  }, [form.serviceSlug, services]);
+  }, [form.serviceSlug, platformServices]);
 
   useEffect(() => {
     if (plansForService.length > 0 && !plansForService.some((plan) => plan.id === form.planId)) {
@@ -132,15 +184,62 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     }
   }, [form.planId, plansForService]);
   useEffect(() => {
-    if (
-      templatesForService.length > 0 &&
-      !templatesForService.some((template) => template.id === form.contractTemplateId)
-    ) {
+    if (templatesForService.length > 0 && !templatesForService.some((template) => template.id === form.contractTemplateId)) {
       setForm((prev) => ({ ...prev, contractTemplateId: templatesForService[0].id }));
     }
   }, [form.contractTemplateId, templatesForService]);
+
+  useEffect(() => {
+    if (previewFormSnapshot && previewFormSnapshot !== currentFormSnapshot) {
+      setPreview(null);
+      setPreviewFormSnapshot(null);
+    }
+  }, [currentFormSnapshot, previewFormSnapshot]);
+
+  async function onPreviewContract() {
+    setWorking(true);
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch("/api/admin/billing/onboarding/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo previsualizar contrato");
+      setWorking(false);
+      return;
+    }
+
+    setPreview({
+      htmlRendered: payload.contract?.htmlRendered ?? "",
+      contentHash: payload.contract?.contentHash ?? "",
+      serviceName: payload.service?.name ?? "-",
+      planName: payload.plan?.name ?? "-",
+      templateName: payload.template?.name ?? "-",
+    });
+    setPreviewFormSnapshot(currentFormSnapshot);
+    setMessage("Previsualización lista. Ya puedes crear onboarding.");
+    setWorking(false);
+  }
   async function onCreateOnboarding(event: FormEvent) {
     event.preventDefault();
+    if (!isValidRut(form.rut)) {
+      setError("RUT inválido. Usa formato 12345678-9");
+      return;
+    }
+    if (form.customerType === "company" && form.legalRepresentativeRut.trim() && !isValidRut(form.legalRepresentativeRut)) {
+      setError("RUT de representante legal inválido.");
+      return;
+    }
+
+    if (previewFormSnapshot !== currentFormSnapshot || !preview) {
+      setError("Debes previsualizar el contrato antes de crear onboarding.");
+      return;
+    }
+
     setWorking(true);
     setError(null);
     setMessage(null);
@@ -245,16 +344,28 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         <p className="mt-1 text-xs text-slate-400">Este paso crea empresa + suscripción + token + primer pago pendiente.</p>
 
         <form className="mt-3 grid gap-2" onSubmit={onCreateOnboarding}>
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Razón social" value={form.companyName} onChange={(e) => setForm((v) => ({ ...v, companyName: e.target.value }))} required />
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT" value={form.rut} onChange={(e) => setForm((v) => ({ ...v, rut: e.target.value }))} required />
+          <div className="grid gap-2 md:grid-cols-2">
+            <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.customerType} onChange={(e) => setForm((v) => ({ ...v, customerType: e.target.value as "company" | "person", contractTemplateId: "" }))} required>
+              <option value="company">Empresa</option>
+              <option value="person">Persona natural</option>
+            </select>
+            <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder={form.customerType === "company" ? "Razón social" : "Nombre completo"} value={form.companyName} onChange={(e) => setForm((v) => ({ ...v, companyName: e.target.value }))} required />
+          </div>
+          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT (ej: 16370698-9)" value={form.rut} onBlur={(e) => setForm((v) => ({ ...v, rut: formatRut(e.target.value) }))} onChange={(e) => setForm((v) => ({ ...v, rut: e.target.value }))} required />
+          {form.customerType === "company" ? (
+            <div className="grid gap-2 md:grid-cols-2">
+              <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Representante legal (opcional)" value={form.legalRepresentativeName} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeName: e.target.value }))} />
+              <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT representante (opcional)" value={form.legalRepresentativeRut} onBlur={(e) => setForm((v) => ({ ...v, legalRepresentativeRut: formatRut(e.target.value) }))} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRut: e.target.value }))} />
+            </div>
+          ) : null}
           <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Dirección" value={form.address} onChange={(e) => setForm((v) => ({ ...v, address: e.target.value }))} required />
           <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm((v) => ({ ...v, email: e.target.value }))} required />
           <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Teléfono" value={form.phone} onChange={(e) => setForm((v) => ({ ...v, phone: e.target.value }))} required />
 
           <div className="grid gap-2 md:grid-cols-4">
             <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.serviceSlug} onChange={(e) => setForm((v) => ({ ...v, serviceSlug: e.target.value, planId: "", contractTemplateId: "" }))} required>
-              <option value="">Servicio</option>
-              {services.map((service) => (
+              <option value="">Servicio Kumera</option>
+              {platformServices.map((service) => (
                 <option key={service.id} value={service.slug}>{service.name} ({service.slug})</option>
               ))}
             </select>
@@ -279,7 +390,21 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           <button disabled={working || loading} className="w-fit rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700 disabled:opacity-60" type="submit">
             {working ? "Procesando..." : "Crear onboarding"}
           </button>
+          <button disabled={working || loading} className="w-fit rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-60" onClick={onPreviewContract} type="button">
+            {working ? "Procesando..." : "Previsualizar contrato"}
+          </button>
         </form>
+        {preview ? (
+          <div className="mt-4 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
+            <p className="m-0 text-xs font-semibold text-blue-200">
+              Preview: {preview.serviceName} · {preview.planName} · {preview.templateName}
+            </p>
+            <p className="mt-1 text-xs text-blue-100">Hash: <span className="font-mono">{preview.contentHash.slice(0, 16)}</span></p>
+            <article className="prose prose-invert mt-3 max-w-none rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm" dangerouslySetInnerHTML={{ __html: preview.htmlRendered }} />
+          </div>
+        ) : (
+          <p className="mt-3 text-xs text-slate-500">Previsualiza el contrato con los datos actuales antes de generar el token onboarding.</p>
+        )}
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
@@ -295,6 +420,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Servicio</th>
                 <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Nombre</th>
                 <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Versión</th>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Tipo cliente</th>
                 <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Estado</th>
               </tr>
             </thead>
@@ -304,6 +430,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                   <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{services.find((s) => s.id === template.service_id)?.name ?? template.service_id}</td>
                   <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.name}</td>
                   <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.version}</td>
+                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.target_customer_type}</td>
                   <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.status}</td>
                 </tr>
               ))}
@@ -349,9 +476,12 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="m-0 text-base font-bold text-slate-100">Suscripciones</h2>
+          <h2 className="m-0 text-base font-bold text-slate-100">Clientes onboardeados</h2>
           <a className="text-xs font-semibold text-blue-300 hover:underline" href={legacyAdminUrl} rel="noreferrer" target="_blank">Legacy admin</a>
         </div>
+        <p className="mt-1 text-xs text-slate-400">
+          Este listado muestra clientes/suscripciones creadas en onboarding, no el catálogo de servicios de Kumera.
+        </p>
         <div className="mt-3 overflow-x-auto">
           <table className="min-w-full border-collapse text-sm">
             <thead>

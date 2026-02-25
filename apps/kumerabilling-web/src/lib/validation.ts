@@ -14,6 +14,9 @@ export const onboardingSchema = z.object({
 export const contractAcceptSchema = z.object({
   token: z.string().min(10),
   accepted: z.literal(true),
+  signerName: z.string().min(5),
+  signerRut: z.string().min(8),
+  signerEmail: z.email(),
 });
 
 export const paymentRejectSchema = z.object({

@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   let query = billing
     .from("contract_templates")
-    .select("id,service_id,name,version,status,html_template,variables_schema,created_at,updated_at")
+    .select("id,service_id,name,version,status,target_customer_type,html_template,variables_schema,created_at,updated_at")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -42,10 +42,11 @@ export async function POST(request: Request) {
       name: body.name,
       version: body.version,
       status: body.status,
+      target_customer_type: body.targetCustomerType,
       html_template: body.htmlTemplate,
       variables_schema: body.variablesSchema,
     })
-    .select("id,service_id,name,version,status,html_template,variables_schema,created_at,updated_at")
+    .select("id,service_id,name,version,status,target_customer_type,html_template,variables_schema,created_at,updated_at")
     .single();
 
   if (error || !data) return fail(error?.message ?? "Could not create template", 500);
