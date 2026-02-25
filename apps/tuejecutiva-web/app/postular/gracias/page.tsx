@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function PostularGraciasPage() {
   return (
-    <main className="relative isolate overflow-hidden bg-slate-50 py-24 sm:py-32">
+    <main className="relative isolate bg-slate-50 py-24 sm:py-32">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(50rem_35rem_at_top,theme(colors.emerald.50),theme(colors.slate.50),white)] opacity-90" />
       <div className="absolute -top-24 left-1/2 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-200/30 blur-3xl" />
 

@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 import { consumeRateLimit } from '../../lib/server/rate-limit'
 import { getClientIp, rejectUntrustedOrigin } from '../../lib/server/security'
 
-const FROM_EMAIL = 'Tractiva <hola@tractiva.cl>'
+const FROM_EMAIL = import.meta.env.CONTACT_FROM_EMAIL || 'Tractiva <contacto@kumeraweb.com>'
 const INBOX_EMAIL = import.meta.env.CONTACT_INBOX_EMAIL || 'contacto@kumeraweb.com'
 const LOGO_URL = 'https://tractiva.cl/tractiva.png'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -200,17 +200,8 @@ Tractiva.cl, una empresa de Kumera Servicios Digitales SpA`,
     })
 
     if (autoReplyResult.error) {
-      console.error('Resend autoreply error:', autoReplyResult.error)
-      return new Response(
-        JSON.stringify({ error: 'Mensaje recibido, pero la confirmación falló.' }),
-        {
-          status: 502,
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store, max-age=0'
-          }
-        }
-      )
+      // No bloquear el flujo comercial si solo falla el correo de confirmación al usuario.
+      console.error('Resend autoreply error (non-blocking):', autoReplyResult.error)
     }
 
     return new Response(JSON.stringify({ success: true }), {

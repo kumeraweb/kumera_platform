@@ -9,6 +9,7 @@ function getString(value: FormDataEntryValue | null) {
   if (typeof value !== "string") return "";
   return value.trim();
 }
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getClientIp(request: Request) {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -57,20 +58,32 @@ export async function POST(request: Request) {
     );
   }
 
+  if (email && !EMAIL_REGEX.test(email)) {
+    return NextResponse.json({ error: "Email inválido." }, { status: 400 });
+  }
+
   const resend = new Resend(apiKey);
-  const from = "TuEjecutiva.cl <hola@tractiva.cl>";
+  const from = process.env.CONTACT_FROM_EMAIL || "TuEjecutiva.cl <contacto@kumeraweb.com>";
   const toInternal = process.env.CONTACT_INBOX_EMAIL || "contacto@kumeraweb.com";
 
   try {
-    await resend.emails.send({
+    const internalResult = await resend.emails.send({
       from,
       to: toInternal,
+      replyTo: email || undefined,
       subject: "Nueva postulación desde TuEjecutiva.cl",
       text: `Nombre: ${nombreFinal}\nTeléfono: ${telefonoFinal}\nEmail: ${emailFinal}`,
     });
 
+    if (internalResult.error) {
+      return NextResponse.json(
+        { error: "No se pudo enviar el correo interno." },
+        { status: 502 }
+      );
+    }
+
     if (email) {
-      await resend.emails.send({
+      const autoReplyResult = await resend.emails.send({
         from,
         to: email,
         subject: "Recibimos tu postulación ✔️",
@@ -89,6 +102,11 @@ export async function POST(request: Request) {
           </div>
         `,
       });
+
+      // No bloquear conversión si solo falla la confirmación al usuario.
+      if (autoReplyResult.error) {
+        console.error("Resend autoreply error (non-blocking):", autoReplyResult.error);
+      }
     }
 
     return NextResponse.json({ success: true });

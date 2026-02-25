@@ -95,7 +95,7 @@ export default async function RootLayout({
           `}
         </Script>
         {showChrome ? <Header /> : null}
-        {children}
+        <div className="flex-1">{children}</div>
         {showChrome ? <Footer /> : null}
         <Script
           id="json-ld"
