@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { RefreshCw, LogOut, Eye, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RefreshCw, LogOut, Eye, Building2, ChevronLeft, ChevronRight, XCircle } from 'lucide-react';
 
 type LeadRow = {
   id: string;
@@ -31,6 +31,7 @@ export default function PanelLeadsPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [closingLeadId, setClosingLeadId] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(leads.length / PAGE_SIZE));
   const pagedLeads = leads.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -131,6 +132,23 @@ export default function PanelLeadsPage() {
   async function signOut() {
     await supabase.auth.signOut();
     router.push('/panel/login');
+  }
+
+  async function onCloseLead(leadId: string) {
+    setClosingLeadId(leadId);
+    setError(null);
+
+    const response = await fetch(`/api/panel/leads/${leadId}/close`, { method: 'POST' });
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setError(payload.error ?? 'No se pudo cerrar la conversación');
+      setClosingLeadId(null);
+      return;
+    }
+
+    await loadLeads({ silent: true, keepPage: true });
+    setClosingLeadId(null);
   }
 
   return (
@@ -239,18 +257,36 @@ export default function PanelLeadsPage() {
                         {lead.last_message || '-'}
                       </td>
                       <td style={{ padding: '10px' }}>
-                        <Link href={`/panel/leads/${lead.id}`}>
-                          <button style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 4,
-                            padding: '5px 10px', borderRadius: 6,
-                            background: '#1e293b', border: '1px solid #334155',
-                            color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            <Eye size={12} />
-                            Ver
+                        <div style={{ display: 'inline-flex', gap: 6 }}>
+                          <button
+                            onClick={() => void onCloseLead(lead.id)}
+                            disabled={lead.conversation_status === 'CLOSED' || closingLeadId === lead.id}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              padding: '5px 10px', borderRadius: 6,
+                              background: 'transparent', border: '1px solid #334155',
+                              color: lead.conversation_status === 'CLOSED' ? '#4b5563' : '#fca5a5',
+                              fontSize: 11, fontWeight: 600,
+                              cursor: lead.conversation_status === 'CLOSED' || closingLeadId === lead.id ? 'not-allowed' : 'pointer',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            <XCircle size={12} />
+                            {closingLeadId === lead.id ? 'Cerrando...' : 'Cerrar'}
                           </button>
-                        </Link>
+                          <Link href={`/panel/leads/${lead.id}`}>
+                            <button style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              padding: '5px 10px', borderRadius: 6,
+                              background: '#1e293b', border: '1px solid #334155',
+                              color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              <Eye size={12} />
+                              Ver
+                            </button>
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
