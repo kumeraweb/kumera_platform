@@ -16,3 +16,22 @@ Each app is independently deployable from its own subdirectory.
 - Install Command: `npm ci`.
 - Environment Variables: scoped per app.
 - Cron jobs: managed from GitHub Actions and secure endpoints.
+
+## Prevent redeploying all projects on every push
+Apply these settings in each Vercel project:
+
+1. Enable `Skip deployments when there are no changes to the root directory or its dependencies`.
+2. Set `Ignored Build Step` to:
+`node scripts/vercel/ignored-build-step.mjs <app-path>`
+
+Commands per app:
+- `kumera-admin`: `node scripts/vercel/ignored-build-step.mjs apps/kumera-admin`
+- `kumerabilling-web`: `node scripts/vercel/ignored-build-step.mjs apps/kumerabilling-web`
+- `tuejecutiva-web`: `node scripts/vercel/ignored-build-step.mjs apps/tuejecutiva-web`
+- `leados-system`: `node scripts/vercel/ignored-build-step.mjs apps/leadosku-web/leados-system`
+- `kumera-web`: `node scripts/vercel/ignored-build-step.mjs apps/kumera-web`
+- `tractiva-web`: `node scripts/vercel/ignored-build-step.mjs apps/tractiva-web`
+
+Behavior:
+- Exit code `0`: Vercel skips deploy for that project.
+- Exit code `1`: Vercel proceeds with build/deploy.

@@ -27,7 +27,7 @@ export default async function LeadosClientFlowPage({ params }: { params: Promise
     <section className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4">
         <div>
-          <h2 className="m-0 text-base font-bold text-slate-100">Flujo conversacional · {client.name}</h2>
+          <h2 className="m-0 text-base font-bold text-slate-100">PASO 4 · Flujo conversacional · {client.name}</h2>
           <p className="m-0.5 text-xs text-slate-400">Client ID: {client.id}</p>
         </div>
         <Link className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:bg-slate-700" href="/admin/leados">

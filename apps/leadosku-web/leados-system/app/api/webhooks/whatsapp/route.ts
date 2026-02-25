@@ -120,6 +120,7 @@ const INBOUND_RATE_WINDOW_SECONDS = Number(process.env.WEBHOOK_RATE_LIMIT_WINDOW
 const INBOUND_RATE_MAX_MESSAGES = Number(process.env.WEBHOOK_RATE_LIMIT_MAX_MESSAGES ?? 10);
 const LEAD_MAX_BOT_TURNS = Number(process.env.LEAD_MAX_BOT_TURNS ?? 40);
 const LEAD_MAX_SAME_STEP_EVENTS = Number(process.env.LEAD_MAX_SAME_STEP_EVENTS ?? 8);
+const SKIP_SIGNATURE_CHECK = process.env.WHATSAPP_SKIP_SIGNATURE_CHECK === 'true';
 
 function parsePayload(payload: unknown): ParsedPayload | null {
   const parsed = webhookSchema.safeParse(payload);
@@ -299,7 +300,7 @@ export async function POST(req: Request) {
   } catch {
     return fail('Invalid channel app secret encryption', 500);
   }
-  if (!isValidMetaSignature({ rawBody, appSecret, signatureHeader })) {
+  if (!SKIP_SIGNATURE_CHECK && !isValidMetaSignature({ rawBody, appSecret, signatureHeader })) {
     return fail('Invalid webhook signature', 401);
   }
 

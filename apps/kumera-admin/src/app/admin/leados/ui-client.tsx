@@ -115,7 +115,7 @@ export default function LeadosAdminClient({ initialClients }: Props) {
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
         <div className="mb-2 flex items-center justify-between gap-3">
           <h3 className="m-0 text-sm font-bold text-slate-100">Clientes</h3>
-          <p className="m-0 text-xs text-slate-400">Cada cliente tiene su constructor de flujo dedicado.</p>
+          <p className="m-0 text-xs text-slate-400">Orden recomendado: PASO 1 cliente, PASO 2 usuario, PASO 3 canal, PASO 4 flujo.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-sm">
@@ -140,7 +140,7 @@ export default function LeadosAdminClient({ initialClients }: Props) {
                     className="inline-flex items-center rounded-lg border border-blue-500/40 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
                     href={`/admin/leados/clients/${row.id}/flow`}
                   >
-                    Gestionar flujo
+                    PASO 4 · Gestionar flujo
                   </Link>
                 </td>
               </tr>
@@ -151,7 +151,7 @@ export default function LeadosAdminClient({ initialClients }: Props) {
       </div>
 
       <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onCreateClient}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">Crear cliente LeadOS</h3>
+        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 1 · Crear cliente LeadOS</h3>
         <input
           className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
           placeholder="Nombre cliente"
@@ -187,7 +187,7 @@ export default function LeadosAdminClient({ initialClients }: Props) {
       </form>
 
       <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onAssignUser}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">Asignar usuario a tenant</h3>
+        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 2 · Asignar usuario a tenant</h3>
         <input
           className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
           placeholder="user_id (uuid)"
@@ -206,7 +206,7 @@ export default function LeadosAdminClient({ initialClients }: Props) {
       </form>
 
       <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onCreateChannel}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">Crear canal WhatsApp</h3>
+        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 3 · Crear canal WhatsApp</h3>
         <input
           className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
           placeholder="client_id (uuid)"
