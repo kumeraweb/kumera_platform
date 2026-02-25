@@ -19,9 +19,10 @@ Archivos SQL que se ejecutan en Supabase SQL Editor:
 
 1. [paso-01-core-billing.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-01-core-billing.sql)
 2. [paso-02-tuejecutiva.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-02-tuejecutiva.sql)
-3. [paso-03-leados.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-03-leados.sql)
-4. [paso-04-seed-minimo.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-04-seed-minimo.sql)
-5. [paso-05-checks-post.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-05-checks-post.sql)
+3. [paso-02b-tuejecutiva-storage.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-02b-tuejecutiva-storage.sql)
+4. [paso-03-leados.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-03-leados.sql)
+5. [paso-04-seed-minimo.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-04-seed-minimo.sql)
+6. [paso-05-checks-post.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-05-checks-post.sql)
 
 Notas:
 

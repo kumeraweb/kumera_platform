@@ -18,7 +18,8 @@ Objetivo:
 
 1. Ejecutar [paso-01-core-billing.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-01-core-billing.sql)
 2. Ejecutar [paso-02-tuejecutiva.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-02-tuejecutiva.sql)
-3. Ejecutar [paso-03-leados.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-03-leados.sql)
+3. Ejecutar [paso-02b-tuejecutiva-storage.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-02b-tuejecutiva-storage.sql)
+4. Ejecutar [paso-03-leados.sql](/Users/javiernfigueroa/Documents/code/kumera-platform/docs/bootstrap/sql/paso-03-leados.sql)
 
 ## 3) Validaciones rapidas
 
@@ -33,6 +34,11 @@ Objetivo:
 - `billing.subscriptions`
 - `tuejecutiva.executives`
 - `leados.clients`
+
+3. Confirmar buckets Tuejecutiva:
+- `executive-photos`
+- `company-logos`
+- `onboarding-documents`
 
 3. Confirmar RLS:
 - RLS activo en tablas de negocio (no solo en `public`).
