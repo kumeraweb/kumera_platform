@@ -28,7 +28,7 @@ export function TransferProofForm({
     event.preventDefault();
 
     if (!file) {
-      setMessage("Selecciona una imagen de comprobante.");
+      setMessage("Selecciona un archivo de comprobante (imagen o PDF).");
       return;
     }
     if (disabled) {
@@ -75,7 +75,7 @@ export function TransferProofForm({
         <div className={`mt-2 flex items-center justify-center rounded-xl border-2 border-dashed px-4 py-6 ${disabled ? "border-gray-200 bg-gray-100" : "border-gray-300 bg-white hover:border-emerald-400"}`}>
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"
             disabled={disabled}
             onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 disabled:opacity-50"

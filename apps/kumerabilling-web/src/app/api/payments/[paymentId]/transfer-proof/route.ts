@@ -7,9 +7,12 @@ import { applyRateLimit } from "@/lib/rate-limit";
 
 const allowedMime = new Set([
   "image/jpeg",
+  "image/jpg",
   "image/png",
   "image/webp",
   "image/heic",
+  "image/heif",
+  "application/pdf",
 ]);
 
 const maxBytes = 8 * 1024 * 1024;
@@ -48,7 +51,7 @@ export async function POST(
   }
 
   if (!allowedMime.has(file.type)) {
-    return fail(400, "INVALID_FILE_TYPE", "Solo se permiten archivos de imagen");
+    return fail(400, "INVALID_FILE_TYPE", "Solo se permiten imágenes o PDF");
   }
 
   if (file.size > maxBytes) {
@@ -92,10 +95,10 @@ export async function POST(
   }
 
   if (payment.subscription_id !== scopedSubscriptionId) {
-    return fail(401, "TOKEN_SCOPE_ERROR", "Token does not match payment subscription");
+    return fail(401, "TOKEN_SCOPE_ERROR", "El token no corresponde a esta suscripción");
   }
   if (tokenSource === "payment-link" && payment.id !== paymentScopedPaymentId) {
-    return fail(401, "TOKEN_SCOPE_ERROR", "Token does not match payment");
+    return fail(401, "TOKEN_SCOPE_ERROR", "El token no corresponde a este pago");
   }
 
   const arrayBuffer = await file.arrayBuffer();
