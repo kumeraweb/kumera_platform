@@ -26,6 +26,12 @@ export async function POST(
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   const userAgent = headerStore.get("user-agent") ?? "unknown";
+  const traceId = headerStore.get("x-kumera-trace-id") ?? crypto.randomUUID();
+  void writeAuditLog("contract.accept.received", "onboarding-token", {
+    traceId,
+    subscriptionId,
+    ip,
+  });
   const rateLimit = applyRateLimit({
     key: `contract-accept:${ip ?? "unknown"}:${subscriptionId}`,
     windowMs: 60_000,
@@ -33,21 +39,23 @@ export async function POST(
   });
   if (!rateLimit.ok) {
     await writeAuditLog("security.rate_limit.blocked", "onboarding-token", {
+      traceId,
       endpoint: "contract.accept",
       ip,
       subscriptionId,
     });
-    return fail(429, "RATE_LIMITED", "Too many requests. Try again in a minute.");
+    return fail(429, "RATE_LIMITED", `Too many requests. Try again in a minute. (trace ${traceId})`);
   }
 
   const tokenStatus = await resolveValidToken(parsed.data.token);
   if (!tokenStatus.ok || tokenStatus.record.subscription_id !== subscriptionId) {
     await writeAuditLog("contract.accept.failed", "onboarding-token", {
+      traceId,
       subscriptionId,
       ip,
       reason: "TOKEN_INVALID_OR_SCOPE_MISMATCH",
     });
-    return fail(401, "TOKEN_INVALID", "Token is invalid for this subscription");
+    return fail(401, "TOKEN_INVALID", `Token is invalid for this subscription (trace ${traceId})`);
   }
 
   const supabase = createAdminClient();
@@ -62,7 +70,7 @@ export async function POST(
     .maybeSingle();
 
   if (existingContractError) {
-    return fail(500, "DB_ERROR", "Failed to fetch contract", existingContractError.message);
+    return fail(500, "DB_ERROR", `Failed to fetch contract (trace ${traceId})`, existingContractError.message);
   }
 
   if (existingContract) {
@@ -76,7 +84,7 @@ export async function POST(
       })
       .eq("id", existingContract.id);
     if (updateContractError) {
-      return fail(500, "DB_ERROR", "Failed to update contract acceptance", updateContractError.message);
+      return fail(500, "DB_ERROR", `Failed to update contract acceptance (trace ${traceId})`, updateContractError.message);
     }
   } else {
     const { error: insertContractError } = await supabase.from("contracts").insert({
@@ -88,12 +96,13 @@ export async function POST(
         accepted: true,
       });
     if (insertContractError) {
-      return fail(500, "DB_ERROR", "Failed to save contract acceptance", insertContractError.message);
+      return fail(500, "DB_ERROR", `Failed to save contract acceptance (trace ${traceId})`, insertContractError.message);
     }
   }
 
   // Non-blocking audit/event writes to keep signature response fast for the client.
   void writeAuditLog("contract.accepted", "onboarding-token", {
+    traceId,
     subscriptionId,
     tokenId: tokenStatus.record.id,
     signerName: parsed.data.signerName,
@@ -106,8 +115,9 @@ export async function POST(
     subscription_id: subscriptionId,
     token_id: tokenStatus.record.id,
     event_type: "contract.accepted",
-    payload: {
-      signerName: parsed.data.signerName,
+      payload: {
+      traceId,
+        signerName: parsed.data.signerName,
       signerRut: parsed.data.signerRut,
       signerEmail: parsed.data.signerEmail,
       acceptedAt,
@@ -116,5 +126,5 @@ export async function POST(
     },
   });
 
-  return ok({ accepted: true });
+  return ok({ accepted: true, traceId });
 }
