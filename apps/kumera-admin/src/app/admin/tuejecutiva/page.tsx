@@ -21,6 +21,17 @@ type ExecutiveRow = {
   executive_regions?: Array<{ regions: { id: string; code: string; name: string } | null }>;
 };
 
+type SubmissionRow = {
+  id: string;
+  token_id: string | null;
+  full_name: string;
+  email: string;
+  phone: string;
+  company: string;
+  status: "pending" | "reviewed" | "approved" | "rejected";
+  created_at: string;
+};
+
 function normalizeExecutiveRows(rows: unknown[]): ExecutiveRow[] {
   return rows.map((row) => {
     const value = row as {
@@ -52,8 +63,14 @@ function normalizeExecutiveRows(rows: unknown[]): ExecutiveRow[] {
 export default async function TuejecutivaAdminPage() {
   await requireAdminPage([ROLE.TUEJECUTIVA]);
   const tuejecutiva = createTuejecutivaServiceClient();
+  const siteUrl = process.env.NEXT_PUBLIC_TUEJECUTIVA_SITE_URL || "https://tuejecutiva.cl";
 
-  const [{ data: categories, error: categoriesError }, { data: regions, error: regionsError }, { data: executives, error: executivesError }] = await Promise.all([
+  const [
+    { data: categories, error: categoriesError },
+    { data: regions, error: regionsError },
+    { data: executives, error: executivesError },
+    { data: submissions, error: submissionsError },
+  ] = await Promise.all([
     tuejecutiva.from("categories").select("id, slug, name").order("name", { ascending: true }),
     tuejecutiva.from("regions").select("id, code, name").order("name", { ascending: true }),
     tuejecutiva
@@ -63,9 +80,15 @@ export default async function TuejecutivaAdminPage() {
       )
       .order("created_at", { ascending: false })
       .limit(200),
+    tuejecutiva
+      .from("onboarding_submissions")
+      .select("id, token_id, full_name, email, phone, company, status, created_at")
+      .in("status", ["pending", "reviewed"])
+      .order("created_at", { ascending: false })
+      .limit(200),
   ]);
 
-  const errors = [categoriesError?.message, regionsError?.message, executivesError?.message].filter(Boolean);
+  const errors = [categoriesError?.message, regionsError?.message, executivesError?.message, submissionsError?.message].filter(Boolean);
 
   return (
     <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
@@ -73,8 +96,10 @@ export default async function TuejecutivaAdminPage() {
       <p className="mt-1 text-xs text-slate-400">Incluye generación de token onboarding, listado y creación manual de ejecutivas.</p>
       {errors.length > 0 ? <p className="mt-2 text-sm text-red-400">Error: {errors.join(" | ")}</p> : null}
       <TuejecutivaAdminClient
+        onboardingAdminBaseUrl={`${siteUrl}/admin`}
         initialCategories={(categories ?? []) as Category[]}
         initialRegions={(regions ?? []) as Region[]}
+        initialSubmissions={(submissions ?? []) as SubmissionRow[]}
         initialExecutives={normalizeExecutiveRows((executives ?? []) as unknown[])}
       />
     </section>

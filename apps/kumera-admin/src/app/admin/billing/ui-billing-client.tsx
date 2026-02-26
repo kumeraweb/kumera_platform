@@ -189,6 +189,15 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     }
   }, [form.contractTemplateId, templatesForService]);
 
+  function validateOnboardingForm() {
+    if (!form.serviceSlug) return "Debes seleccionar un servicio.";
+    if (!form.planId) return "Debes seleccionar un plan.";
+    if (!form.contractTemplateId) {
+      return "Debes seleccionar una plantilla de contrato. Si no aparecen, falta ejecutar migraciones/seed de templates.";
+    }
+    return null;
+  }
+
   useEffect(() => {
     if (previewFormSnapshot && previewFormSnapshot !== currentFormSnapshot) {
       setPreview(null);
@@ -197,6 +206,12 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }, [currentFormSnapshot, previewFormSnapshot]);
 
   async function onPreviewContract() {
+    const validationError = validateOnboardingForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setWorking(true);
     setError(null);
     setMessage(null);
@@ -226,6 +241,12 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }
   async function onCreateOnboarding(event: FormEvent) {
     event.preventDefault();
+    const validationError = validateOnboardingForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     if (!isValidRut(form.rut)) {
       setError("RUT inválido. Usa formato 12345678-9");
       return;

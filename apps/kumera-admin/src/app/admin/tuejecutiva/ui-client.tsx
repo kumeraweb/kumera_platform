@@ -19,9 +19,22 @@ type ExecutiveRow = {
   executive_regions?: Array<{ regions: { id: string; code: string; name: string } | null }>;
 };
 
+type SubmissionRow = {
+  id: string;
+  token_id: string | null;
+  full_name: string;
+  email: string;
+  phone: string;
+  company: string;
+  status: "pending" | "reviewed" | "approved" | "rejected";
+  created_at: string;
+};
+
 type Props = {
+  onboardingAdminBaseUrl: string;
   initialCategories: Category[];
   initialRegions: Region[];
+  initialSubmissions: SubmissionRow[];
   initialExecutives: ExecutiveRow[];
 };
 
@@ -35,8 +48,10 @@ function slugify(value: string) {
 }
 
 export default function TuejecutivaAdminClient({
+  onboardingAdminBaseUrl,
   initialCategories,
   initialRegions,
+  initialSubmissions,
   initialExecutives,
 }: Props) {
   const [message, setMessage] = useState<string | null>(null);
@@ -49,6 +64,7 @@ export default function TuejecutivaAdminClient({
     link: string;
     reused: boolean;
   }>(null);
+  const [submissions] = useState<SubmissionRow[]>(initialSubmissions);
 
   const [tokenForm, setTokenForm] = useState({ email: "", expires_in_days: 7 });
   const [executiveForm, setExecutiveForm] = useState({
@@ -313,6 +329,71 @@ export default function TuejecutivaAdminClient({
           Crear ejecutiva
         </button>
       </form>
+
+      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="m-0 text-sm font-bold text-slate-100">Postulaciones onboarding pendientes de activación</h3>
+          <a
+            href={`${onboardingAdminBaseUrl}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-semibold text-blue-300 hover:underline"
+          >
+            Abrir admin onboarding
+          </a>
+        </div>
+        <p className="mt-1 text-xs text-slate-400">
+          Aquí aparecen ejecutivas que ya respondieron onboarding y todavía no han sido activadas/publicadas.
+        </p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Nombre</th>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Empresa</th>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Contacto</th>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Estado</th>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Creado</th>
+                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {submissions.length === 0 ? (
+                <tr>
+                  <td className="px-2 py-3 text-xs text-slate-400" colSpan={6}>
+                    No hay postulaciones pendientes por activar.
+                  </td>
+                </tr>
+              ) : (
+                submissions.map((row) => (
+                  <tr key={row.id}>
+                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.full_name}</td>
+                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.company || "-"}</td>
+                    <td className="border-b border-slate-800 px-2 py-2 text-slate-300">
+                      <p className="m-0">{row.email}</p>
+                      <p className="m-0 text-xs">{row.phone || "-"}</p>
+                    </td>
+                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.status}</td>
+                    <td className="border-b border-slate-800 px-2 py-2 text-slate-300">
+                      {new Date(row.created_at).toLocaleString("es-CL")}
+                    </td>
+                    <td className="border-b border-slate-800 px-2 py-2">
+                      <a
+                        href={`${onboardingAdminBaseUrl}/submissions/${row.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded border border-blue-500/40 bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-300"
+                      >
+                        Revisar
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
         <h3 className="m-0 text-sm font-bold text-slate-100">Ejecutivas actuales</h3>
