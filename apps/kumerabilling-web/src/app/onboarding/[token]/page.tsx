@@ -205,20 +205,10 @@ export default async function OnboardingPage({
                   <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
                     <p className="font-semibold">Transferencia bancaria</p>
                     <p className="text-xs text-emerald-800">Disponible ahora</p>
-                    <div className="mt-2 border-t border-emerald-200 pt-2 text-xs leading-5">
-                      <p>MONTO: ${amountClp} CLP</p>
-                      <p>IVA (19%): ${ivaClp} CLP</p>
-                      <p className="font-semibold">TOTAL A TRANSFERIR: ${totalClp} CLP</p>
-                    </div>
                   </div>
                   <div className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 opacity-80">
                     <p className="font-semibold">Tarjeta / Webpay / Stripe</p>
                     <p className="text-xs text-gray-500">Proximamente</p>
-                    <div className="mt-2 border-t border-gray-200 pt-2 text-xs leading-5">
-                      <p>MONTO: ${amountClp} CLP</p>
-                      <p>IVA (19%): ${ivaClp} CLP</p>
-                      <p className="font-semibold">TOTAL A PAGAR: ${totalClp} CLP</p>
-                    </div>
                   </div>
                 </div>
               </div>
