@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   token: string;
-  subscriptionId: string;
+  contractId: string;
 };
 
-export function ContractAcceptForm({ token, subscriptionId }: Props) {
+export function ContractAcceptForm({ token, contractId }: Props) {
   const router = useRouter();
   const [accepted, setAccepted] = useState(false);
   const [signerName, setSignerName] = useState("");
@@ -18,11 +18,11 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
   const [loading, setLoading] = useState(false);
 
   async function postAccept(timeoutMs: number, traceId: string) {
-    console.log("[billing-signature] starting request", { traceId, timeoutMs, subscriptionId });
+    console.log("[billing-signature] starting request", { traceId, timeoutMs, contractId });
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(`/api/contracts/${subscriptionId}/accept`, {
+      const response = await fetch(`/api/contracts/${contractId}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-kumera-trace-id": traceId },
         cache: "no-store",
@@ -66,7 +66,7 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
     const traceId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}`;
     console.log("[billing-signature] submit", {
       traceId,
-      subscriptionId,
+      contractId,
       signerName: signerName.trim(),
       signerRut: signerRut.trim(),
       signerEmail: signerEmail.trim().toLowerCase(),

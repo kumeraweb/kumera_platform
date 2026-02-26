@@ -8,9 +8,9 @@ export const runtime = "nodejs";
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ subscriptionId: string }> },
+  context: { params: Promise<{ contractId: string }> },
 ) {
-  const { subscriptionId } = await context.params;
+  const { contractId } = await context.params;
   const traceId = request.headers.get("x-kumera-trace-id") ?? crypto.randomUUID();
 
   let body: unknown;
@@ -39,29 +39,33 @@ export async function POST(
   if (
     tokenError ||
     !tokenRow ||
-    tokenRow.subscription_id !== subscriptionId ||
     tokenRow.revoked_at ||
     tokenRow.consumed_at ||
     isTokenExpired(new Date(tokenRow.expires_at), new Date())
   ) {
-    return fail(401, "TOKEN_INVALID", `Token invalid/expired for this subscription (trace ${traceId})`);
+    return fail(401, "TOKEN_INVALID", `Token invalid/expired for this contract (trace ${traceId})`);
   }
 
-  const { data: existingContract, error: existingContractError } = await supabase
+  const { data: contract, error: contractError } = await supabase
     .from("contracts")
-    .select("id")
-    .eq("subscription_id", subscriptionId)
-    .order("created_at", { ascending: false })
-    .limit(1)
+    .select("id,subscription_id,metadata")
+    .eq("id", contractId)
     .maybeSingle();
 
-  if (existingContractError) {
-    return fail(500, "DB_ERROR", `Failed to fetch contract (trace ${traceId})`, existingContractError.message);
+  if (contractError) {
+    return fail(500, "DB_ERROR", `Failed to fetch contract (trace ${traceId})`, contractError.message);
+  }
+  if (!contract) {
+    return fail(404, "CONTRACT_NOT_FOUND", `No contract found (trace ${traceId})`);
+  }
+  if (contract.subscription_id !== tokenRow.subscription_id) {
+    return fail(403, "FORBIDDEN", `Contract does not belong to token subscription (trace ${traceId})`);
   }
 
-  if (!existingContract) {
-    return fail(404, "CONTRACT_NOT_FOUND", `No contract found for subscription (trace ${traceId})`);
-  }
+  const existingMetadata =
+    contract.metadata && typeof contract.metadata === "object" && !Array.isArray(contract.metadata)
+      ? (contract.metadata as Record<string, unknown>)
+      : {};
 
   const { error: updateContractError } = await supabase
     .from("contracts")
@@ -71,13 +75,14 @@ export async function POST(
       accepted_ip: ip,
       accepted_user_agent: userAgent,
       metadata: {
+        ...existingMetadata,
         signerName: parsed.data.signerName,
         signerRut: parsed.data.signerRut,
         signerEmail: parsed.data.signerEmail,
         traceId,
       },
     })
-    .eq("id", existingContract.id);
+    .eq("id", contract.id);
 
   if (updateContractError) {
     return fail(500, "DB_ERROR", `Failed to update contract acceptance (trace ${traceId})`, updateContractError.message);
