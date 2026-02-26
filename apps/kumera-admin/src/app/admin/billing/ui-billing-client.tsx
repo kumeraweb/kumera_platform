@@ -41,34 +41,11 @@ type SubscriptionRow = {
 type Props = { legacyAdminUrl: string };
 const PLATFORM_SERVICE_SLUGS = new Set(["tractiva", "tuejecutiva", "leadosku"]);
 
-function normalizeRut(raw: string) {
-  return raw.replace(/[^0-9kK]/g, "").toUpperCase();
-}
-
-function formatRut(raw: string) {
-  const normalized = normalizeRut(raw);
-  if (normalized.length < 2) return normalized;
-  const body = normalized.slice(0, -1);
-  const dv = normalized.slice(-1);
-  return `${Number(body).toLocaleString("es-CL").replace(/\./g, "")}-${dv}`;
-}
-
-function isValidRut(raw: string) {
-  const normalized = normalizeRut(raw);
-  if (!/^\d{7,8}[0-9K]$/.test(normalized)) return false;
-  const body = normalized.slice(0, -1);
-  const expectedDv = normalized.slice(-1);
-  let sum = 0;
-  let multiplier = 2;
-
-  for (let i = body.length - 1; i >= 0; i -= 1) {
-    sum += Number(body[i]) * multiplier;
-    multiplier = multiplier === 7 ? 2 : multiplier + 1;
-  }
-
-  const remainder = 11 - (sum % 11);
-  const computedDv = remainder === 11 ? "0" : remainder === 10 ? "K" : String(remainder);
-  return expectedDv === computedDv;
+function composeRut(bodyRaw: string, dvRaw: string) {
+  const body = bodyRaw.replace(/\D/g, "");
+  const dv = dvRaw.replace(/[^0-9kK]/g, "").toUpperCase();
+  if (!body || !dv) return "";
+  return `${body}-${dv}`;
 }
 
 export default function BillingAdminClient({ legacyAdminUrl }: Props) {
@@ -89,17 +66,20 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     planName: string;
     templateName: string;
   } | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [previewFormSnapshot, setPreviewFormSnapshot] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     customerType: "company" as "company" | "person",
     companyName: "",
-    rut: "",
+    rutBody: "",
+    rutDv: "",
     address: "",
     email: "",
     phone: "",
     legalRepresentativeName: "",
-    legalRepresentativeRut: "",
+    legalRepresentativeRutBody: "",
+    legalRepresentativeRutDv: "",
     serviceSlug: "",
     planId: "",
     contractTemplateId: "",
@@ -219,7 +199,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     const response = await fetch("/api/admin/billing/onboarding/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        rut: composeRut(form.rutBody, form.rutDv),
+        legalRepresentativeRut: composeRut(form.legalRepresentativeRutBody, form.legalRepresentativeRutDv),
+      }),
     });
     const payload = await response.json();
     if (!response.ok) {
@@ -235,6 +219,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
       planName: payload.plan?.name ?? "-",
       templateName: payload.template?.name ?? "-",
     });
+    setPreviewOpen(true);
     setPreviewFormSnapshot(currentFormSnapshot);
     setMessage("Previsualización lista. Ya puedes crear onboarding.");
     setWorking(false);
@@ -247,12 +232,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
       return;
     }
 
-    if (!isValidRut(form.rut)) {
-      setError("RUT inválido. Usa formato 12345678-9");
+    const companyRut = composeRut(form.rutBody, form.rutDv);
+    const representativeRut = composeRut(form.legalRepresentativeRutBody, form.legalRepresentativeRutDv);
+    if (!companyRut) {
+      setError("Debes ingresar RUT y DV del cliente.");
       return;
     }
-    if (form.customerType === "company" && form.legalRepresentativeRut.trim() && !isValidRut(form.legalRepresentativeRut)) {
-      setError("RUT de representante legal inválido.");
+    if (form.customerType === "company" && form.legalRepresentativeName.trim() && !representativeRut) {
+      setError("Si ingresas representante legal, debes completar su RUT y DV.");
       return;
     }
 
@@ -269,7 +256,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     const response = await fetch("/api/admin/billing/onboarding/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        rut: companyRut,
+        legalRepresentativeRut: representativeRut,
+      }),
     });
 
     const payload = await response.json();
@@ -372,11 +363,17 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
             </select>
             <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder={form.customerType === "company" ? "Razón social" : "Nombre completo"} value={form.companyName} onChange={(e) => setForm((v) => ({ ...v, companyName: e.target.value }))} required />
           </div>
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT (ej: 16370698-9)" value={form.rut} onBlur={(e) => setForm((v) => ({ ...v, rut: formatRut(e.target.value) }))} onChange={(e) => setForm((v) => ({ ...v, rut: e.target.value }))} required />
+          <div className="grid gap-2 md:grid-cols-[3fr_1fr]">
+            <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT (solo números)" value={form.rutBody} onChange={(e) => setForm((v) => ({ ...v, rutBody: e.target.value.replace(/\\D/g, "") }))} required />
+            <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="DV" maxLength={1} value={form.rutDv} onChange={(e) => setForm((v) => ({ ...v, rutDv: e.target.value.replace(/[^0-9kK]/g, "").toUpperCase() }))} required />
+          </div>
           {form.customerType === "company" ? (
             <div className="grid gap-2 md:grid-cols-2">
               <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Representante legal (opcional)" value={form.legalRepresentativeName} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeName: e.target.value }))} />
-              <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT representante (opcional)" value={form.legalRepresentativeRut} onBlur={(e) => setForm((v) => ({ ...v, legalRepresentativeRut: formatRut(e.target.value) }))} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRut: e.target.value }))} />
+              <div className="grid gap-2 md:grid-cols-[3fr_1fr]">
+                <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT representante (números)" value={form.legalRepresentativeRutBody} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRutBody: e.target.value.replace(/\\D/g, "") }))} />
+                <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="DV" maxLength={1} value={form.legalRepresentativeRutDv} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRutDv: e.target.value.replace(/[^0-9kK]/g, "").toUpperCase() }))} />
+              </div>
             </div>
           ) : null}
           <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Dirección" value={form.address} onChange={(e) => setForm((v) => ({ ...v, address: e.target.value }))} required />
@@ -414,19 +411,54 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           <button disabled={working || loading} className="w-fit rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-60" onClick={onPreviewContract} type="button">
             {working ? "Procesando..." : "Previsualizar contrato"}
           </button>
+          {preview ? (
+            <button
+              disabled={working}
+              className="w-fit rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-3 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20 disabled:opacity-60"
+              onClick={() => setPreviewOpen(true)}
+              type="button"
+            >
+              Abrir preview
+            </button>
+          ) : null}
         </form>
         {preview ? (
-          <div className="mt-4 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
-            <p className="m-0 text-xs font-semibold text-blue-200">
-              Preview: {preview.serviceName} · {preview.planName} · {preview.templateName}
-            </p>
-            <p className="mt-1 text-xs text-blue-100">Hash: <span className="font-mono">{preview.contentHash.slice(0, 16)}</span></p>
-            <article className="prose prose-invert mt-3 max-w-none rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm" dangerouslySetInnerHTML={{ __html: preview.htmlRendered }} />
-          </div>
+          <p className="mt-3 text-xs text-slate-400">
+            Preview listo: {preview.serviceName} · {preview.planName} · {preview.templateName} · hash{" "}
+            <span className="font-mono">{preview.contentHash.slice(0, 16)}</span>
+          </p>
         ) : (
           <p className="mt-3 text-xs text-slate-500">Previsualiza el contrato con los datos actuales antes de generar el token onboarding.</p>
         )}
       </div>
+
+      {previewOpen && preview ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4" role="dialog" aria-modal="true">
+          <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-4 py-3">
+              <p className="m-0 text-sm font-semibold text-slate-100">
+                Preview: {preview.serviceName} · {preview.planName} · {preview.templateName}
+              </p>
+              <button
+                className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-200 hover:bg-slate-700"
+                onClick={() => setPreviewOpen(false)}
+                type="button"
+              >
+                Cerrar
+              </button>
+            </div>
+            <div className="max-h-[calc(92vh-58px)] overflow-y-auto p-4">
+              <p className="mb-2 text-xs text-slate-400">
+                Hash: <span className="font-mono">{preview.contentHash}</span>
+              </p>
+              <article
+                className="prose prose-invert max-w-none rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm"
+                dangerouslySetInnerHTML={{ __html: preview.htmlRendered }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
         <h2 className="m-0 text-base font-bold text-slate-100">Plantillas de contrato (precargadas)</h2>

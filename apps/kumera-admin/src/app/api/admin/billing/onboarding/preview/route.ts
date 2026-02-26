@@ -12,7 +12,16 @@ export async function POST(request: Request) {
   if (!auth.ok) return auth.response;
 
   const parsed = onboardingSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return fail("Invalid onboarding payload", 400);
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0]?.message ?? "Invalid onboarding payload";
+    return Response.json(
+      {
+        error: firstIssue,
+        details: parsed.error.flatten(),
+      },
+      { status: 400 },
+    );
+  }
 
   const payload = parsed.data;
   const billing = createBillingServiceClient();
