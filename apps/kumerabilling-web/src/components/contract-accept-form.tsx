@@ -39,6 +39,8 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
       const response = await fetch(`/api/contracts/${subscriptionId}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        credentials: "same-origin",
         signal: controller.signal,
         body: JSON.stringify({
           token,
@@ -51,16 +53,17 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
 
       const payload = (await response.json()) as { ok: boolean; error?: { message: string } };
       if (!response.ok || !payload.ok) {
-        setMessage(payload.error?.message ?? "No se pudo registrar aceptación.");
+        setMessage(payload.error?.message ?? `No se pudo registrar aceptación (HTTP ${response.status}).`);
       } else {
         setMessage("Contrato aceptado correctamente.");
         router.refresh();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Error && error.name === "AbortError") {
-        setMessage("La firma tardó demasiado. Intenta nuevamente.");
+        setMessage("La firma tardó más de 15s. Reintentaremos cargar estado.");
+        router.refresh();
       } else {
-        setMessage("Error inesperado aceptando contrato.");
+        setMessage("No se pudo conectar con el servidor al firmar. Intenta nuevamente.");
       }
     } finally {
       if (timeoutId) clearTimeout(timeoutId);

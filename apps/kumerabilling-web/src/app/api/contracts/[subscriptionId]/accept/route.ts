@@ -92,30 +92,29 @@ export async function POST(
     }
   }
 
-  await Promise.allSettled([
-    writeAuditLog("contract.accepted", "onboarding-token", {
-      subscriptionId,
-      tokenId: tokenStatus.record.id,
+  // Non-blocking audit/event writes to keep signature response fast for the client.
+  void writeAuditLog("contract.accepted", "onboarding-token", {
+    subscriptionId,
+    tokenId: tokenStatus.record.id,
+    signerName: parsed.data.signerName,
+    signerRut: parsed.data.signerRut,
+    signerEmail: parsed.data.signerEmail,
+    acceptedAt,
+    acceptedIp: ip,
+  });
+  void supabase.from("onboarding_events").insert({
+    subscription_id: subscriptionId,
+    token_id: tokenStatus.record.id,
+    event_type: "contract.accepted",
+    payload: {
       signerName: parsed.data.signerName,
       signerRut: parsed.data.signerRut,
       signerEmail: parsed.data.signerEmail,
       acceptedAt,
       acceptedIp: ip,
-    }),
-    supabase.from("onboarding_events").insert({
-      subscription_id: subscriptionId,
-      token_id: tokenStatus.record.id,
-      event_type: "contract.accepted",
-      payload: {
-        signerName: parsed.data.signerName,
-        signerRut: parsed.data.signerRut,
-        signerEmail: parsed.data.signerEmail,
-        acceptedAt,
-        acceptedIp: ip,
-        acceptedUserAgent: userAgent,
-      },
-    }),
-  ]);
+      acceptedUserAgent: userAgent,
+    },
+  });
 
   return ok({ accepted: true });
 }
