@@ -40,19 +40,19 @@ export async function POST(
   const file = formData.get("file");
 
   if (typeof token !== "string") {
-    return fail(400, "VALIDATION_ERROR", "token is required");
+    return fail(400, "VALIDATION_ERROR", "Token requerido");
   }
 
   if (!(file instanceof File)) {
-    return fail(400, "VALIDATION_ERROR", "file is required");
+    return fail(400, "VALIDATION_ERROR", "Archivo requerido");
   }
 
   if (!allowedMime.has(file.type)) {
-    return fail(400, "INVALID_FILE_TYPE", "Only image files are allowed");
+    return fail(400, "INVALID_FILE_TYPE", "Solo se permiten archivos de imagen");
   }
 
   if (file.size > maxBytes) {
-    return fail(400, "FILE_TOO_LARGE", "Max file size is 8MB");
+    return fail(400, "FILE_TOO_LARGE", "El tamaño máximo permitido es 8MB");
   }
 
   const onboardingTokenStatus = await resolveValidToken(token);
@@ -67,7 +67,7 @@ export async function POST(
       ip,
       reason: "TOKEN_INVALID",
     });
-    return fail(401, "TOKEN_INVALID", "Invalid or expired token");
+    return fail(401, "TOKEN_INVALID", "Token inválido o expirado");
   }
 
   const supabase = createAdminClient();
@@ -78,7 +78,7 @@ export async function POST(
     .single();
 
   if (paymentError || !payment) {
-    return fail(404, "PAYMENT_NOT_FOUND", "Payment not found", paymentError?.message);
+    return fail(404, "PAYMENT_NOT_FOUND", "Pago no encontrado", paymentError?.message);
   }
 
   let scopedSubscriptionId = "";
@@ -137,7 +137,7 @@ export async function POST(
       .eq("id", onboardingTokenStatus.record.id);
   } else {
     if (!paymentAccessTokenStatus?.ok) {
-      return fail(401, "TOKEN_INVALID", "Invalid token");
+      return fail(401, "TOKEN_INVALID", "Token inválido");
     }
     await supabase
       .from("payment_access_tokens")

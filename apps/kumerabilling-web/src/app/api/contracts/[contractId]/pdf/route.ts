@@ -14,6 +14,15 @@ function getPdfShiftKey() {
   return key;
 }
 
+function getAppBaseUrl(request: NextRequest) {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, "");
+  }
+  const fallback = request.nextUrl.origin;
+  return fallback.replace(/\/+$/, "");
+}
+
 function buildContractHtml(title: string, bodyHtml: string) {
   return `<!doctype html>
 <html lang="es">
@@ -127,7 +136,12 @@ export async function GET(
   }
 
   const title = "Acuerdo de prestacion de servicios";
-  const source = buildContractHtml(title, contract.html_rendered);
+  const appBaseUrl = getAppBaseUrl(request);
+  const renderedWithAbsoluteAssets = contract.html_rendered.replace(
+    /src=(["'])\/sign\.png\1/g,
+    `src="${appBaseUrl}/sign.png"`,
+  );
+  const source = buildContractHtml(title, renderedWithAbsoluteAssets);
 
   const providerResponse = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
     method: "POST",
@@ -150,7 +164,8 @@ export async function GET(
   }
 
   const pdfBytes = await providerResponse.arrayBuffer();
-  const filenameBase = sanitizeFilename(`acuerdo-${contract.id.slice(0, 8)}-${contract.version || "v1"}`);
+  const numericId = (contract.id.match(/\d+/g)?.join("") || "").slice(0, 12);
+  const filenameBase = sanitizeFilename(`acuerdo_${numericId || Date.now().toString()}`);
 
   return new Response(pdfBytes, {
     status: 200,

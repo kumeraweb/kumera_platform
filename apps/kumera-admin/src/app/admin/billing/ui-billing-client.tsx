@@ -18,7 +18,7 @@ type ContractTemplate = {
 type PaymentRow = {
   id: string;
   status: string;
-  onboarding_state?: "pending_contract_signature" | "pending_transfer_proof" | "ready_for_review" | "completed" | "renewal_pending_payment";
+  onboarding_state?: "pending_contract_signature" | "pending_transfer_proof" | "ready_for_review" | "completed" | "renewal_pending_payment" | "rejected";
   amount_cents: number;
   due_date: string;
   validated_at: string | null;
@@ -140,7 +140,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }, [form.customerType, form.serviceSlug, platformServices, templates]);
   const currentFormSnapshot = useMemo(() => JSON.stringify(form), [form]);
   const pendingPayments = useMemo(
-    () => payments.filter((payment) => payment.status !== "validated"),
+    () => payments.filter((payment) => !["validated", "rejected"].includes(payment.status)),
+    [payments],
+  );
+  const rejectedPayments = useMemo(
+    () => payments.filter((payment) => payment.status === "rejected"),
     [payments],
   );
   const validatedPayments = useMemo(
@@ -356,6 +360,29 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     }
 
     setMessage("Pago rechazado.");
+    setWorking(false);
+    await loadAll();
+  }
+
+  async function onDeleteRejectedPayment(id: string) {
+    const confirmed = window.confirm("Esto eliminará definitivamente el onboarding rechazado (cliente/suscripción). ¿Continuar?");
+    if (!confirmed) return;
+
+    setWorking(true);
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch(`/api/admin/billing/payments/${id}/delete`, {
+      method: "DELETE",
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo eliminar definitivamente");
+      setWorking(false);
+      return;
+    }
+
+    setMessage("Registro rechazado eliminado definitivamente.");
     setWorking(false);
     await loadAll();
   }
@@ -718,6 +745,55 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </table>
         </div>
       </div>
+
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
+          Pagos rechazados: {rejectedPayments.length}
+        </summary>
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Servicio</th>
+                <th>Plan</th>
+                <th>Motivo</th>
+                <th>Monto</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rejectedPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                    No hay pagos rechazados.
+                  </td>
+                </tr>
+              ) : (
+                rejectedPayments.map((payment) => (
+                  <tr key={payment.id}>
+                    <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
+                    <td>{payment.subscriptions?.services?.name ?? "-"}</td>
+                    <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                    <td>{payment.rejection_reason ?? "-"}</td>
+                    <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
+                    <td>
+                      <button
+                        disabled={working}
+                        className="admin-btn admin-btn-danger admin-btn-sm"
+                        onClick={() => onDeleteRejectedPayment(payment.id)}
+                        type="button"
+                      >
+                        Eliminar definitivamente
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </details>
 
       <details className="admin-card">
         <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--admin-text)" }}>

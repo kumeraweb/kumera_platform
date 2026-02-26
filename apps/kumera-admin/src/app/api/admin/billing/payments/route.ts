@@ -76,7 +76,9 @@ export async function GET(request: Request) {
     const contractAccepted = latestContract?.accepted === true;
     const subscriptionAlreadyValidated = hasValidatedPaymentBySubscriptionId.get(payment.subscription_id) === true;
     const onboardingState =
-      payment.status === "validated"
+      payment.status === "rejected"
+        ? "rejected"
+        : payment.status === "validated"
         ? "completed"
         : subscriptionAlreadyValidated && payment.status === "pending" && !latestProof
           ? "renewal_pending_payment"

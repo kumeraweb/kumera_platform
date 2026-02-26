@@ -48,7 +48,7 @@ export async function POST(
 
   const { data: contract, error: contractError } = await supabase
     .from("contracts")
-    .select("id,subscription_id,metadata")
+    .select("id,subscription_id,metadata,html_rendered")
     .eq("id", contractId)
     .maybeSingle();
 
@@ -66,6 +66,12 @@ export async function POST(
     contract.metadata && typeof contract.metadata === "object" && !Array.isArray(contract.metadata)
       ? (contract.metadata as Record<string, unknown>)
       : {};
+  const signedDate = new Date(acceptedAt).toLocaleDateString("es-CL");
+  const signerLine = `Firmado electrónicamente por ${parsed.data.signerName.trim()} · Fecha: ${signedDate}`;
+  const nextHtml =
+    typeof contract.html_rendered === "string"
+      ? contract.html_rendered.replace("Firma: ________________________", `Firma: ${signerLine}`)
+      : contract.html_rendered;
 
   const { error: updateContractError } = await supabase
     .from("contracts")
@@ -74,6 +80,7 @@ export async function POST(
       accepted_at: acceptedAt,
       accepted_ip: ip,
       accepted_user_agent: userAgent,
+      html_rendered: nextHtml,
       metadata: {
         ...existingMetadata,
         signerName: parsed.data.signerName,
