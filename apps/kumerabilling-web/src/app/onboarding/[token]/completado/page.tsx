@@ -30,7 +30,7 @@ export default async function OnboardingCompletedPage({ params, searchParams }: 
               rel="noreferrer"
               target="_blank"
             >
-              Descargar acuerdo de servicios
+              Abrir acuerdo imprimible
             </a>
           ) : null}
           <a

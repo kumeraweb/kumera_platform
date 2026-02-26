@@ -66,12 +66,48 @@ export async function GET(
     return fail(403, "FORBIDDEN", "Contract does not belong to token subscription");
   }
 
-  const filename = `contrato-${contract.id}-${contract.version || "v1"}.html`;
-  return new Response(contract.html_rendered, {
+  const title = `Contrato de servicios (${contract.version || "v1"})`;
+  const printableHtml = `<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title}</title>
+    <style>
+      :root { color-scheme: light; }
+      body { margin: 0; background: #f3f4f6; color: #111827; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+      .toolbar { position: sticky; top: 0; z-index: 10; display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; background: #ffffff; }
+      .hint { margin: 0; font-size: 12px; color: #4b5563; }
+      .btn { display: inline-block; text-decoration: none; border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; }
+      .sheet-wrap { padding: 20px 12px; }
+      .sheet { max-width: 900px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+      @media (min-width: 768px) { .sheet-wrap { padding: 28px; } .sheet { padding: 28px; } }
+      @media print {
+        body { background: #fff; }
+        .toolbar { display: none; }
+        .sheet-wrap { padding: 0; }
+        .sheet { max-width: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <p class="hint">Contrato en formato imprimible. Usa "Imprimir" y selecciona "Guardar como PDF".</p>
+      <a class="btn" href="#" onclick="window.print(); return false;">Imprimir / Guardar PDF</a>
+    </div>
+    <main class="sheet-wrap">
+      <article class="sheet">
+        ${contract.html_rendered}
+      </article>
+    </main>
+  </body>
+</html>`;
+
+  return new Response(printableHtml, {
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Content-Disposition": `attachment; filename=\"${filename}\"`,
+      "Content-Disposition": "inline",
       "Cache-Control": "no-store",
     },
   });

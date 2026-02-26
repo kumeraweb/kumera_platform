@@ -18,7 +18,6 @@ export function ContractAcceptForm({ token, contractId }: Props) {
   const [loading, setLoading] = useState(false);
 
   async function postAccept(timeoutMs: number, traceId: string) {
-    console.log("[billing-signature] starting request", { traceId, timeoutMs, contractId });
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -37,12 +36,6 @@ export function ContractAcceptForm({ token, contractId }: Props) {
         }),
       });
       const payload = (await response.json()) as { ok: boolean; error?: { message: string } };
-      console.log("[billing-signature] response received", {
-        traceId,
-        status: response.status,
-        ok: response.ok,
-        payload,
-      });
       return { response, payload };
     } finally {
       clearTimeout(timeoutId);
@@ -64,13 +57,6 @@ export function ContractAcceptForm({ token, contractId }: Props) {
     setLoading(true);
     setMessage(null);
     const traceId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}`;
-    console.log("[billing-signature] submit", {
-      traceId,
-      contractId,
-      signerName: signerName.trim(),
-      signerRut: signerRut.trim(),
-      signerEmail: signerEmail.trim().toLowerCase(),
-    });
 
     try {
       const firstAttempt = await postAccept(15000, traceId);
@@ -81,14 +67,9 @@ export function ContractAcceptForm({ token, contractId }: Props) {
         );
       } else {
         setMessage("Contrato aceptado correctamente.");
-        console.log("[billing-signature] accepted on first attempt", { traceId });
         router.refresh();
       }
     } catch (error: unknown) {
-      console.log("[billing-signature] first attempt error", {
-        traceId,
-        errorName: error instanceof Error ? error.name : typeof error,
-      });
       if (error instanceof Error && error.name === "AbortError") {
         setMessage(`La firma tardó más de 15s. Reintentando automáticamente... (trace ${traceId})`);
         try {
@@ -100,14 +81,9 @@ export function ContractAcceptForm({ token, contractId }: Props) {
             );
           } else {
             setMessage("Contrato aceptado correctamente.");
-            console.log("[billing-signature] accepted on second attempt", { traceId });
             router.refresh();
           }
-        } catch (secondError: unknown) {
-          console.log("[billing-signature] second attempt error", {
-            traceId,
-            errorName: secondError instanceof Error ? secondError.name : typeof secondError,
-          });
+        } catch {
           setMessage(`No se recibió respuesta del servidor al firmar (trace ${traceId}). Intenta nuevamente.`);
         }
       } else {

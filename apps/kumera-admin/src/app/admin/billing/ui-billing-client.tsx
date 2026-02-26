@@ -41,6 +41,7 @@ type SubscriptionRow = {
   id: string;
   status: string;
   created_at: string;
+  next_due_date?: string | null;
   companies?: { legal_name?: string | null };
   services?: { slug?: string | null; name?: string | null };
   plans?: { id?: string | null; name?: string | null; price_cents?: number | null };
@@ -679,6 +680,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 <th>Servicio</th>
                 <th>Plan</th>
                 <th>Estado</th>
+                <th>Próximo cobro</th>
                 <th>Acción</th>
               </tr>
             </thead>
@@ -690,6 +692,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                   <td>{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
                   <td>{subscription.plans?.name ?? "-"}</td>
                   <td><StatusBadge status={subscription.status} /></td>
+                  <td>
+                    {subscription.next_due_date
+                      ? new Date(subscription.next_due_date).toLocaleDateString("es-CL")
+                      : "-"}
+                  </td>
                   <td>
                     <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Regenerar token</button>
                   </td>

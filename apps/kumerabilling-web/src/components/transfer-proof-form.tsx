@@ -96,7 +96,7 @@ export function TransferProofForm({
           rel="noreferrer"
           className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 active:bg-gray-100"
         >
-          Descargar contrato firmado
+          Abrir contrato imprimible
         </a>
       ) : null}
       {message ? (
