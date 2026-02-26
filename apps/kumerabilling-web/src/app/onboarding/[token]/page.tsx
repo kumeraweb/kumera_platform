@@ -184,7 +184,13 @@ export default async function OnboardingPage({
                   No hay contrato disponible para esta suscripción. Solicita un nuevo enlace.
                 </div>
               )}
-              {data.contract?.id ? <ContractAcceptForm token={token} contractId={data.contract.id} /> : null}
+              {data.contract?.id ? (
+                <ContractAcceptForm
+                  token={token}
+                  contractId={data.contract.id}
+                  alreadyAccepted={data.contract.accepted}
+                />
+              ) : null}
             </div>
           </article>
 

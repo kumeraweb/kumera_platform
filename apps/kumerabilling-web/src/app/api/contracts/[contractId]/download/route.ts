@@ -78,6 +78,7 @@ export async function GET(
   }
 
   const title = "Acuerdo de prestación de servicios";
+  const pdfUrl = `/api/contracts/${encodeURIComponent(contract.id)}/pdf?token=${encodeURIComponent(token)}`;
   const printableHtml = `<!doctype html>
 <html lang="es">
   <head>
@@ -88,6 +89,9 @@ export async function GET(
       :root { color-scheme: light; }
       body { margin: 0; background: #f3f4f6; color: #111827; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
       .toolbar { position: sticky; top: 0; z-index: 10; display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; background: #ffffff; }
+      .toolbar-actions { display: flex; gap: 8px; }
+      .toolbar-btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #d1d5db; background: #ffffff; color: #111827; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; }
+      .toolbar-btn:hover { background: #f9fafb; }
       .hint { margin: 0; font-size: 12px; color: #4b5563; }
       .sheet-wrap { padding: 20px 12px; }
       .sheet { max-width: 900px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
@@ -103,12 +107,17 @@ export async function GET(
   <body>
     <div class="toolbar">
       <p class="hint">Contrato en formato imprimible. Usa Ctrl+P o Cmd+P y selecciona "Guardar como PDF".</p>
+      <div class="toolbar-actions">
+        <a id="download-pdf-btn" class="toolbar-btn" href="${pdfUrl}">Descargar PDF</a>
+        <a id="print-btn" class="toolbar-btn" href="#">Imprimir</a>
+      </div>
     </div>
     <main class="sheet-wrap">
       <article class="sheet">
         ${contract.html_rendered}
       </article>
     </main>
+    <script src="/contract-print-actions.js"></script>
   </body>
 </html>`;
 

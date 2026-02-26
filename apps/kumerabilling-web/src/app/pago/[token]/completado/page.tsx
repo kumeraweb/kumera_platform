@@ -6,8 +6,11 @@ type Props = {
 export default async function PaymentCompletedPage({ params, searchParams }: Props) {
   const { token } = await params;
   const { contractId } = await searchParams;
-  const contractDownloadUrl = contractId
+  const contractViewUrl = contractId
     ? `/api/contracts/${contractId}/download?token=${encodeURIComponent(token)}`
+    : null;
+  const contractPdfUrl = contractId
+    ? `/api/contracts/${contractId}/pdf?token=${encodeURIComponent(token)}`
     : null;
 
   return (
@@ -21,11 +24,21 @@ export default async function PaymentCompletedPage({ params, searchParams }: Pro
           Recibimos tu comprobante y lo revisaremos a la brevedad. Te confirmaremos la activación o continuidad del servicio por correo.
         </p>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {contractDownloadUrl ? (
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {contractPdfUrl ? (
+            <a
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800"
+              href={contractPdfUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Descargar acuerdo PDF
+            </a>
+          ) : null}
+          {contractViewUrl ? (
             <a
               className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50"
-              href={contractDownloadUrl}
+              href={contractViewUrl}
               rel="noreferrer"
               target="_blank"
             >

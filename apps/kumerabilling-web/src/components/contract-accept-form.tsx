@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 type Props = {
   token: string;
   contractId: string;
+  alreadyAccepted?: boolean;
 };
 
-export function ContractAcceptForm({ token, contractId }: Props) {
+export function ContractAcceptForm({ token, contractId, alreadyAccepted = false }: Props) {
   const router = useRouter();
   const [accepted, setAccepted] = useState(false);
   const [signerName, setSignerName] = useState("");
@@ -16,6 +17,8 @@ export function ContractAcceptForm({ token, contractId }: Props) {
   const [signerEmail, setSignerEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [signedInSession, setSignedInSession] = useState(false);
+  const isSigned = alreadyAccepted || signedInSession;
 
   async function postAccept(timeoutMs: number, traceId: string) {
     const controller = new AbortController();
@@ -44,6 +47,7 @@ export function ContractAcceptForm({ token, contractId }: Props) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (isSigned) return;
 
     if (!accepted) {
       setMessage("Debes aceptar el contrato para continuar.");
@@ -67,6 +71,7 @@ export function ContractAcceptForm({ token, contractId }: Props) {
         );
       } else {
         setMessage("Contrato aceptado correctamente.");
+        setSignedInSession(true);
         router.refresh();
       }
     } catch (error: unknown) {
@@ -81,6 +86,7 @@ export function ContractAcceptForm({ token, contractId }: Props) {
             );
           } else {
             setMessage("Contrato aceptado correctamente.");
+            setSignedInSession(true);
             router.refresh();
           }
         } catch {
@@ -132,10 +138,10 @@ export function ContractAcceptForm({ token, contractId }: Props) {
       </label>
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || isSigned}
         className="w-full rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 active:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Firmando..." : "Aceptar contrato"}
+        {loading ? "Firmando..." : isSigned ? "CONTINÚE CON EL PASO 2" : "Aceptar contrato"}
       </button>
       {message ? (
         <p className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600">
