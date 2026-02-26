@@ -1,15 +1,24 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   token: string;
   paymentId: string;
   disabled?: boolean;
   contractDownloadUrl?: string | null;
+  completionUrl?: string | null;
 };
 
-export function TransferProofForm({ token, paymentId, disabled = false, contractDownloadUrl = null }: Props) {
+export function TransferProofForm({
+  token,
+  paymentId,
+  disabled = false,
+  contractDownloadUrl = null,
+  completionUrl = null,
+}: Props) {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,6 +55,11 @@ export function TransferProofForm({ token, paymentId, disabled = false, contract
       } else {
         setMessage("Comprobante enviado. Queda pendiente validación admin.");
         setUploaded(true);
+        if (completionUrl) {
+          setTimeout(() => {
+            router.push(completionUrl);
+          }, 900);
+        }
       }
     } catch {
       setMessage("Error inesperado subiendo comprobante.");

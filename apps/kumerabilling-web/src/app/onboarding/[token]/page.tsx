@@ -2,7 +2,6 @@ import { ContractAcceptForm } from "@/components/contract-accept-form";
 import { TransferProofForm } from "@/components/transfer-proof-form";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveValidToken } from "@/lib/onboarding";
-import Image from "next/image";
 
 type ApiData = {
   subscription: {
@@ -101,31 +100,37 @@ export default async function OnboardingPage({
   }
 
   const firstPayment = data.subscription.payments[0];
+  const amountClp = Math.floor(data.subscription.plan.price_cents / 100);
+  const ivaClp = Math.round(amountClp * 0.19);
+  const totalClp = amountClp + ivaClp;
   const contractDownloadUrl = data.contract?.id
     ? `/api/contracts/${data.contract.id}/download?token=${encodeURIComponent(token)}`
     : null;
+  const completionUrl = data.contract?.id
+    ? `/onboarding/${encodeURIComponent(token)}/completado?contractId=${encodeURIComponent(data.contract.id)}`
+    : `/onboarding/${encodeURIComponent(token)}/completado`;
 
   return (
     <main className="min-h-screen bg-[var(--bg)]">
       {/* ── Top bar ─────────────────────────────── */}
       <header className="border-b border-[var(--border)] bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
-          <span className="flex items-center gap-2 font-[var(--font-display)] text-lg font-bold tracking-tight text-gray-900">
-            <Image src="/logo.png" alt="Kumera" width={26} height={26} className="h-6 w-6 rounded-sm" />
-            Kumera
-          </span>
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            Activación de servicio
+        <div className="mx-auto w-full max-w-5xl px-4 py-4 sm:px-8">
+          <span className="font-[var(--font-display)] text-base font-bold tracking-tight text-gray-900 sm:text-lg">
+            Plataforma de contratación de servicios Kumera
           </span>
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
-        {/* ── Welcome card ──────────────────────── */}
-        <section className="mb-8 rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm sm:p-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-emerald-700">
-            Proceso de contratación
-          </p>
+      <div className="mx-auto w-full max-w-5xl px-0 py-6 sm:px-8 sm:py-12">
+        <section className="mb-6 border-y border-[var(--border)] bg-white px-4 py-6 shadow-sm sm:mb-8 sm:rounded-2xl sm:border sm:px-8 sm:py-8">
+          <div className="flex items-start justify-between gap-3">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-emerald-700">
+              Proceso de contratación
+            </p>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+            Activación de servicio
+          </span>
+          </div>
           <h1 className="font-[var(--font-display)] text-2xl font-bold text-gray-900 sm:text-3xl">
             Bienvenido, {data.subscription.company.legal_name}
           </h1>
@@ -134,7 +139,7 @@ export default async function OnboardingPage({
               <strong className="font-medium text-gray-900">Plan:</strong> {data.subscription.plan.name}
             </span>
             <span>
-              <strong className="font-medium text-gray-900">Monto:</strong> ${Math.floor(data.subscription.plan.price_cents / 100)} CLP
+              <strong className="font-medium text-gray-900">Monto:</strong> ${amountClp} CLP + IVA
             </span>
           </div>
           <p className="mt-3 text-xs text-gray-400">
@@ -146,10 +151,10 @@ export default async function OnboardingPage({
         </section>
 
         {/* ── Steps grid ────────────────────────── */}
-        <section className="grid gap-6 lg:grid-cols-2">
+        <section className="grid w-full gap-4 px-0 sm:gap-6 lg:grid-cols-2">
           {/* ── Step 1: Contrato ────────────────── */}
-          <article className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
+          <article className="border-y border-[var(--border)] bg-white shadow-sm sm:rounded-2xl sm:border">
+            <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-4 sm:px-6">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                 1
               </span>
@@ -157,7 +162,7 @@ export default async function OnboardingPage({
                 Revisión y aceptación del contrato
               </h2>
             </div>
-            <div className="space-y-4 p-6">
+            <div className="space-y-4 p-4 sm:p-6">
               <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
                 Revisa bien el contrato antes de firmar.
               </p>
@@ -184,8 +189,8 @@ export default async function OnboardingPage({
           </article>
 
           {/* ── Step 2: Pago ────────────────────── */}
-          <article className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
+          <article className="border-y border-[var(--border)] bg-white shadow-sm sm:rounded-2xl sm:border">
+            <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-4 sm:px-6">
               <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${data.contract?.accepted ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-500"}`}>
                 2
               </span>
@@ -193,17 +198,27 @@ export default async function OnboardingPage({
                 Pago por transferencia
               </h2>
             </div>
-            <div className="space-y-4 p-6">
+            <div className="space-y-4 p-4 sm:p-6">
               <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Metodo de pago</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
                     <p className="font-semibold">Transferencia bancaria</p>
                     <p className="text-xs text-emerald-800">Disponible ahora</p>
+                    <div className="mt-2 border-t border-emerald-200 pt-2 text-xs leading-5">
+                      <p>MONTO: ${amountClp} CLP</p>
+                      <p>IVA (19%): ${ivaClp} CLP</p>
+                      <p className="font-semibold">TOTAL A TRANSFERIR: ${totalClp} CLP</p>
+                    </div>
                   </div>
                   <div className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 opacity-80">
                     <p className="font-semibold">Tarjeta / Webpay / Stripe</p>
                     <p className="text-xs text-gray-500">Proximamente</p>
+                    <div className="mt-2 border-t border-gray-200 pt-2 text-xs leading-5">
+                      <p>MONTO: ${amountClp} CLP</p>
+                      <p>IVA (19%): ${ivaClp} CLP</p>
+                      <p className="font-semibold">TOTAL A PAGAR: ${totalClp} CLP</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -220,6 +235,11 @@ export default async function OnboardingPage({
                   <span className="font-medium text-gray-500">Correo</span>
                   <span>CONTACTO@KUMERAWEB.COM</span>
                 </div>
+                <div className="mt-3 border-t border-gray-200 pt-3 text-xs leading-5 text-gray-600">
+                  <p>MONTO: ${amountClp} CLP</p>
+                  <p>IVA (19%): ${ivaClp} CLP</p>
+                  <p className="font-semibold text-gray-900">TOTAL A TRANSFERIR: ${totalClp} CLP</p>
+                </div>
               </div>
               {!data.contract?.accepted ? (
                 <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
@@ -227,12 +247,13 @@ export default async function OnboardingPage({
                 </p>
               ) : null}
               {firstPayment ? (
-                <TransferProofForm
-                  token={token}
-                  paymentId={firstPayment.id}
-                  disabled={!data.contract?.accepted}
-                  contractDownloadUrl={contractDownloadUrl}
-                />
+              <TransferProofForm
+                token={token}
+                paymentId={firstPayment.id}
+                disabled={!data.contract?.accepted}
+                contractDownloadUrl={contractDownloadUrl}
+                completionUrl={completionUrl}
+              />
               ) : (
                 <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">No hay pago pendiente asociado.</p>
               )}

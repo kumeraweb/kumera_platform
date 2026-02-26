@@ -18,11 +18,19 @@ type ContractTemplate = {
 type PaymentRow = {
   id: string;
   status: string;
+  onboarding_state?: "pending_contract_signature" | "pending_transfer_proof" | "ready_for_review" | "completed";
   amount_cents: number;
   due_date: string;
   validated_at: string | null;
   rejection_reason: string | null;
   subscription_id: string;
+  latest_proof?: {
+    id: string;
+    file_path: string;
+    mime_type: string;
+    size_bytes: number;
+    created_at: string;
+  } | null;
   subscriptions?: {
     companies?: { legal_name?: string | null };
     services?: { name?: string | null };
@@ -53,6 +61,10 @@ function StatusBadge({ status }: { status: string }) {
     validated: "badge-success",
     active: "badge-success",
     paid: "badge-success",
+    completed: "badge-success",
+    ready_for_review: "badge-warning",
+    pending_transfer_proof: "badge-warning",
+    pending_contract_signature: "badge-neutral",
     pending: "badge-warning",
     pending_onboarding: "badge-warning",
     draft: "badge-neutral",
@@ -84,6 +96,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   } | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewFormSnapshot, setPreviewFormSnapshot] = useState<string | null>(null);
+  const [proofPreviewByPaymentId, setProofPreviewByPaymentId] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState({
     customerType: "company" as "company" | "person",
@@ -356,6 +369,24 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     setWorking(false);
   }
 
+  async function onOpenProofPreview(paymentId: string) {
+    if (proofPreviewByPaymentId[paymentId]) return;
+    setWorking(true);
+    setError(null);
+    const response = await fetch(`/api/admin/billing/payments/${paymentId}/proof`, { cache: "no-store" });
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo abrir preview de comprobante");
+      setWorking(false);
+      return;
+    }
+    const url = payload?.proof?.signed_url as string | undefined;
+    if (url) {
+      setProofPreviewByPaymentId((prev) => ({ ...prev, [paymentId]: url }));
+    }
+    setWorking(false);
+  }
+
   return (
     <div className="grid gap-5">
       {/* Page header */}
@@ -572,7 +603,9 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 <th>Cliente</th>
                 <th>Servicio</th>
                 <th>Plan</th>
+                <th>Onboarding</th>
                 <th>Estado</th>
+                <th>Comprobante</th>
                 <th>Monto</th>
                 <th>Acciones</th>
               </tr>
@@ -583,7 +616,37 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                   <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
                   <td>{payment.subscriptions?.services?.name ?? "-"}</td>
                   <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                  <td>
+                    <StatusBadge status={payment.onboarding_state ?? "pending_contract_signature"} />
+                  </td>
                   <td><StatusBadge status={payment.status} /></td>
+                  <td>
+                    <div className="flex flex-col gap-2">
+                      {payment.latest_proof ? (
+                        <>
+                          <button
+                            className="admin-btn admin-btn-ghost admin-btn-sm"
+                            disabled={working}
+                            onClick={() => onOpenProofPreview(payment.id)}
+                            type="button"
+                          >
+                            Ver comprobante
+                          </button>
+                          {proofPreviewByPaymentId[payment.id] ? (
+                            <a href={proofPreviewByPaymentId[payment.id]} rel="noreferrer" target="_blank">
+                              <img
+                                alt="Comprobante"
+                                src={proofPreviewByPaymentId[payment.id]}
+                                style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 8, border: "1px solid var(--admin-border)" }}
+                              />
+                            </a>
+                          ) : null}
+                        </>
+                      ) : (
+                        <span className="text-xs" style={{ color: "var(--admin-text-muted)" }}>Sin comprobante</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
                   <td>
                     <div className="flex gap-2">

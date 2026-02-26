@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail } from "@/lib/http";
-import { resolveValidToken, writeAuditLog } from "@/lib/onboarding";
+import { isTokenExpired } from "@/lib/domain/billing";
+import { writeAuditLog } from "@/lib/onboarding";
 import { applyRateLimit } from "@/lib/rate-limit";
 
 export async function GET(
@@ -30,8 +31,19 @@ export async function GET(
     return fail(429, "RATE_LIMITED", "Too many requests. Try again in a minute.");
   }
 
-  const tokenStatus = await resolveValidToken(token);
-  if (!tokenStatus.ok) {
+  const supabase = createAdminClient();
+  const { data: tokenRow, error: tokenError } = await supabase
+    .from("onboarding_tokens")
+    .select("subscription_id,expires_at,revoked_at")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (
+    tokenError ||
+    !tokenRow ||
+    tokenRow.revoked_at ||
+    isTokenExpired(new Date(tokenRow.expires_at), new Date())
+  ) {
     await writeAuditLog("contract.download.failed", "onboarding-token", {
       contractId,
       ip,
@@ -39,9 +51,6 @@ export async function GET(
     });
     return fail(401, "TOKEN_INVALID", "Invalid onboarding token");
   }
-
-  const supabase = createAdminClient();
-  const tokenRow = tokenStatus.record;
 
   const { data: contract, error: contractError } = await supabase
     .from("contracts")
