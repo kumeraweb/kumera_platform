@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fail } from "@/lib/http";
 import { isTokenExpired } from "@/lib/domain/billing";
 import { writeAuditLog } from "@/lib/onboarding";
+import { resolveValidPaymentAccessToken } from "@/lib/payment-access";
 import { applyRateLimit } from "@/lib/rate-limit";
 
 export async function GET(
@@ -32,24 +33,34 @@ export async function GET(
   }
 
   const supabase = createAdminClient();
-  const { data: tokenRow, error: tokenError } = await supabase
+  const { data: onboardingTokenRow, error: onboardingTokenError } = await supabase
     .from("onboarding_tokens")
     .select("subscription_id,expires_at,revoked_at")
     .eq("token", token)
     .maybeSingle();
 
+  let subscriptionId: string | null = null;
   if (
-    tokenError ||
-    !tokenRow ||
-    tokenRow.revoked_at ||
-    isTokenExpired(new Date(tokenRow.expires_at), new Date())
+    !onboardingTokenError &&
+    onboardingTokenRow &&
+    !onboardingTokenRow.revoked_at &&
+    !isTokenExpired(new Date(onboardingTokenRow.expires_at), new Date())
   ) {
-    await writeAuditLog("contract.download.failed", "onboarding-token", {
+    subscriptionId = onboardingTokenRow.subscription_id;
+  } else {
+    const paymentTokenStatus = await resolveValidPaymentAccessToken(token);
+    if (paymentTokenStatus.ok) {
+      subscriptionId = paymentTokenStatus.record.subscription_id;
+    }
+  }
+
+  if (!subscriptionId) {
+    await writeAuditLog("contract.download.failed", "access-token", {
       contractId,
       ip,
       reason: "TOKEN_INVALID",
     });
-    return fail(401, "TOKEN_INVALID", "Invalid onboarding token");
+    return fail(401, "TOKEN_INVALID", "Invalid token");
   }
 
   const { data: contract, error: contractError } = await supabase
@@ -62,7 +73,7 @@ export async function GET(
     return fail(404, "CONTRACT_NOT_FOUND", "Contract not found");
   }
 
-  if (contract.subscription_id !== tokenRow.subscription_id) {
+  if (contract.subscription_id !== subscriptionId) {
     return fail(403, "FORBIDDEN", "Contract does not belong to token subscription");
   }
 
@@ -78,7 +89,6 @@ export async function GET(
       body { margin: 0; background: #f3f4f6; color: #111827; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
       .toolbar { position: sticky; top: 0; z-index: 10; display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; background: #ffffff; }
       .hint { margin: 0; font-size: 12px; color: #4b5563; }
-      .btn { display: inline-block; text-decoration: none; border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; }
       .sheet-wrap { padding: 20px 12px; }
       .sheet { max-width: 900px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
       @media (min-width: 768px) { .sheet-wrap { padding: 28px; } .sheet { padding: 28px; } }
@@ -92,8 +102,7 @@ export async function GET(
   </head>
   <body>
     <div class="toolbar">
-      <p class="hint">Contrato en formato imprimible. Usa "Imprimir" y selecciona "Guardar como PDF".</p>
-      <a class="btn" href="#" onclick="window.print(); return false;">Imprimir / Guardar PDF</a>
+      <p class="hint">Contrato en formato imprimible. Usa Ctrl+P o Cmd+P y selecciona "Guardar como PDF".</p>
     </div>
     <main class="sheet-wrap">
       <article class="sheet">

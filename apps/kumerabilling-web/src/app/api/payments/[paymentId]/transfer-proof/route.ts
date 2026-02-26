@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok } from "@/lib/http";
 import { resolveValidToken, writeAuditLog } from "@/lib/onboarding";
+import { resolveValidPaymentAccessToken } from "@/lib/payment-access";
 import { applyRateLimit } from "@/lib/rate-limit";
 
 const allowedMime = new Set([
@@ -54,8 +55,13 @@ export async function POST(
     return fail(400, "FILE_TOO_LARGE", "Max file size is 8MB");
   }
 
-  const tokenStatus = await resolveValidToken(token);
-  if (!tokenStatus.ok) {
+  const onboardingTokenStatus = await resolveValidToken(token);
+  const paymentAccessTokenStatus = onboardingTokenStatus.ok
+    ? null
+    : await resolveValidPaymentAccessToken(token);
+  const tokenSource = onboardingTokenStatus.ok ? "onboarding" : paymentAccessTokenStatus?.ok ? "payment-link" : null;
+
+  if (!tokenSource) {
     await writeAuditLog("payment.transfer_proof.failed", "onboarding-token", {
       paymentId,
       ip,
@@ -75,8 +81,21 @@ export async function POST(
     return fail(404, "PAYMENT_NOT_FOUND", "Payment not found", paymentError?.message);
   }
 
-  if (payment.subscription_id !== tokenStatus.record.subscription_id) {
+  let scopedSubscriptionId = "";
+  let paymentScopedPaymentId: string | null = null;
+
+  if (onboardingTokenStatus.ok) {
+    scopedSubscriptionId = onboardingTokenStatus.record.subscription_id;
+  } else if (paymentAccessTokenStatus?.ok) {
+    scopedSubscriptionId = paymentAccessTokenStatus.record.subscription_id;
+    paymentScopedPaymentId = paymentAccessTokenStatus.record.payment_id;
+  }
+
+  if (payment.subscription_id !== scopedSubscriptionId) {
     return fail(401, "TOKEN_SCOPE_ERROR", "Token does not match payment subscription");
+  }
+  if (tokenSource === "payment-link" && payment.id !== paymentScopedPaymentId) {
+    return fail(401, "TOKEN_SCOPE_ERROR", "Token does not match payment");
   }
 
   const arrayBuffer = await file.arrayBuffer();
@@ -111,16 +130,28 @@ export async function POST(
     path,
   });
 
-  await supabase
-    .from("onboarding_tokens")
-    .update({ consumed_at: new Date().toISOString() })
-    .eq("id", tokenStatus.record.id);
+  if (onboardingTokenStatus.ok) {
+    await supabase
+      .from("onboarding_tokens")
+      .update({ consumed_at: new Date().toISOString() })
+      .eq("id", onboardingTokenStatus.record.id);
+  } else {
+    if (!paymentAccessTokenStatus?.ok) {
+      return fail(401, "TOKEN_INVALID", "Invalid token");
+    }
+    await supabase
+      .from("payment_access_tokens")
+      .update({ consumed_at: new Date().toISOString() })
+      .eq("id", paymentAccessTokenStatus.record.id);
+  }
+
+  const onboardingTokenId = onboardingTokenStatus.ok ? onboardingTokenStatus.record.id : null;
 
   await supabase.from("onboarding_events").insert({
     subscription_id: payment.subscription_id,
-    token_id: tokenStatus.record.id,
+    token_id: onboardingTokenId,
     event_type: "payment.transfer_proof.uploaded",
-    payload: { paymentId, path },
+    payload: { paymentId, path, tokenSource },
   });
 
   return ok({ uploaded: true, path });

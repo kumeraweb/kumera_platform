@@ -54,6 +54,15 @@ export async function GET(request: Request) {
     }
   }
 
+  const hasValidatedPaymentBySubscriptionId = new Map<string, boolean>();
+  for (const payment of payments) {
+    if (payment.status === "validated") {
+      hasValidatedPaymentBySubscriptionId.set(payment.subscription_id, true);
+    } else if (!hasValidatedPaymentBySubscriptionId.has(payment.subscription_id)) {
+      hasValidatedPaymentBySubscriptionId.set(payment.subscription_id, false);
+    }
+  }
+
   const latestContractBySubscriptionId = new Map<string, (typeof contractsResult.data)[number]>();
   for (const contract of contractsResult.data ?? []) {
     if (!latestContractBySubscriptionId.has(contract.subscription_id)) {
@@ -65,9 +74,12 @@ export async function GET(request: Request) {
     const latestProof = latestProofByPaymentId.get(payment.id) ?? null;
     const latestContract = latestContractBySubscriptionId.get(payment.subscription_id) ?? null;
     const contractAccepted = latestContract?.accepted === true;
+    const subscriptionAlreadyValidated = hasValidatedPaymentBySubscriptionId.get(payment.subscription_id) === true;
     const onboardingState =
       payment.status === "validated"
         ? "completed"
+        : subscriptionAlreadyValidated && payment.status === "pending" && !latestProof
+          ? "renewal_pending_payment"
         : contractAccepted && latestProof
           ? "ready_for_review"
           : contractAccepted

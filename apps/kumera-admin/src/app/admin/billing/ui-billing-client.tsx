@@ -18,7 +18,7 @@ type ContractTemplate = {
 type PaymentRow = {
   id: string;
   status: string;
-  onboarding_state?: "pending_contract_signature" | "pending_transfer_proof" | "ready_for_review" | "completed";
+  onboarding_state?: "pending_contract_signature" | "pending_transfer_proof" | "ready_for_review" | "completed" | "renewal_pending_payment";
   amount_cents: number;
   due_date: string;
   validated_at: string | null;
@@ -66,6 +66,7 @@ function StatusBadge({ status }: { status: string }) {
     ready_for_review: "badge-warning",
     pending_transfer_proof: "badge-warning",
     pending_contract_signature: "badge-neutral",
+    renewal_pending_payment: "badge-neutral",
     pending: "badge-warning",
     pending_onboarding: "badge-warning",
     draft: "badge-neutral",
@@ -88,6 +89,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [preview, setPreview] = useState<{
     htmlRendered: string;
     contentHash: string;
@@ -282,6 +284,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     setError(null);
     setMessage(null);
     setOnboardingUrl(null);
+    setPaymentUrl(null);
 
     const response = await fetch("/api/admin/billing/onboarding/create", {
       method: "POST",
@@ -370,6 +373,28 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     setWorking(false);
   }
 
+  async function onGeneratePaymentLink(subscriptionId: string) {
+    setWorking(true);
+    setError(null);
+    setMessage(null);
+    setOnboardingUrl(null);
+    setPaymentUrl(null);
+
+    const response = await fetch(`/api/admin/billing/subscriptions/${subscriptionId}/payment-link`, {
+      method: "POST",
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo generar link de pago");
+      setWorking(false);
+      return;
+    }
+
+    setMessage("Link de pago generado.");
+    setPaymentUrl(payload.paymentUrl ?? null);
+    setWorking(false);
+  }
+
   async function onOpenProofPreview(paymentId: string) {
     if (proofPreviewByPaymentId[paymentId]) return;
     setWorking(true);
@@ -404,6 +429,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           <div>
             <p className="m-0 text-xs font-semibold">Link onboarding generado</p>
             <p className="m-0 mt-1 break-all text-xs">{onboardingUrl}</p>
+          </div>
+        </div>
+      ) : null}
+      {paymentUrl ? (
+        <div className="admin-alert admin-alert-info">
+          <div>
+            <p className="m-0 text-xs font-semibold">Link de pago generado</p>
+            <p className="m-0 mt-1 break-all text-xs">{paymentUrl}</p>
           </div>
         </div>
       ) : null}
@@ -651,7 +684,15 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                   <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
                   <td>
                     <div className="flex gap-2">
-                      <button disabled={working || payment.status === "validated"} className="admin-btn admin-btn-success admin-btn-sm" onClick={() => onValidatePayment(payment.id)} type="button">Validar</button>
+                      <button
+                        disabled={working || payment.status === "validated" || (payment.status === "pending" && !payment.latest_proof)}
+                        className="admin-btn admin-btn-success admin-btn-sm"
+                        onClick={() => onValidatePayment(payment.id)}
+                        type="button"
+                        title={payment.status === "pending" && !payment.latest_proof ? "Primero debe existir comprobante de pago." : undefined}
+                      >
+                        Validar
+                      </button>
                       <button disabled={working || payment.status === "rejected"} className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => onRejectPayment(payment.id)} type="button">Rechazar</button>
                     </div>
                   </td>
@@ -693,12 +734,37 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                   <td>{subscription.plans?.name ?? "-"}</td>
                   <td><StatusBadge status={subscription.status} /></td>
                   <td>
-                    {subscription.next_due_date
-                      ? new Date(subscription.next_due_date).toLocaleDateString("es-CL")
-                      : "-"}
+                    {subscription.next_due_date ? (
+                      (() => {
+                        const dueDate = new Date(subscription.next_due_date);
+                        const startToday = new Date();
+                        startToday.setHours(0, 0, 0, 0);
+                        const startDue = new Date(dueDate);
+                        startDue.setHours(0, 0, 0, 0);
+                        const days = Math.ceil((startDue.getTime() - startToday.getTime()) / (1000 * 60 * 60 * 24));
+                        const isOverdue = days < 0;
+                        const isSoon = days >= 0 && days <= 7;
+                        const color = isOverdue
+                          ? "#ef4444"
+                          : isSoon
+                            ? "#f59e0b"
+                            : "var(--admin-text)";
+                        const weight = isOverdue || isSoon ? 700 : 500;
+                        return (
+                          <span style={{ color, fontWeight: weight }}>
+                            {dueDate.toLocaleDateString("es-CL")}
+                          </span>
+                        );
+                      })()
+                    ) : (
+                      "-"
+                    )}
                   </td>
                   <td>
-                    <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Regenerar token</button>
+                    <div className="flex flex-wrap gap-2">
+                      <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Regenerar token</button>
+                      <button disabled={working} className="admin-btn admin-btn-primary admin-btn-sm" onClick={() => onGeneratePaymentLink(subscription.id)} type="button">Generar link de pago</button>
+                    </div>
                   </td>
                 </tr>
               ))}
