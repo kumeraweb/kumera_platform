@@ -523,8 +523,8 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 Hash: <span className="font-mono">{preview.contentHash}</span>
               </p>
               <article
-                className="prose prose-invert max-w-none rounded-xl border p-4 text-sm"
-                style={{ background: "var(--admin-surface-raised)", borderColor: "var(--admin-border)" }}
+                className="prose max-w-none rounded-xl border p-5 text-sm"
+                style={{ background: "#ffffff", color: "#0f172a", borderColor: "#d1d5db" }}
                 dangerouslySetInnerHTML={{ __html: preview.htmlRendered }}
               />
             </div>

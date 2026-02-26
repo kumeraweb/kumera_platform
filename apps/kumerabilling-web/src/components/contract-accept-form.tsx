@@ -57,13 +57,14 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <form onSubmit={submit} className="space-y-4 rounded-xl border border-gray-100 bg-gray-50 p-5">
+      <p className="text-sm font-medium text-gray-700">Datos del firmante</p>
       <input
         type="text"
         value={signerName}
         onChange={(event) => setSignerName(event.target.value)}
         placeholder="Nombre completo firmante"
-        className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800"
+        className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
         required
       />
       <input
@@ -71,7 +72,7 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
         value={signerRut}
         onChange={(event) => setSignerRut(event.target.value)}
         placeholder="RUT firmante (ej: 16370698-9)"
-        className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800"
+        className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
         required
       />
       <input
@@ -79,26 +80,30 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
         value={signerEmail}
         onChange={(event) => setSignerEmail(event.target.value)}
         placeholder="Correo firmante"
-        className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800"
+        className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
         required
       />
-      <label className="flex items-start gap-3 text-sm text-slate-700">
+      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-700 hover:bg-gray-50">
         <input
           type="checkbox"
           checked={accepted}
           onChange={(event) => setAccepted(event.target.checked)}
-          className="mt-1"
+          className="mt-0.5 h-4 w-4 accent-emerald-600"
         />
         Declaro que revisé y acepto el contrato de servicio.
       </label>
       <button
         type="submit"
         disabled={loading}
-        className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-60"
+        className="w-full rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 active:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Guardando..." : "Aceptar contrato"}
       </button>
-      {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+      {message ? (
+        <p className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600">
+          {message}
+        </p>
+      ) : null}
     </form>
   );
 }

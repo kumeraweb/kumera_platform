@@ -55,21 +55,23 @@ export function TransferProofForm({ token, paymentId, disabled = false, contract
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-      <label className="block text-sm text-slate-700">
-        Comprobante (imagen)
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/heic"
-          disabled={disabled}
-          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          className="mt-2 block w-full text-sm text-slate-700"
-        />
+    <form onSubmit={submit} className="space-y-4 rounded-xl border border-gray-100 bg-gray-50 p-5">
+      <label className="block text-sm font-medium text-gray-700">
+        Comprobante de transferencia
+        <div className={`mt-2 flex items-center justify-center rounded-xl border-2 border-dashed px-4 py-6 ${disabled ? "border-gray-200 bg-gray-100" : "border-gray-300 bg-white hover:border-emerald-400"}`}>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            disabled={disabled}
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 disabled:opacity-50"
+          />
+        </div>
       </label>
       <button
         type="submit"
         disabled={loading || disabled}
-        className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-60"
+        className="w-full rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 active:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Enviando..." : "Subir comprobante"}
       </button>
@@ -78,12 +80,16 @@ export function TransferProofForm({ token, paymentId, disabled = false, contract
           href={contractDownloadUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+          className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 active:bg-gray-100"
         >
-          Descargar contrato
+          Descargar contrato firmado
         </a>
       ) : null}
-      {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+      {message ? (
+        <p className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600">
+          {message}
+        </p>
+      ) : null}
     </form>
   );
 }
