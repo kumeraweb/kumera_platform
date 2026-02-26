@@ -139,6 +139,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     );
   }, [form.customerType, form.serviceSlug, platformServices, templates]);
   const currentFormSnapshot = useMemo(() => JSON.stringify(form), [form]);
+  const pendingPayments = useMemo(
+    () => payments.filter((payment) => payment.status !== "validated"),
+    [payments],
+  );
+  const validatedPayments = useMemo(
+    () => payments.filter((payment) => payment.status === "validated"),
+    [payments],
+  );
 
   async function loadAll() {
     setLoading(true);
@@ -629,7 +637,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
 
       {/* ─── Payments table ─── */}
       <div className="admin-card">
-        <h2 className="section-title">Pagos</h2>
+        <h2 className="section-title">Pagos pendientes</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="admin-table">
             <thead>
@@ -645,63 +653,109 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
               </tr>
             </thead>
             <tbody>
-              {payments.map((payment) => (
-                <tr key={payment.id}>
-                  <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
-                  <td>{payment.subscriptions?.services?.name ?? "-"}</td>
-                  <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
-                  <td>
-                    <StatusBadge status={payment.onboarding_state ?? "pending_contract_signature"} />
-                  </td>
-                  <td><StatusBadge status={payment.status} /></td>
-                  <td>
-                    <div className="flex flex-col gap-2">
-                      {payment.latest_proof ? (
-                        <>
-                          <button
-                            className="admin-btn admin-btn-ghost admin-btn-sm"
-                            disabled={working}
-                            onClick={() => onOpenProofPreview(payment.id)}
-                            type="button"
-                          >
-                            Ver comprobante
-                          </button>
-                          {proofPreviewByPaymentId[payment.id] ? (
-                            <a href={proofPreviewByPaymentId[payment.id]} rel="noreferrer" target="_blank">
-                              <img
-                                alt="Comprobante"
-                                src={proofPreviewByPaymentId[payment.id]}
-                                style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 8, border: "1px solid var(--admin-border)" }}
-                              />
-                            </a>
-                          ) : null}
-                        </>
-                      ) : (
-                        <span className="text-xs" style={{ color: "var(--admin-text-muted)" }}>Sin comprobante</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
-                  <td>
-                    <div className="flex gap-2">
-                      <button
-                        disabled={working || payment.status === "validated" || (payment.status === "pending" && !payment.latest_proof)}
-                        className="admin-btn admin-btn-success admin-btn-sm"
-                        onClick={() => onValidatePayment(payment.id)}
-                        type="button"
-                        title={payment.status === "pending" && !payment.latest_proof ? "Primero debe existir comprobante de pago." : undefined}
-                      >
-                        Validar
-                      </button>
-                      <button disabled={working || payment.status === "rejected"} className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => onRejectPayment(payment.id)} type="button">Rechazar</button>
-                    </div>
+              {pendingPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                    No hay pagos pendientes.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                pendingPayments.map((payment) => (
+                  <tr key={payment.id}>
+                    <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
+                    <td>{payment.subscriptions?.services?.name ?? "-"}</td>
+                    <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                    <td>
+                      <StatusBadge status={payment.onboarding_state ?? "pending_contract_signature"} />
+                    </td>
+                    <td><StatusBadge status={payment.status} /></td>
+                    <td>
+                      <div className="flex flex-col gap-2">
+                        {payment.latest_proof ? (
+                          <>
+                            <button
+                              className="admin-btn admin-btn-ghost admin-btn-sm"
+                              disabled={working}
+                              onClick={() => onOpenProofPreview(payment.id)}
+                              type="button"
+                            >
+                              Ver comprobante
+                            </button>
+                            {proofPreviewByPaymentId[payment.id] ? (
+                              <a href={proofPreviewByPaymentId[payment.id]} rel="noreferrer" target="_blank">
+                                <img
+                                  alt="Comprobante"
+                                  src={proofPreviewByPaymentId[payment.id]}
+                                  style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 8, border: "1px solid var(--admin-border)" }}
+                                />
+                              </a>
+                            ) : null}
+                          </>
+                        ) : (
+                          <span className="text-xs" style={{ color: "var(--admin-text-muted)" }}>Sin comprobante</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button
+                          disabled={working || payment.status === "validated" || (payment.status === "pending" && !payment.latest_proof)}
+                          className="admin-btn admin-btn-success admin-btn-sm"
+                          onClick={() => onValidatePayment(payment.id)}
+                          type="button"
+                          title={payment.status === "pending" && !payment.latest_proof ? "Primero debe existir comprobante de pago." : undefined}
+                        >
+                          Validar
+                        </button>
+                        <button disabled={working || payment.status === "rejected"} className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => onRejectPayment(payment.id)} type="button">Rechazar</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
+          Pagos validados (histórico): {validatedPayments.length}
+        </summary>
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Servicio</th>
+                <th>Plan</th>
+                <th>Fecha validación</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {validatedPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                    No hay pagos validados.
+                  </td>
+                </tr>
+              ) : (
+                validatedPayments.map((payment) => (
+                  <tr key={payment.id}>
+                    <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
+                    <td>{payment.subscriptions?.services?.name ?? "-"}</td>
+                    <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                    <td>{payment.validated_at ? new Date(payment.validated_at).toLocaleString("es-CL") : "-"}</td>
+                    <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </details>
 
       {/* ─── Subscriptions table ─── */}
       <div className="admin-card">

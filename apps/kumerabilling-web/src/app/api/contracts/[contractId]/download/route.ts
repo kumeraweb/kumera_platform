@@ -77,7 +77,7 @@ export async function GET(
     return fail(403, "FORBIDDEN", "Contract does not belong to token subscription");
   }
 
-  const title = `Contrato de servicios (${contract.version || "v1"})`;
+  const title = "Acuerdo de prestación de servicios";
   const printableHtml = `<!doctype html>
 <html lang="es">
   <head>

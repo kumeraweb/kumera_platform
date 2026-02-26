@@ -55,6 +55,14 @@ export async function POST(request: Request) {
 
   const monthlyAmountCents = Number(plan.price_cents ?? 0);
   const generatedDate = new Date().toLocaleDateString("es-CL");
+  const representativeName =
+    payload.customerType === "company"
+      ? payload.legalRepresentativeName?.trim() || payload.companyName
+      : payload.companyName;
+  const representativeRut =
+    payload.customerType === "company"
+      ? payload.legalRepresentativeRut?.trim() || payload.rut
+      : payload.rut;
   const renderedContract = renderContractTemplate(template.html_template, {
     customer_type: payload.customerType,
     company_legal_name: payload.companyName,
@@ -62,8 +70,8 @@ export async function POST(request: Request) {
     company_address: payload.address,
     company_email: payload.email,
     company_phone: payload.phone,
-    legal_representative_name: payload.legalRepresentativeName || "-",
-    legal_representative_rut: payload.legalRepresentativeRut || "-",
+    legal_representative_name: representativeName,
+    legal_representative_rut: representativeRut,
     tax_document_type: payload.taxDocumentType,
     service_name: service.name,
     service_slug: service.slug,
