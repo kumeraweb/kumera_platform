@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail } from "@/lib/http";
+import { resolveValidToken, writeAuditLog } from "@/lib/onboarding";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 export async function GET(
   request: NextRequest,
@@ -13,16 +15,33 @@ export async function GET(
     return fail(400, "VALIDATION_ERROR", "token is required");
   }
 
-  const supabase = createAdminClient();
-  const { data: tokenRow, error: tokenError } = await supabase
-    .from("onboarding_tokens")
-    .select("subscription_id,revoked_at")
-    .eq("token", token)
-    .maybeSingle();
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const rateLimit = applyRateLimit({
+    key: `contract-download:${ip ?? "unknown"}:${contractId}`,
+    windowMs: 60_000,
+    max: 20,
+  });
+  if (!rateLimit.ok) {
+    await writeAuditLog("security.rate_limit.blocked", "onboarding-token", {
+      endpoint: "contract.download",
+      ip,
+      contractId,
+    });
+    return fail(429, "RATE_LIMITED", "Too many requests. Try again in a minute.");
+  }
 
-  if (tokenError || !tokenRow || tokenRow.revoked_at) {
+  const tokenStatus = await resolveValidToken(token);
+  if (!tokenStatus.ok) {
+    await writeAuditLog("contract.download.failed", "onboarding-token", {
+      contractId,
+      ip,
+      reason: "TOKEN_INVALID",
+    });
     return fail(401, "TOKEN_INVALID", "Invalid onboarding token");
   }
+
+  const supabase = createAdminClient();
+  const tokenRow = tokenStatus.record;
 
   const { data: contract, error: contractError } = await supabase
     .from("contracts")
@@ -48,4 +67,3 @@ export async function GET(
     },
   });
 }
-

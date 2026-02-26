@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok } from "@/lib/http";
 import { contractAcceptSchema } from "@/lib/validation";
 import { resolveValidToken, writeAuditLog } from "@/lib/onboarding";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 export async function POST(
   request: NextRequest,
@@ -22,16 +23,34 @@ export async function POST(
     return fail(400, "VALIDATION_ERROR", "Invalid accept payload", parsed.error.flatten());
   }
 
+  const headerStore = await headers();
+  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const userAgent = headerStore.get("user-agent") ?? "unknown";
+  const rateLimit = applyRateLimit({
+    key: `contract-accept:${ip ?? "unknown"}:${subscriptionId}`,
+    windowMs: 60_000,
+    max: 12,
+  });
+  if (!rateLimit.ok) {
+    await writeAuditLog("security.rate_limit.blocked", "onboarding-token", {
+      endpoint: "contract.accept",
+      ip,
+      subscriptionId,
+    });
+    return fail(429, "RATE_LIMITED", "Too many requests. Try again in a minute.");
+  }
+
   const tokenStatus = await resolveValidToken(parsed.data.token);
   if (!tokenStatus.ok || tokenStatus.record.subscription_id !== subscriptionId) {
+    await writeAuditLog("contract.accept.failed", "onboarding-token", {
+      subscriptionId,
+      ip,
+      reason: "TOKEN_INVALID_OR_SCOPE_MISMATCH",
+    });
     return fail(401, "TOKEN_INVALID", "Token is invalid for this subscription");
   }
 
   const supabase = createAdminClient();
-  const headerStore = await headers();
-
-  const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
-  const userAgent = headerStore.get("user-agent") ?? "unknown";
   const acceptedAt = new Date().toISOString();
 
   const { data: existingContract, error: existingContractError } = await supabase

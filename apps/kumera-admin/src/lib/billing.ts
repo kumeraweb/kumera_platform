@@ -44,6 +44,12 @@ export function getOnboardingBaseUrl() {
   return process.env.BILLING_ONBOARDING_BASE_URL || "https://clientes.kumeraweb.com";
 }
 
+export function getOnboardingTokenTtlHours() {
+  const raw = Number(process.env.BILLING_ONBOARDING_TOKEN_TTL_HOURS ?? "72");
+  if (!Number.isFinite(raw) || raw <= 0) return 72;
+  return Math.floor(raw);
+}
+
 export async function writeBillingAuditLog(action: string, actor: string, payload: Record<string, unknown>) {
   const billing = createBillingServiceClient();
   await billing.from("audit_logs").insert({ action, actor, payload });

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, ok } from "@/lib/http";
 import { resolveValidToken, writeAuditLog } from "@/lib/onboarding";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 const allowedMime = new Set([
   "image/jpeg",
@@ -17,6 +18,21 @@ export async function POST(
   context: { params: Promise<{ paymentId: string }> },
 ) {
   const { paymentId } = await context.params;
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const rateLimit = applyRateLimit({
+    key: `transfer-proof:${ip ?? "unknown"}:${paymentId}`,
+    windowMs: 60_000,
+    max: 8,
+  });
+  if (!rateLimit.ok) {
+    await writeAuditLog("security.rate_limit.blocked", "onboarding-token", {
+      endpoint: "payment.transfer_proof.upload",
+      ip,
+      paymentId,
+    });
+    return fail(429, "RATE_LIMITED", "Too many uploads. Try again in a minute.");
+  }
+
   const formData = await request.formData();
 
   const token = formData.get("token");
@@ -40,6 +56,11 @@ export async function POST(
 
   const tokenStatus = await resolveValidToken(token);
   if (!tokenStatus.ok) {
+    await writeAuditLog("payment.transfer_proof.failed", "onboarding-token", {
+      paymentId,
+      ip,
+      reason: "TOKEN_INVALID",
+    });
     return fail(401, "TOKEN_INVALID", "Invalid or expired token");
   }
 

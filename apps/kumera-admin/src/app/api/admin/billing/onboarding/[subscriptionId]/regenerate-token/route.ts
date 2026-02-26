@@ -2,7 +2,12 @@ import { randomUUID } from "node:crypto";
 import { requireAdminApi, ROLE } from "@/lib/auth";
 import { createBillingServiceClient } from "@/lib/db";
 import { fail, ok } from "@/lib/http";
-import { getOnboardingBaseUrl, writeBillingAuditLog, writeOnboardingEvent } from "@/lib/billing";
+import {
+  getOnboardingBaseUrl,
+  getOnboardingTokenTtlHours,
+  writeBillingAuditLog,
+  writeOnboardingEvent,
+} from "@/lib/billing";
 
 export async function POST(_: Request, context: { params: Promise<{ subscriptionId: string }> }) {
   const auth = await requireAdminApi([ROLE.BILLING]);
@@ -20,7 +25,8 @@ export async function POST(_: Request, context: { params: Promise<{ subscription
   if (revokeError) return fail(revokeError.message, 500);
 
   const token = randomUUID() + randomUUID();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const ttlHours = getOnboardingTokenTtlHours();
+  const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString();
 
   const { data: createdToken, error } = await billing
     .from("onboarding_tokens")

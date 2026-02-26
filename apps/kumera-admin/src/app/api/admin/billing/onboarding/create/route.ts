@@ -4,6 +4,7 @@ import { createBillingServiceClient } from "@/lib/db";
 import { fail, ok } from "@/lib/http";
 import {
   getOnboardingBaseUrl,
+  getOnboardingTokenTtlHours,
   hashContractContent,
   onboardingSchema,
   renderContractTemplate,
@@ -89,7 +90,8 @@ export async function POST(request: Request) {
   }
 
   const token = randomUUID() + randomUUID();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const ttlHours = getOnboardingTokenTtlHours();
+  const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString();
 
   const { data: tokenRow, error: tokenError } = await billing
     .from("onboarding_tokens")
