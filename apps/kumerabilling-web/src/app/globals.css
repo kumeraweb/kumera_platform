@@ -33,45 +33,43 @@
   --error-bg: #fef2f2;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@layer base {
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans), sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  /* ── Smooth transitions ─────────────────────── */
+  input,
+  button,
+  a {
+    transition: all 0.15s ease;
+  }
 
-/* ── Smooth transitions ─────────────────────── */
-input,
-button,
-a {
-  transition: all 0.15s ease;
-}
+  /* ── Focus ring utility ─────────────────────── */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-ring);
+  }
 
-/* ── Focus ring utility ─────────────────────── */
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-ring);
-}
+  /* ── Scrollbar (webkit) ─────────────────────── */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
 
-/* ── Scrollbar (webkit) ─────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 3px;
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 3px;
+  }
 }
