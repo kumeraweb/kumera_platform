@@ -91,10 +91,12 @@ export default async function TuejecutivaAdminPage() {
   const errors = [categoriesError?.message, regionsError?.message, executivesError?.message, submissionsError?.message].filter(Boolean);
 
   return (
-    <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-      <h2 className="m-0 text-base font-bold text-slate-100">TuEjecutiva Admin (centralizado)</h2>
-      <p className="mt-1 text-xs text-slate-400">Incluye generación de token onboarding, listado y creación manual de ejecutivas.</p>
-      {errors.length > 0 ? <p className="mt-2 text-sm text-red-400">Error: {errors.join(" | ")}</p> : null}
+    <div>
+      <div className="mb-6">
+        <h1 className="section-title" style={{ fontSize: 20 }}>TuEjecutiva</h1>
+        <p className="section-desc">Tokens de onboarding, creación manual de ejecutivas y postulaciones pendientes.</p>
+      </div>
+      {errors.length > 0 ? <div className="admin-alert admin-alert-error mb-4">Error: {errors.join(" | ")}</div> : null}
       <TuejecutivaAdminClient
         onboardingAdminBaseUrl={`${siteUrl}/admin`}
         initialCategories={(categories ?? []) as Category[]}
@@ -102,6 +104,6 @@ export default async function TuejecutivaAdminPage() {
         initialSubmissions={(submissions ?? []) as SubmissionRow[]}
         initialExecutives={normalizeExecutiveRows((executives ?? []) as unknown[])}
       />
-    </section>
+    </div>
   );
 }

@@ -13,10 +13,13 @@ export default async function LeadosAdminPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-      <h2 className="m-0 text-base font-bold text-slate-100">LeadOS Admin (centralizado)</h2>
-      {error ? <p className="mt-2 text-sm text-red-400">Error loading clients: {error.message}</p> : null}
+    <div>
+      <div className="mb-6">
+        <h1 className="section-title" style={{ fontSize: 20 }}>LeadOS</h1>
+        <p className="section-desc">Gestión centralizada de clientes, usuarios, canales y flujos conversacionales.</p>
+      </div>
+      {error ? <div className="admin-alert admin-alert-error mb-4">Error loading clients: {error.message}</div> : null}
       <LeadosAdminClient initialClients={data ?? []} />
-    </section>
+    </div>
   );
 }

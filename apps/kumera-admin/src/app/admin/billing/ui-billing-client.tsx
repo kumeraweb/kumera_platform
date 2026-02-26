@@ -48,6 +48,22 @@ function composeRut(bodyRaw: string, dvRaw: string) {
   return `${body}-${dv}`;
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    validated: "badge-success",
+    active: "badge-success",
+    paid: "badge-success",
+    pending: "badge-warning",
+    pending_onboarding: "badge-warning",
+    draft: "badge-neutral",
+    rejected: "badge-error",
+    cancelled: "badge-error",
+    archived: "badge-neutral",
+  };
+  const cls = map[status] ?? "badge-neutral";
+  return <span className={`badge ${cls}`}>{status}</span>;
+}
+
 export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   const [services, setServices] = useState<Service[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -341,118 +357,174 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }
 
   return (
-    <section className="grid gap-4">
-      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
-      {message ? <p className="text-sm font-medium text-emerald-400">{message}</p> : null}
+    <div className="grid gap-5">
+      {/* Page header */}
+      <div>
+        <h1 className="section-title" style={{ fontSize: 20 }}>Billing</h1>
+        <p className="section-desc">Onboarding de clientes, pagos y suscripciones.</p>
+      </div>
+
+      {/* Global alerts */}
+      {error ? <div className="admin-alert admin-alert-error">{error}</div> : null}
+      {message ? <div className="admin-alert admin-alert-success">{message}</div> : null}
       {onboardingUrl ? (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
-          <p className="m-0 text-xs font-semibold text-emerald-300">Link onboarding generado</p>
-          <p className="mt-1 break-all text-xs text-emerald-100">{onboardingUrl}</p>
+        <div className="admin-alert admin-alert-info">
+          <div>
+            <p className="m-0 text-xs font-semibold">Link onboarding generado</p>
+            <p className="m-0 mt-1 break-all text-xs">{onboardingUrl}</p>
+          </div>
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <h2 className="m-0 text-base font-bold text-slate-100">Crear onboarding</h2>
-        <p className="mt-1 text-xs text-slate-400">Este paso crea empresa + suscripción + token + primer pago pendiente.</p>
+      {/* ─── Crear onboarding ─── */}
+      <div className="admin-card">
+        <h2 className="section-title">Crear onboarding</h2>
+        <p className="section-desc">Crea empresa + suscripción + token + primer pago pendiente.</p>
 
-        <form className="mt-3 grid gap-2" onSubmit={onCreateOnboarding}>
-          <div className="grid gap-2 md:grid-cols-2">
-            <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.customerType} onChange={(e) => setForm((v) => ({ ...v, customerType: e.target.value as "company" | "person", contractTemplateId: "" }))} required>
-              <option value="company">Empresa</option>
-              <option value="person">Persona natural</option>
-            </select>
-            <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder={form.customerType === "company" ? "Razón social" : "Nombre completo"} value={form.companyName} onChange={(e) => setForm((v) => ({ ...v, companyName: e.target.value }))} required />
+        <form className="mt-5 grid gap-4" onSubmit={onCreateOnboarding}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="admin-field">
+              <label className="admin-label">Tipo cliente</label>
+              <select className="admin-input" value={form.customerType} onChange={(e) => setForm((v) => ({ ...v, customerType: e.target.value as "company" | "person", contractTemplateId: "" }))} required>
+                <option value="company">Empresa</option>
+                <option value="person">Persona natural</option>
+              </select>
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">{form.customerType === "company" ? "Razón social" : "Nombre completo"}</label>
+              <input className="admin-input" placeholder={form.customerType === "company" ? "Razón social" : "Nombre completo"} value={form.companyName} onChange={(e) => setForm((v) => ({ ...v, companyName: e.target.value }))} required />
+            </div>
           </div>
-          <div className="grid gap-2 md:grid-cols-[3fr_1fr]">
-            <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT (solo números)" value={form.rutBody} onChange={(e) => setForm((v) => ({ ...v, rutBody: e.target.value.replace(/\\D/g, "") }))} required />
-            <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="DV" maxLength={1} value={form.rutDv} onChange={(e) => setForm((v) => ({ ...v, rutDv: e.target.value.replace(/[^0-9kK]/g, "").toUpperCase() }))} required />
+
+          <div className="grid gap-4 md:grid-cols-[3fr_1fr]">
+            <div className="admin-field">
+              <label className="admin-label">RUT</label>
+              <input className="admin-input" placeholder="Solo números" value={form.rutBody} onChange={(e) => setForm((v) => ({ ...v, rutBody: e.target.value.replace(/\\D/g, "") }))} required />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">DV</label>
+              <input className="admin-input" placeholder="DV" maxLength={1} value={form.rutDv} onChange={(e) => setForm((v) => ({ ...v, rutDv: e.target.value.replace(/[^0-9kK]/g, "").toUpperCase() }))} required />
+            </div>
           </div>
+
           {form.customerType === "company" ? (
-            <div className="grid gap-2 md:grid-cols-2">
-              <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Representante legal (opcional)" value={form.legalRepresentativeName} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeName: e.target.value }))} />
-              <div className="grid gap-2 md:grid-cols-[3fr_1fr]">
-                <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="RUT representante (números)" value={form.legalRepresentativeRutBody} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRutBody: e.target.value.replace(/\\D/g, "") }))} />
-                <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="DV" maxLength={1} value={form.legalRepresentativeRutDv} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRutDv: e.target.value.replace(/[^0-9kK]/g, "").toUpperCase() }))} />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="admin-field">
+                <label className="admin-label">Representante legal (opcional)</label>
+                <input className="admin-input" placeholder="Nombre completo" value={form.legalRepresentativeName} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeName: e.target.value }))} />
+              </div>
+              <div className="grid gap-4 md:grid-cols-[3fr_1fr]">
+                <div className="admin-field">
+                  <label className="admin-label">RUT representante</label>
+                  <input className="admin-input" placeholder="Solo números" value={form.legalRepresentativeRutBody} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRutBody: e.target.value.replace(/\\D/g, "") }))} />
+                </div>
+                <div className="admin-field">
+                  <label className="admin-label">DV</label>
+                  <input className="admin-input" placeholder="DV" maxLength={1} value={form.legalRepresentativeRutDv} onChange={(e) => setForm((v) => ({ ...v, legalRepresentativeRutDv: e.target.value.replace(/[^0-9kK]/g, "").toUpperCase() }))} />
+                </div>
               </div>
             </div>
           ) : null}
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Dirección" value={form.address} onChange={(e) => setForm((v) => ({ ...v, address: e.target.value }))} required />
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm((v) => ({ ...v, email: e.target.value }))} required />
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" placeholder="Teléfono" value={form.phone} onChange={(e) => setForm((v) => ({ ...v, phone: e.target.value }))} required />
 
-          <div className="grid gap-2 md:grid-cols-4">
-            <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.serviceSlug} onChange={(e) => setForm((v) => ({ ...v, serviceSlug: e.target.value, planId: "", contractTemplateId: "" }))} required>
-              <option value="">Servicio Kumera</option>
-              {platformServices.map((service) => (
-                <option key={service.id} value={service.slug}>{service.name} ({service.slug})</option>
-              ))}
-            </select>
-            <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.planId} onChange={(e) => setForm((v) => ({ ...v, planId: e.target.value }))} required>
-              <option value="">Plan</option>
-              {plansForService.map((plan) => (
-                <option key={plan.id} value={plan.id}>{plan.name} · ${Math.floor(plan.price_cents / 100)}</option>
-              ))}
-            </select>
-            <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.taxDocumentType} onChange={(e) => setForm((v) => ({ ...v, taxDocumentType: e.target.value }))} required>
-              <option value="factura">Factura</option>
-              <option value="boleta">Boleta</option>
-            </select>
-            <select className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100" value={form.contractTemplateId} onChange={(e) => setForm((v) => ({ ...v, contractTemplateId: e.target.value }))} required>
-              <option value="">Plantilla contrato</option>
-              {templatesForService.map((template) => (
-                <option key={template.id} value={template.id}>{template.name} ({template.version})</option>
-              ))}
-            </select>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="admin-field">
+              <label className="admin-label">Dirección</label>
+              <input className="admin-input" placeholder="Dirección" value={form.address} onChange={(e) => setForm((v) => ({ ...v, address: e.target.value }))} required />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Email</label>
+              <input className="admin-input" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm((v) => ({ ...v, email: e.target.value }))} required />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Teléfono</label>
+              <input className="admin-input" placeholder="Teléfono" value={form.phone} onChange={(e) => setForm((v) => ({ ...v, phone: e.target.value }))} required />
+            </div>
           </div>
 
-          <button disabled={working || loading} className="w-fit rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700 disabled:opacity-60" type="submit">
-            {working ? "Procesando..." : "Crear onboarding"}
-          </button>
-          <button disabled={working || loading} className="w-fit rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-500/20 disabled:opacity-60" onClick={onPreviewContract} type="button">
-            {working ? "Procesando..." : "Previsualizar contrato"}
-          </button>
-          {preview ? (
-            <button
-              disabled={working}
-              className="w-fit rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-3 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20 disabled:opacity-60"
-              onClick={() => setPreviewOpen(true)}
-              type="button"
-            >
-              Abrir preview
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="admin-field">
+              <label className="admin-label">Servicio Kumera</label>
+              <select className="admin-input" value={form.serviceSlug} onChange={(e) => setForm((v) => ({ ...v, serviceSlug: e.target.value, planId: "", contractTemplateId: "" }))} required>
+                <option value="">Seleccionar…</option>
+                {platformServices.map((service) => (
+                  <option key={service.id} value={service.slug}>{service.name} ({service.slug})</option>
+                ))}
+              </select>
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Plan</label>
+              <select className="admin-input" value={form.planId} onChange={(e) => setForm((v) => ({ ...v, planId: e.target.value }))} required>
+                <option value="">Seleccionar…</option>
+                {plansForService.map((plan) => (
+                  <option key={plan.id} value={plan.id}>{plan.name} · ${Math.floor(plan.price_cents / 100)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Doc. tributario</label>
+              <select className="admin-input" value={form.taxDocumentType} onChange={(e) => setForm((v) => ({ ...v, taxDocumentType: e.target.value }))} required>
+                <option value="factura">Factura</option>
+                <option value="boleta">Boleta</option>
+              </select>
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Plantilla contrato</label>
+              <select className="admin-input" value={form.contractTemplateId} onChange={(e) => setForm((v) => ({ ...v, contractTemplateId: e.target.value }))} required>
+                <option value="">Seleccionar…</option>
+                {templatesForService.map((template) => (
+                  <option key={template.id} value={template.id}>{template.name} ({template.version})</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button disabled={working || loading} className="admin-btn admin-btn-primary" type="submit">
+              {working ? "Procesando..." : "Crear onboarding"}
             </button>
-          ) : null}
+            <button disabled={working || loading} className="admin-btn admin-btn-secondary" onClick={onPreviewContract} type="button">
+              {working ? "Procesando..." : "Previsualizar contrato"}
+            </button>
+            {preview ? (
+              <button disabled={working} className="admin-btn admin-btn-ghost" onClick={() => setPreviewOpen(true)} type="button">
+                Abrir preview
+              </button>
+            ) : null}
+          </div>
         </form>
+
         {preview ? (
-          <p className="mt-3 text-xs text-slate-400">
+          <p className="mt-4 text-xs" style={{ color: "var(--admin-text-muted)" }}>
             Preview listo: {preview.serviceName} · {preview.planName} · {preview.templateName} · hash{" "}
             <span className="font-mono">{preview.contentHash.slice(0, 16)}</span>
           </p>
         ) : (
-          <p className="mt-3 text-xs text-slate-500">Previsualiza el contrato con los datos actuales antes de generar el token onboarding.</p>
+          <p className="mt-4 text-xs" style={{ color: "var(--admin-text-muted)" }}>Previsualiza el contrato con los datos actuales antes de generar el token onboarding.</p>
         )}
       </div>
 
+      {/* ─── Preview modal ─── */}
       {previewOpen && preview ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4" role="dialog" aria-modal="true">
-          <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
-            <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-4 py-3">
-              <p className="m-0 text-sm font-semibold text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }} role="dialog" aria-modal="true">
+          <div
+            className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl border"
+            style={{ background: "var(--admin-surface)", borderColor: "var(--admin-border)", boxShadow: "0 8px 48px rgba(0,0,0,0.4)" }}
+          >
+            <div className="flex items-center justify-between gap-2 border-b px-5 py-4" style={{ borderColor: "var(--admin-border)" }}>
+              <p className="m-0 text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
                 Preview: {preview.serviceName} · {preview.planName} · {preview.templateName}
               </p>
-              <button
-                className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-200 hover:bg-slate-700"
-                onClick={() => setPreviewOpen(false)}
-                type="button"
-              >
+              <button className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => setPreviewOpen(false)} type="button">
                 Cerrar
               </button>
             </div>
-            <div className="max-h-[calc(92vh-58px)] overflow-y-auto p-4">
-              <p className="mb-2 text-xs text-slate-400">
+            <div className="max-h-[calc(92vh-64px)] overflow-y-auto p-5">
+              <p className="mb-3 text-xs" style={{ color: "var(--admin-text-muted)" }}>
                 Hash: <span className="font-mono">{preview.contentHash}</span>
               </p>
               <article
-                className="prose prose-invert max-w-none rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm"
+                className="prose prose-invert max-w-none rounded-xl border p-4 text-sm"
+                style={{ background: "var(--admin-surface-raised)", borderColor: "var(--admin-border)" }}
                 dangerouslySetInnerHTML={{ __html: preview.htmlRendered }}
               />
             </div>
@@ -460,31 +532,29 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <h2 className="m-0 text-base font-bold text-slate-100">Plantillas de contrato (precargadas)</h2>
-        <p className="mt-1 text-xs text-slate-400">
-          Estas plantillas se cargan desde la base de datos y se seleccionan al crear onboarding.
-        </p>
-
+      {/* ─── Templates table ─── */}
+      <div className="admin-card">
+        <h2 className="section-title">Plantillas de contrato</h2>
+        <p className="section-desc">Plantillas precargadas desde la base de datos.</p>
         <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
+          <table className="admin-table">
             <thead>
               <tr>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Servicio</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Nombre</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Versión</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Tipo cliente</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Estado</th>
+                <th>Servicio</th>
+                <th>Nombre</th>
+                <th>Versión</th>
+                <th>Tipo cliente</th>
+                <th>Estado</th>
               </tr>
             </thead>
             <tbody>
               {templates.map((template) => (
                 <tr key={template.id}>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{services.find((s) => s.id === template.service_id)?.name ?? template.service_id}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.name}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.version}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.target_customer_type}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{template.status}</td>
+                  <td>{services.find((s) => s.id === template.service_id)?.name ?? template.service_id}</td>
+                  <td style={{ fontWeight: 500 }}>{template.name}</td>
+                  <td><span className="font-mono text-xs">{template.version}</span></td>
+                  <td><span className="badge badge-neutral">{template.target_customer_type}</span></td>
+                  <td><StatusBadge status={template.status} /></td>
                 </tr>
               ))}
             </tbody>
@@ -492,32 +562,33 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <h2 className="m-0 text-base font-bold text-slate-100">Pagos</h2>
-        <div className="mt-3 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
+      {/* ─── Payments table ─── */}
+      <div className="admin-card">
+        <h2 className="section-title">Pagos</h2>
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
             <thead>
               <tr>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Cliente</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Servicio</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Plan</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Estado</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Monto</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Acciones</th>
+                <th>Cliente</th>
+                <th>Servicio</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Monto</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {payments.map((payment) => (
                 <tr key={payment.id}>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{payment.subscriptions?.services?.name ?? "-"}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{payment.subscriptions?.plans?.name ?? "-"}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{payment.status}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
-                  <td className="border-b border-slate-800 px-2 py-2">
+                  <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
+                  <td>{payment.subscriptions?.services?.name ?? "-"}</td>
+                  <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                  <td><StatusBadge status={payment.status} /></td>
+                  <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
+                  <td>
                     <div className="flex gap-2">
-                      <button disabled={working || payment.status === "validated"} className="rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300 disabled:opacity-50" onClick={() => onValidatePayment(payment.id)} type="button">Validar</button>
-                      <button disabled={working || payment.status === "rejected"} className="rounded border border-red-500/40 bg-red-500/10 px-2 py-1 text-xs font-semibold text-red-300 disabled:opacity-50" onClick={() => onRejectPayment(payment.id)} type="button">Rechazar</button>
+                      <button disabled={working || payment.status === "validated"} className="admin-btn admin-btn-success admin-btn-sm" onClick={() => onValidatePayment(payment.id)} type="button">Validar</button>
+                      <button disabled={working || payment.status === "rejected"} className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => onRejectPayment(payment.id)} type="button">Rechazar</button>
                     </div>
                   </td>
                 </tr>
@@ -527,36 +598,37 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="m-0 text-base font-bold text-slate-100">Clientes onboardeados</h2>
-          <a className="text-xs font-semibold text-blue-300 hover:underline" href={legacyAdminUrl} rel="noreferrer" target="_blank">Legacy admin</a>
+      {/* ─── Subscriptions table ─── */}
+      <div className="admin-card">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="section-title">Clientes onboardeados</h2>
+            <p className="section-desc">Clientes y suscripciones creadas en onboarding.</p>
+          </div>
+          <a className="admin-btn admin-btn-ghost admin-btn-sm" href={legacyAdminUrl} rel="noreferrer" target="_blank">Legacy admin ↗</a>
         </div>
-        <p className="mt-1 text-xs text-slate-400">
-          Este listado muestra clientes/suscripciones creadas en onboarding, no el catálogo de servicios de Kumera.
-        </p>
-        <div className="mt-3 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
             <thead>
               <tr>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">ID</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Cliente</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Servicio</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Plan</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Estado</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs text-slate-400">Acción</th>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Servicio</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>
               {subscriptions.map((subscription) => (
                 <tr key={subscription.id}>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-300">{subscription.id}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{subscription.companies?.legal_name ?? "-"}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{subscription.plans?.name ?? "-"}</td>
-                  <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{subscription.status}</td>
-                  <td className="border-b border-slate-800 px-2 py-2">
-                    <button disabled={working} className="rounded border border-blue-500/40 bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-300 disabled:opacity-50" onClick={() => onRegenerateToken(subscription.id)} type="button">Regenerar token</button>
+                  <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{subscription.id.slice(0, 8)}…</span></td>
+                  <td style={{ fontWeight: 500 }}>{subscription.companies?.legal_name ?? "-"}</td>
+                  <td>{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
+                  <td>{subscription.plans?.name ?? "-"}</td>
+                  <td><StatusBadge status={subscription.status} /></td>
+                  <td>
+                    <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Regenerar token</button>
                   </td>
                 </tr>
               ))}
@@ -564,6 +636,6 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </table>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

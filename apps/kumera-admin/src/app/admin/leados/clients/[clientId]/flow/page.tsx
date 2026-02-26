@@ -24,18 +24,25 @@ export default async function LeadosClientFlowPage({ params }: { params: Promise
   }
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4">
+    <div className="grid gap-5">
+      <div
+        className="admin-card flex flex-wrap items-center justify-between gap-3"
+      >
         <div>
-          <h2 className="m-0 text-base font-bold text-slate-100">PASO 4 · Flujo conversacional · {client.name}</h2>
-          <p className="m-0.5 text-xs text-slate-400">Client ID: {client.id}</p>
+          <div className="flex items-center gap-3">
+            <span className="badge badge-accent">PASO 4</span>
+            <h1 className="section-title">Flujo conversacional</h1>
+          </div>
+          <p className="mt-1 text-xs font-mono" style={{ color: "var(--admin-text-muted)" }}>
+            {client.name} · {client.id}
+          </p>
         </div>
-        <Link className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:bg-slate-700" href="/admin/leados">
-          Volver a LeadOS Admin
+        <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/leados">
+          ← Volver a LeadOS
         </Link>
       </div>
 
       <FlowBuilderClient clientId={client.id} />
-    </section>
+    </div>
   );
 }

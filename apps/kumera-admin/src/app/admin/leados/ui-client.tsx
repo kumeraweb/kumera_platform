@@ -108,140 +108,121 @@ export default function LeadosAdminClient({ initialClients }: Props) {
   }
 
   return (
-    <div className="mt-4 grid gap-4">
-      {message ? <p className="text-sm font-medium text-emerald-400">{message}</p> : null}
-      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
+    <div className="grid gap-5">
+      {message ? <div className="admin-alert admin-alert-success">{message}</div> : null}
+      {error ? <div className="admin-alert admin-alert-error">{error}</div> : null}
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <h3 className="m-0 text-sm font-bold text-slate-100">Clientes</h3>
-          <p className="m-0 text-xs text-slate-400">Orden recomendado: PASO 1 cliente, PASO 2 usuario, PASO 3 canal, PASO 4 flujo.</p>
+      {/* ─── Clients table ─── */}
+      <div className="admin-card">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="section-title">Clientes</h2>
+          <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Orden: PASO 1 cliente → PASO 2 usuario → PASO 3 canal → PASO 4 flujo</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
-          <thead>
-            <tr>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">ID</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Nombre</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Email</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Score</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clients.map((row) => (
-              <tr key={row.id}>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-300">{row.id}</td>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.name}</td>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.notification_email}</td>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.score_threshold}</td>
-                <td className="border-b border-slate-800 px-2 py-2">
-                  <Link
-                    className="inline-flex items-center rounded-lg border border-blue-500/40 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
-                    href={`/admin/leados/clients/${row.id}/flow`}
-                  >
-                    PASO 4 · Gestionar flujo
-                  </Link>
-                </td>
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Score</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
+            </thead>
+            <tbody>
+              {clients.map((row) => (
+                <tr key={row.id}>
+                  <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{row.id.slice(0, 8)}…</span></td>
+                  <td style={{ fontWeight: 500 }}>{row.name}</td>
+                  <td>{row.notification_email}</td>
+                  <td><span className="badge badge-accent">{row.score_threshold}</span></td>
+                  <td>
+                    <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/leados/clients/${row.id}/flow`}>
+                      Gestionar flujo
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>
 
-      <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onCreateClient}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 1 · Crear cliente LeadOS</h3>
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="Nombre cliente"
-          value={clientForm.name}
-          onChange={(e) => setClientForm((v) => ({ ...v, name: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          type="email"
-          placeholder="notification@cliente.com"
-          value={clientForm.notification_email}
-          onChange={(e) => setClientForm((v) => ({ ...v, notification_email: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="+56912345678"
-          value={clientForm.human_forward_number}
-          onChange={(e) => setClientForm((v) => ({ ...v, human_forward_number: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          type="number"
-          min={0}
-          max={100}
-          value={clientForm.score_threshold}
-          onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))}
-          required
-        />
-        <button className="w-fit cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700" type="submit">Crear cliente</button>
+      {/* ─── PASO 1: Create client ─── */}
+      <form className="admin-card" onSubmit={onCreateClient}>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="badge badge-accent">PASO 1</span>
+          <h2 className="section-title">Crear cliente LeadOS</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">Nombre cliente</label>
+            <input className="admin-input" placeholder="Nombre cliente" value={clientForm.name} onChange={(e) => setClientForm((v) => ({ ...v, name: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Email notificación</label>
+            <input className="admin-input" type="email" placeholder="notification@cliente.com" value={clientForm.notification_email} onChange={(e) => setClientForm((v) => ({ ...v, notification_email: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Teléfono reenvío humano</label>
+            <input className="admin-input" placeholder="+56912345678" value={clientForm.human_forward_number} onChange={(e) => setClientForm((v) => ({ ...v, human_forward_number: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Score threshold</label>
+            <input className="admin-input" type="number" min={0} max={100} value={clientForm.score_threshold} onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
+          </div>
+        </div>
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">Crear cliente</button>
       </form>
 
-      <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onAssignUser}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 2 · Asignar usuario a tenant</h3>
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="user_id (uuid)"
-          value={assignForm.user_id}
-          onChange={(e) => setAssignForm((v) => ({ ...v, user_id: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="client_id (uuid)"
-          value={assignForm.client_id}
-          onChange={(e) => setAssignForm((v) => ({ ...v, client_id: e.target.value }))}
-          required
-        />
-        <button className="w-fit cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700" type="submit">Asignar</button>
+      {/* ─── PASO 2: Assign user ─── */}
+      <form className="admin-card" onSubmit={onAssignUser}>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="badge badge-accent">PASO 2</span>
+          <h2 className="section-title">Asignar usuario a tenant</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">User ID (UUID)</label>
+            <input className="admin-input" placeholder="user_id (uuid)" value={assignForm.user_id} onChange={(e) => setAssignForm((v) => ({ ...v, user_id: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Client ID (UUID)</label>
+            <input className="admin-input" placeholder="client_id (uuid)" value={assignForm.client_id} onChange={(e) => setAssignForm((v) => ({ ...v, client_id: e.target.value }))} required />
+          </div>
+        </div>
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">Asignar</button>
       </form>
 
-      <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onCreateChannel}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 3 · Crear canal WhatsApp</h3>
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="client_id (uuid)"
-          value={channelForm.client_id}
-          onChange={(e) => setChannelForm((v) => ({ ...v, client_id: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="phone_number_id"
-          value={channelForm.phone_number_id}
-          onChange={(e) => setChannelForm((v) => ({ ...v, phone_number_id: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="waba_id (opcional)"
-          value={channelForm.waba_id}
-          onChange={(e) => setChannelForm((v) => ({ ...v, waba_id: e.target.value }))}
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="meta_access_token"
-          value={channelForm.meta_access_token}
-          onChange={(e) => setChannelForm((v) => ({ ...v, meta_access_token: e.target.value }))}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="meta_app_secret"
-          value={channelForm.meta_app_secret}
-          onChange={(e) => setChannelForm((v) => ({ ...v, meta_app_secret: e.target.value }))}
-          required
-        />
-        <button className="w-fit cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700" type="submit">Crear canal</button>
+      {/* ─── PASO 3: Create channel ─── */}
+      <form className="admin-card" onSubmit={onCreateChannel}>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="badge badge-accent">PASO 3</span>
+          <h2 className="section-title">Crear canal WhatsApp</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">Client ID (UUID)</label>
+            <input className="admin-input" placeholder="client_id (uuid)" value={channelForm.client_id} onChange={(e) => setChannelForm((v) => ({ ...v, client_id: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Phone Number ID</label>
+            <input className="admin-input" placeholder="phone_number_id" value={channelForm.phone_number_id} onChange={(e) => setChannelForm((v) => ({ ...v, phone_number_id: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">WABA ID (opcional)</label>
+            <input className="admin-input" placeholder="waba_id" value={channelForm.waba_id} onChange={(e) => setChannelForm((v) => ({ ...v, waba_id: e.target.value }))} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Meta Access Token</label>
+            <input className="admin-input" placeholder="meta_access_token" value={channelForm.meta_access_token} onChange={(e) => setChannelForm((v) => ({ ...v, meta_access_token: e.target.value }))} required />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Meta App Secret</label>
+            <input className="admin-input" placeholder="meta_app_secret" value={channelForm.meta_app_secret} onChange={(e) => setChannelForm((v) => ({ ...v, meta_app_secret: e.target.value }))} required />
+          </div>
+        </div>
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">Crear canal</button>
       </form>
     </div>
   );

@@ -38,36 +38,76 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-950 p-6">
-      <section className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm">
-        <h1 className="m-0 text-2xl font-bold tracking-tight text-slate-100">Kumera Admin Login</h1>
-        <p className="mt-2 text-sm text-slate-400">Acceso unificado para operación de Billing, Tuejecutiva y LeadOS.</p>
-        <form onSubmit={onSubmit} className="mt-4 grid gap-3">
-          <label className="grid gap-1.5 text-sm text-slate-300">
-            Email
+    <main
+      className="grid min-h-screen place-items-center p-6"
+      style={{ background: "var(--admin-bg)" }}
+    >
+      <section
+        className="w-full max-w-sm rounded-2xl border p-8"
+        style={{
+          background: "var(--admin-surface)",
+          borderColor: "var(--admin-border)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+        }}
+      >
+        {/* Brand */}
+        <div className="mb-8 flex flex-col items-center gap-3">
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-base font-black text-white"
+            style={{ background: "var(--admin-accent)" }}
+          >
+            K
+          </div>
+          <div className="text-center">
+            <h1 className="m-0 text-xl font-bold" style={{ color: "var(--admin-text)" }}>
+              Kumera Admin
+            </h1>
+            <p className="m-0 mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Acceso unificado para Billing, TuEjecutiva y LeadOS
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={onSubmit} className="grid gap-4">
+          <div className="admin-field">
+            <label className="admin-label" htmlFor="login-email">Email</label>
             <input
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
+              id="login-email"
+              className="admin-input"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              placeholder="admin@kumera.cl"
             />
-          </label>
-          <label className="grid gap-1.5 text-sm text-slate-300">
-            Contraseña
+          </div>
+          <div className="admin-field">
+            <label className="admin-label" htmlFor="login-password">Contraseña</label>
             <input
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
+              id="login-password"
+              className="admin-input"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
+              placeholder="••••••••"
             />
-          </label>
-          {error ? <p className="text-sm text-red-400">{error}</p> : null}
-          <button className="cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:opacity-60" type="submit" disabled={loading}>
-            {loading ? "Ingresando..." : "Entrar"}
+          </div>
+
+          {error ? (
+            <div className="admin-alert admin-alert-error">
+              <span>{error}</span>
+            </div>
+          ) : null}
+
+          <button
+            className="admin-btn admin-btn-primary mt-1 w-full"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Ingresando..." : "Iniciar sesión"}
           </button>
         </form>
       </section>

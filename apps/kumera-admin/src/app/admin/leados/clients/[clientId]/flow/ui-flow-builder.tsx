@@ -574,147 +574,174 @@ export default function FlowBuilderClient({ clientId }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4">
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
-      {success ? <p className="text-sm text-emerald-400">{success}</p> : null}
-      {loadingActiveFlow ? <p className="text-xs text-slate-400">Cargando flujo activo...</p> : null}
-      {activeFlowLabel ? <p className="text-xs text-slate-400">Editando: {activeFlowLabel}</p> : null}
+    <form onSubmit={onSubmit} className="grid gap-5">
+      {error ? <div className="admin-alert admin-alert-error">{error}</div> : null}
+      {success ? <div className="admin-alert admin-alert-success">{success}</div> : null}
+      {loadingActiveFlow ? <p className="text-xs" style={{ color: "var(--admin-text-muted)" }}>Cargando flujo activo...</p> : null}
+      {activeFlowLabel ? <p className="text-xs" style={{ color: "var(--admin-text-muted)" }}>Editando: {activeFlowLabel}</p> : null}
 
-      <div className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="m-0 text-sm font-bold text-slate-100">Configuración general</h3>
+      {/* ─── General config ─── */}
+      <div className="admin-card">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 className="section-title">Configuración general</h2>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => void loadActiveFlow()}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-100 hover:bg-slate-700"
-            >
-              Recargar flujo activo
+            <button type="button" onClick={() => void loadActiveFlow()} className="admin-btn admin-btn-secondary admin-btn-sm">
+              Recargar flujo
             </button>
-            <button
-              type="button"
-              onClick={applyTractivaTemplate}
-              className="rounded-lg border border-blue-500/40 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
-            >
+            <button type="button" onClick={applyTractivaTemplate} className="admin-btn admin-btn-ghost admin-btn-sm" style={{ color: "var(--admin-accent-hover)" }}>
               Usar template Tractiva
             </button>
           </div>
         </div>
-        <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre flujo" required />
-        <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={welcomeMessage} onChange={(e) => setWelcomeMessage(e.target.value)} placeholder="Mensaje de bienvenida" required />
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" type="number" min={1} max={20} value={maxSteps} onChange={(e) => setMaxSteps(Number(e.target.value))} required />
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" type="number" min={1} max={10} value={maxIrrelevantStreak} onChange={(e) => setMaxIrrelevantStreak(Number(e.target.value))} required />
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" type="number" min={0} max={10} value={maxReminders} onChange={(e) => setMaxReminders(Number(e.target.value))} required />
-          <input className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" type="number" min={1} max={10080} value={reminderDelayMinutes} onChange={(e) => setReminderDelayMinutes(Number(e.target.value))} required />
-        </div>
-      </div>
-
-      <div className="grid gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <div className="flex items-center justify-between">
-          <h3 className="m-0 text-sm font-bold text-slate-100">Nodos conversacionales</h3>
-          <button type="button" className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-100 hover:bg-slate-700" onClick={addNode}>+ Nodo</button>
-        </div>
-
-        {nodes.map((node, index) => (
-          <div key={node.id} className="grid gap-2 rounded-lg border border-slate-700 bg-slate-800/70 p-3">
-            <div className="flex items-center justify-between">
-              <p className="m-0 text-xs font-semibold text-slate-300">Nodo {index + 1}</p>
-              {index > 0 ? (
-                <button type="button" className="rounded border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-xs font-semibold text-red-300 hover:bg-red-500/20" onClick={() => removeNode(node.id)}>
-                  Eliminar
-                </button>
-              ) : null}
-            </div>
-
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" value={node.node_key} placeholder="node_key" onChange={(e) => updateNode(node.id, { node_key: e.target.value })} required />
-            <textarea className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20" rows={2} value={node.prompt_text} placeholder="Texto del nodo" onChange={(e) => updateNode(node.id, { prompt_text: e.target.value })} required />
-            <label className="flex items-center gap-2 text-xs text-slate-300">
-              <input type="checkbox" checked={node.allow_free_text} onChange={(e) => updateNode(node.id, { allow_free_text: e.target.checked })} />
-              Permitir texto libre en este nodo
-            </label>
-
-            <div className="grid gap-2">
-              {node.options.map((option) => (
-                <div key={option.id} className="grid gap-2 rounded border border-slate-700 bg-slate-900 p-2">
-                  <input
-                    className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-                    value={option.label_text}
-                    placeholder="Texto opción"
-                    onChange={(e) => updateOption(node.id, option.id, { label_text: e.target.value })}
-                    required
-                  />
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                    <input
-                      className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-                      type="number"
-                      value={option.score_delta}
-                      onChange={(e) => updateOption(node.id, option.id, { score_delta: Number(e.target.value) })}
-                    />
-                    <select
-                      className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-                      value={option.next_type}
-                      onChange={(e) => updateOption(node.id, option.id, { next_type: e.target.value as BuilderOption["next_type"] })}
-                    >
-                      <option value="node">Ir a nodo</option>
-                      <option value="human">Escalar humano</option>
-                      <option value="terminal">Terminal</option>
-                    </select>
-                    {option.next_type === "node" ? (
-                      <select
-                        className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-                        value={option.next_node_key}
-                        onChange={(e) => updateOption(node.id, option.id, { next_node_key: e.target.value })}
-                      >
-                        <option value="">Selecciona nodo</option>
-                        {nodeKeyOptions.map((nodeKey) => (
-                          <option key={nodeKey} value={nodeKey}>
-                            {nodeKey}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <button
-                        type="button"
-                        className="rounded-lg border border-blue-500/40 bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-300 hover:bg-blue-500/20"
-                        onClick={() => createLinkedSubnode(node.id, option.id)}
-                      >
-                        Crear subnodo
-                      </button>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    className="w-fit rounded border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-xs font-semibold text-red-300 hover:bg-red-500/20"
-                    onClick={() => removeOption(node.id, option.id)}
-                  >
-                    Eliminar opción
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              className="w-fit rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs font-semibold text-slate-100 hover:bg-slate-700"
-              onClick={() => addOption(node.id)}
-            >
-              + Opción
-            </button>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">Nombre flujo</label>
+            <input className="admin-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre flujo" required />
           </div>
-        ))}
+          <div className="admin-field">
+            <label className="admin-label">Mensaje de bienvenida</label>
+            <input className="admin-input" value={welcomeMessage} onChange={(e) => setWelcomeMessage(e.target.value)} placeholder="Mensaje de bienvenida" required />
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="admin-field">
+            <label className="admin-label">Max steps</label>
+            <input className="admin-input" type="number" min={1} max={20} value={maxSteps} onChange={(e) => setMaxSteps(Number(e.target.value))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Max irrelevant</label>
+            <input className="admin-input" type="number" min={1} max={10} value={maxIrrelevantStreak} onChange={(e) => setMaxIrrelevantStreak(Number(e.target.value))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Max reminders</label>
+            <input className="admin-input" type="number" min={0} max={10} value={maxReminders} onChange={(e) => setMaxReminders(Number(e.target.value))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Delay (min)</label>
+            <input className="admin-input" type="number" min={1} max={10080} value={reminderDelayMinutes} onChange={(e) => setReminderDelayMinutes(Number(e.target.value))} required />
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <h3 className="m-0 text-sm font-bold text-slate-100">Preview JSON</h3>
-        <textarea className="rounded-lg border border-slate-700 bg-slate-950 p-3 font-mono text-xs text-slate-200 outline-none" rows={12} readOnly value={payloadPreview} />
+      {/* ─── Conversation nodes ─── */}
+      <div className="admin-card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="section-title">Nodos conversacionales</h2>
+          <button type="button" className="admin-btn admin-btn-primary admin-btn-sm" onClick={addNode}>+ Nodo</button>
+        </div>
+
+        <div className="grid gap-4">
+          {nodes.map((node, index) => (
+            <div
+              key={node.id}
+              className="rounded-xl border p-4"
+              style={{ background: "var(--admin-surface-raised)", borderColor: "var(--admin-border)" }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-bold text-white"
+                    style={{ background: "var(--admin-accent)" }}
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="text-xs font-semibold" style={{ color: "var(--admin-text)" }}>Nodo</span>
+                </div>
+                {index > 0 ? (
+                  <button type="button" className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => removeNode(node.id)}>
+                    Eliminar
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-3">
+                <div className="admin-field">
+                  <label className="admin-label">Node key</label>
+                  <input className="admin-input" value={node.node_key} placeholder="node_key" onChange={(e) => updateNode(node.id, { node_key: e.target.value })} required />
+                </div>
+                <div className="admin-field">
+                  <label className="admin-label">Texto del nodo</label>
+                  <textarea className="admin-input" rows={2} value={node.prompt_text} placeholder="Texto del nodo" onChange={(e) => updateNode(node.id, { prompt_text: e.target.value })} required />
+                </div>
+                <label className="flex cursor-pointer items-center gap-2 text-xs" style={{ color: "var(--admin-text)" }}>
+                  <input type="checkbox" checked={node.allow_free_text} onChange={(e) => updateNode(node.id, { allow_free_text: e.target.checked })} className="accent-[var(--admin-accent)]" />
+                  Permitir texto libre
+                </label>
+
+                {/* Options */}
+                <div className="grid gap-2 mt-1">
+                  <p className="m-0 text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--admin-text-muted)" }}>Opciones</p>
+                  {node.options.map((option) => (
+                    <div
+                      key={option.id}
+                      className="grid gap-2 rounded-lg border p-3"
+                      style={{ background: "var(--admin-surface)", borderColor: "var(--admin-border-subtle)" }}
+                    >
+                      <div className="admin-field">
+                        <label className="admin-label">Texto opción</label>
+                        <input className="admin-input" value={option.label_text} placeholder="Texto opción" onChange={(e) => updateOption(node.id, option.id, { label_text: e.target.value })} required />
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                        <div className="admin-field">
+                          <label className="admin-label">Score delta</label>
+                          <input className="admin-input" type="number" value={option.score_delta} onChange={(e) => updateOption(node.id, option.id, { score_delta: Number(e.target.value) })} />
+                        </div>
+                        <div className="admin-field">
+                          <label className="admin-label">Tipo siguiente</label>
+                          <select className="admin-input" value={option.next_type} onChange={(e) => updateOption(node.id, option.id, { next_type: e.target.value as BuilderOption["next_type"] })}>
+                            <option value="node">Ir a nodo</option>
+                            <option value="human">Escalar humano</option>
+                            <option value="terminal">Terminal</option>
+                          </select>
+                        </div>
+                        {option.next_type === "node" ? (
+                          <div className="admin-field">
+                            <label className="admin-label">Nodo destino</label>
+                            <select className="admin-input" value={option.next_node_key} onChange={(e) => updateOption(node.id, option.id, { next_node_key: e.target.value })}>
+                              <option value="">Selecciona nodo</option>
+                              {nodeKeyOptions.map((nodeKey) => (
+                                <option key={nodeKey} value={nodeKey}>{nodeKey}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <div className="admin-field">
+                            <label className="admin-label">&nbsp;</label>
+                            <button type="button" className="admin-btn admin-btn-ghost admin-btn-sm" style={{ color: "var(--admin-accent-hover)" }} onClick={() => createLinkedSubnode(node.id, option.id)}>
+                              + Crear subnodo
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <button type="button" className="admin-btn admin-btn-danger admin-btn-sm w-fit" onClick={() => removeOption(node.id, option.id)}>
+                        Eliminar opción
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button type="button" className="admin-btn admin-btn-secondary admin-btn-sm w-fit" onClick={() => addOption(node.id)}>
+                  + Opción
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-fit cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:opacity-60"
-      >
+      {/* ─── JSON preview ─── */}
+      <div className="admin-card">
+        <h2 className="section-title mb-3">Preview JSON</h2>
+        <textarea
+          className="admin-input w-full font-mono text-xs"
+          style={{ background: "var(--admin-bg)", resize: "vertical" }}
+          rows={12}
+          readOnly
+          value={payloadPreview}
+        />
+      </div>
+
+      <button type="submit" disabled={submitting} className="admin-btn admin-btn-primary w-fit">
         {submitting ? "Guardando..." : "Guardar flujo activo"}
       </button>
     </form>

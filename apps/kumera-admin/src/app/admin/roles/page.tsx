@@ -14,39 +14,47 @@ export default async function RolesPage() {
       .limit(100);
 
     return (
-      <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <h2 className="m-0 text-base font-bold text-slate-100">Global Roles (core.user_roles)</h2>
-        {error ? <p className="mt-2 text-sm text-red-400">Error: {error.message}</p> : null}
-        <div className="mt-3 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
-          <thead>
-            <tr>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">User ID</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Role</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Active</th>
-              <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(data ?? []).map((row) => (
-              <tr key={`${row.user_id}-${row.role}`}>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.user_id}</td>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.role}</td>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{String(row.active)}</td>
-                <td className="border-b border-slate-800 px-2 py-2 text-slate-300">{row.created_at}</td>
-              </tr>
-            ))}
-          </tbody>
-          </table>
+      <div>
+        <div className="mb-6">
+          <h1 className="section-title" style={{ fontSize: 20 }}>Global Roles</h1>
+          <p className="section-desc">Tabla core.user_roles — permisos de acceso al panel.</p>
         </div>
-      </section>
+        {error ? <div className="admin-alert admin-alert-error mb-4">Error: {error.message}</div> : null}
+        <div className="admin-card">
+          <div className="overflow-x-auto">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Role</th>
+                  <th>Active</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(data ?? []).map((row) => (
+                  <tr key={`${row.user_id}-${row.role}`}>
+                    <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{row.user_id}</span></td>
+                    <td><span className="badge badge-accent">{row.role}</span></td>
+                    <td>{row.active ? <span className="badge badge-success">true</span> : <span className="badge badge-error">false</span>}</td>
+                    <td style={{ color: "var(--admin-text-muted)" }}>{row.created_at}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     );
   } catch (error) {
     return (
-      <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <h2 className="m-0 text-base font-bold text-slate-100">Global Roles (core.user_roles)</h2>
-        <p className="mt-2 text-sm text-red-400">Error: {error instanceof Error ? error.message : "Unknown error"}</p>
-      </section>
+      <div>
+        <div className="mb-6">
+          <h1 className="section-title" style={{ fontSize: 20 }}>Global Roles</h1>
+          <p className="section-desc">Tabla core.user_roles</p>
+        </div>
+        <div className="admin-alert admin-alert-error">Error: {error instanceof Error ? error.message : "Unknown error"}</div>
+      </div>
     );
   }
 }

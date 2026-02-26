@@ -47,6 +47,15 @@ function slugify(value: string) {
     .replace(/(^-|-$)+/g, "");
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    active: "badge-success", approved: "badge-success", pending: "badge-warning",
+    reviewed: "badge-accent", draft: "badge-neutral", inactive: "badge-neutral",
+    rejected: "badge-error",
+  };
+  return <span className={`badge ${map[status] ?? "badge-neutral"}`}>{status}</span>;
+}
+
 export default function TuejecutivaAdminClient({
   onboardingAdminBaseUrl,
   initialCategories,
@@ -172,217 +181,174 @@ export default function TuejecutivaAdminClient({
   }
 
   return (
-    <div className="mt-4 grid gap-4">
-      {message ? <p className="text-sm font-medium text-emerald-400">{message}</p> : null}
-      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
+    <div className="grid gap-5">
+      {message ? <div className="admin-alert admin-alert-success">{message}</div> : null}
+      {error ? <div className="admin-alert admin-alert-error">{error}</div> : null}
 
-      <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onCreateToken}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 1 · Generar token onboarding</h3>
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          type="email"
-          placeholder="ejecutiva@empresa.cl (opcional)"
-          value={tokenForm.email}
-          onChange={(e) => setTokenForm((prev) => ({ ...prev, email: e.target.value }))}
-        />
-        <input
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          type="number"
-          min={1}
-          max={30}
-          value={tokenForm.expires_in_days}
-          onChange={(e) => setTokenForm((prev) => ({ ...prev, expires_in_days: Number(e.target.value) }))}
-          required
-        />
-        <button className="w-fit cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700" type="submit">
-          Generar token
-        </button>
+      {/* ─── PASO 1: Generate token ─── */}
+      <form className="admin-card" onSubmit={onCreateToken}>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="badge badge-accent">PASO 1</span>
+          <h2 className="section-title">Generar token onboarding</h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">Email (opcional)</label>
+            <input className="admin-input" type="email" placeholder="ejecutiva@empresa.cl" value={tokenForm.email} onChange={(e) => setTokenForm((prev) => ({ ...prev, email: e.target.value }))} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Días de expiración</label>
+            <input className="admin-input" type="number" min={1} max={30} value={tokenForm.expires_in_days} onChange={(e) => setTokenForm((prev) => ({ ...prev, expires_in_days: Number(e.target.value) }))} required />
+          </div>
+        </div>
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">Generar token</button>
 
         {tokenResult ? (
-          <div className="mt-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
-            <p className="m-0 font-semibold">{tokenResult.reused ? "Token activo reutilizado" : "Token creado"}</p>
-            <p className="m-0.5 break-all">{tokenResult.link}</p>
-            <p className="m-0.5">Email: {tokenResult.email ?? "—"}</p>
-            <p className="m-0.5">Expira: {new Date(tokenResult.expires_at).toLocaleString("es-CL")}</p>
+          <div className="admin-alert admin-alert-success mt-4">
+            <div>
+              <p className="m-0 text-xs font-semibold">{tokenResult.reused ? "Token activo reutilizado" : "Token creado"}</p>
+              <p className="m-0 mt-1 break-all text-xs">{tokenResult.link}</p>
+              <p className="m-0 mt-0.5 text-xs">Email: {tokenResult.email ?? "—"}</p>
+              <p className="m-0 mt-0.5 text-xs">Expira: {new Date(tokenResult.expires_at).toLocaleString("es-CL")}</p>
+            </div>
           </div>
         ) : null}
       </form>
 
-      <form className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900 p-4" onSubmit={onCreateExecutive}>
-        <h3 className="m-0 text-sm font-bold text-slate-100">PASO 2 · Crear ejecutiva manual</h3>
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            placeholder="Nombre"
-            value={executiveForm.name}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, name: e.target.value }))}
-            required
-          />
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            placeholder="Slug (opcional)"
-            value={executiveForm.slug}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, slug: e.target.value }))}
-          />
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            placeholder="Teléfono"
-            value={executiveForm.phone}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, phone: e.target.value }))}
-            required
-          />
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            placeholder="Empresa"
-            value={executiveForm.company}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, company: e.target.value }))}
-            required
-          />
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            placeholder="Especialidad"
-            value={executiveForm.specialty}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, specialty: e.target.value }))}
-          />
-          <select
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            value={executiveForm.plan}
-            onChange={(e) =>
-              setExecutiveForm((prev) => ({ ...prev, plan: e.target.value as "bronce" | "plata" | "oro" }))
-            }
-          >
-            <option value="bronce">bronce</option>
-            <option value="plata">plata</option>
-            <option value="oro">oro</option>
-          </select>
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-            placeholder="Años experiencia (opcional)"
-            value={executiveForm.experience_years}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, experience_years: e.target.value }))}
-          />
-          <input
-            className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20 md:col-span-2"
-            placeholder="Sitio web empresa (https://...)"
-            value={executiveForm.company_website_url}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, company_website_url: e.target.value }))}
-          />
+      {/* ─── PASO 2: Create executive ─── */}
+      <form className="admin-card" onSubmit={onCreateExecutive}>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="badge badge-accent">PASO 2</span>
+          <h2 className="section-title">Crear ejecutiva manual</h2>
         </div>
-        <textarea
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="Descripción"
-          rows={3}
-          value={executiveForm.description}
-          onChange={(e) => setExecutiveForm((prev) => ({ ...prev, description: e.target.value }))}
-        />
-        <textarea
-          className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/20"
-          placeholder="Mensaje WhatsApp"
-          rows={2}
-          value={executiveForm.whatsapp_message}
-          onChange={(e) => setExecutiveForm((prev) => ({ ...prev, whatsapp_message: e.target.value }))}
-        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">Nombre</label>
+            <input className="admin-input" placeholder="Nombre" value={executiveForm.name} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, name: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Slug (opcional)</label>
+            <input className="admin-input" placeholder="generado-automaticamente" value={executiveForm.slug} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, slug: e.target.value }))} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Teléfono</label>
+            <input className="admin-input" placeholder="Teléfono" value={executiveForm.phone} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, phone: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Empresa</label>
+            <input className="admin-input" placeholder="Empresa" value={executiveForm.company} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, company: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Especialidad</label>
+            <input className="admin-input" placeholder="Especialidad" value={executiveForm.specialty} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, specialty: e.target.value }))} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Plan</label>
+            <select className="admin-input" value={executiveForm.plan} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, plan: e.target.value as "bronce" | "plata" | "oro" }))}>
+              <option value="bronce">Bronce</option>
+              <option value="plata">Plata</option>
+              <option value="oro">Oro</option>
+            </select>
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Años experiencia (opcional)</label>
+            <input className="admin-input" placeholder="Años" value={executiveForm.experience_years} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, experience_years: e.target.value }))} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Sitio web empresa</label>
+            <input className="admin-input" placeholder="https://..." value={executiveForm.company_website_url} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, company_website_url: e.target.value }))} />
+          </div>
+        </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3">
-          <p className="m-0 text-xs font-semibold text-slate-300">Categorías</p>
-          <div className="mt-2 grid grid-cols-1 gap-1 md:grid-cols-2">
+        <div className="mt-4 admin-field">
+          <label className="admin-label">Descripción</label>
+          <textarea className="admin-input" placeholder="Descripción" rows={3} value={executiveForm.description} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, description: e.target.value }))} />
+        </div>
+        <div className="mt-4 admin-field">
+          <label className="admin-label">Mensaje WhatsApp</label>
+          <textarea className="admin-input" placeholder="Mensaje WhatsApp" rows={2} value={executiveForm.whatsapp_message} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, whatsapp_message: e.target.value }))} />
+        </div>
+
+        {/* Categories */}
+        <div className="mt-4 rounded-lg border p-4" style={{ background: "var(--admin-surface-raised)", borderColor: "var(--admin-border)" }}>
+          <p className="m-0 text-xs font-semibold" style={{ color: "var(--admin-text-secondary)" }}>Categorías</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3">
             {initialCategories.map((category) => (
-              <label key={category.id} className="flex items-center gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={executiveForm.category_ids.includes(category.id)}
-                  onChange={() => toggleCategory(category.id)}
-                />
+              <label key={category.id} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors hover:bg-white/5" style={{ color: "var(--admin-text)" }}>
+                <input type="checkbox" checked={executiveForm.category_ids.includes(category.id)} onChange={() => toggleCategory(category.id)} className="accent-[var(--admin-accent)]" />
                 {category.name}
               </label>
             ))}
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-slate-300">
-          <input
-            type="checkbox"
-            checked={executiveForm.coverage_all}
-            onChange={(e) => setExecutiveForm((prev) => ({ ...prev, coverage_all: e.target.checked }))}
-          />
+        {/* Coverage toggle */}
+        <label className="mt-4 flex cursor-pointer items-center gap-2 text-xs" style={{ color: "var(--admin-text)" }}>
+          <input type="checkbox" checked={executiveForm.coverage_all} onChange={(e) => setExecutiveForm((prev) => ({ ...prev, coverage_all: e.target.checked }))} className="accent-[var(--admin-accent)]" />
           Cobertura nacional (si activas esto, ignora regiones)
         </label>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950 p-3">
-          <p className="m-0 text-xs font-semibold text-slate-300">Regiones</p>
-          <div className="mt-2 grid grid-cols-1 gap-1 md:grid-cols-2">
+        {/* Regions */}
+        <div className="mt-4 rounded-lg border p-4" style={{ background: "var(--admin-surface-raised)", borderColor: "var(--admin-border)" }}>
+          <p className="m-0 text-xs font-semibold" style={{ color: "var(--admin-text-secondary)" }}>Regiones</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3">
             {initialRegions.map((region) => (
-              <label key={region.id} className="flex items-center gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={executiveForm.region_ids.includes(region.id)}
-                  onChange={() => toggleRegion(region.id)}
-                  disabled={executiveForm.coverage_all}
-                />
+              <label key={region.id} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors hover:bg-white/5" style={{ color: executiveForm.coverage_all ? "var(--admin-text-muted)" : "var(--admin-text)" }}>
+                <input type="checkbox" checked={executiveForm.region_ids.includes(region.id)} onChange={() => toggleRegion(region.id)} disabled={executiveForm.coverage_all} className="accent-[var(--admin-accent)]" />
                 {region.name} ({region.code})
               </label>
             ))}
           </div>
         </div>
 
-        <button className="w-fit cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-700" type="submit">
-          Crear ejecutiva
-        </button>
+        <button className="admin-btn admin-btn-primary mt-5" type="submit">Crear ejecutiva</button>
       </form>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="m-0 text-sm font-bold text-slate-100">Postulaciones onboarding pendientes de activación</h3>
-          <a
-            href={`${onboardingAdminBaseUrl}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs font-semibold text-blue-300 hover:underline"
-          >
-            Abrir admin onboarding
+      {/* ─── Submissions table ─── */}
+      <div className="admin-card">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="section-title">Postulaciones pendientes</h2>
+          <a href={`${onboardingAdminBaseUrl}`} target="_blank" rel="noreferrer" className="admin-btn admin-btn-ghost admin-btn-sm no-underline">
+            Admin onboarding ↗
           </a>
         </div>
-        <p className="mt-1 text-xs text-slate-400">
-          Aquí aparecen ejecutivas que ya respondieron onboarding y todavía no han sido activadas/publicadas.
-        </p>
-        <div className="mt-2 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
+        <p className="section-desc">Ejecutivas que respondieron onboarding y aún no han sido activadas.</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
             <thead>
               <tr>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Nombre</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Empresa</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Contacto</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Estado</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Creado</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Acción</th>
+                <th>Nombre</th>
+                <th>Empresa</th>
+                <th>Contacto</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>
               {submissions.length === 0 ? (
                 <tr>
-                  <td className="px-2 py-3 text-xs text-slate-400" colSpan={6}>
+                  <td colSpan={6} style={{ color: "var(--admin-text-muted)", textAlign: "center", padding: "24px 14px" }}>
                     No hay postulaciones pendientes por activar.
                   </td>
                 </tr>
               ) : (
                 submissions.map((row) => (
                   <tr key={row.id}>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.full_name}</td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.company || "-"}</td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-300">
-                      <p className="m-0">{row.email}</p>
-                      <p className="m-0 text-xs">{row.phone || "-"}</p>
+                    <td style={{ fontWeight: 500 }}>{row.full_name}</td>
+                    <td>{row.company || "-"}</td>
+                    <td>
+                      <p className="m-0 text-xs">{row.email}</p>
+                      <p className="m-0 text-[11px]" style={{ color: "var(--admin-text-muted)" }}>{row.phone || "-"}</p>
                     </td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.status}</td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-300">
-                      {new Date(row.created_at).toLocaleString("es-CL")}
-                    </td>
-                    <td className="border-b border-slate-800 px-2 py-2">
+                    <td><StatusBadge status={row.status} /></td>
+                    <td style={{ color: "var(--admin-text-muted)" }}>{new Date(row.created_at).toLocaleString("es-CL")}</td>
+                    <td>
                       <a
                         href={`${onboardingAdminBaseUrl}/submissions/${row.id}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded border border-blue-500/40 bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-300"
+                        className="admin-btn admin-btn-secondary admin-btn-sm no-underline"
                       >
                         Revisar
                       </a>
@@ -395,18 +361,19 @@ export default function TuejecutivaAdminClient({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <h3 className="m-0 text-sm font-bold text-slate-100">Ejecutivas actuales</h3>
-        <div className="mt-2 overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
+      {/* ─── Executives table ─── */}
+      <div className="admin-card">
+        <h2 className="section-title">Ejecutivas actuales</h2>
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
             <thead>
               <tr>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Nombre</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Empresa</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Plan</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Estado</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Categorías</th>
-                <th className="border-b border-slate-700 px-2 py-2 text-left text-xs font-bold tracking-wide text-slate-400">Regiones</th>
+                <th>Nombre</th>
+                <th>Empresa</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Categorías</th>
+                <th>Regiones</th>
               </tr>
             </thead>
             <tbody>
@@ -422,17 +389,20 @@ export default function TuejecutivaAdminClient({
 
                 return (
                   <tr key={row.id}>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">
+                    <td>
                       <p className="m-0 font-medium">{row.name}</p>
-                      <p className="m-0 text-xs text-slate-400">/{row.slug}</p>
+                      <p className="m-0 text-[11px] font-mono" style={{ color: "var(--admin-text-muted)" }}>/{row.slug}</p>
                     </td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.company}</td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">{row.plan ?? "-"}</td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-200">
-                      {row.status} · {row.verified ? "verificada" : "sin verificar"}
+                    <td>{row.company}</td>
+                    <td>{row.plan ? <span className="badge badge-accent">{row.plan}</span> : "-"}</td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={row.status} />
+                        {row.verified ? <span className="badge badge-success">✓</span> : <span className="badge badge-neutral">sin verificar</span>}
+                      </div>
                     </td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-300">{categories || "-"}</td>
-                    <td className="border-b border-slate-800 px-2 py-2 text-slate-300">{regions || "-"}</td>
+                    <td style={{ color: "var(--admin-text-secondary)", maxWidth: 160 }}>{categories || "-"}</td>
+                    <td style={{ color: "var(--admin-text-secondary)", maxWidth: 160 }}>{regions || "-"}</td>
                   </tr>
                 );
               })}
