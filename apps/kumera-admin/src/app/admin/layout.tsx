@@ -100,16 +100,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium no-underline transition-all duration-150"
-                style={{ color: "var(--admin-text-secondary)" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--admin-accent-subtle)";
-                  e.currentTarget.style.color = "var(--admin-accent-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "var(--admin-text-secondary)";
-                }}
+                className="admin-nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium no-underline transition-all duration-150"
               >
                 <Icon />
                 {item.label}

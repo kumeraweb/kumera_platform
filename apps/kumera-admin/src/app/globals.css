@@ -212,6 +212,15 @@ body {
   border-radius: 6px;
 }
 
+.admin-nav-link {
+  color: var(--admin-text-secondary);
+}
+
+.admin-nav-link:hover {
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent-hover);
+}
+
 /* ─── Alert banners ─── */
 .admin-alert {
   display: flex;
