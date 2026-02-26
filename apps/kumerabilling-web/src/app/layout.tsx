@@ -15,6 +15,11 @@ const grotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Kumera Clientes",
   description: "Portal central de clientes Kumera",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   token: string;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export function ContractAcceptForm({ token, subscriptionId }: Props) {
+  const router = useRouter();
   const [accepted, setAccepted] = useState(false);
   const [signerName, setSignerName] = useState("");
   const [signerRut, setSignerRut] = useState("");
@@ -30,10 +32,14 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
     setLoading(true);
     setMessage(null);
 
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     try {
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(`/api/contracts/${subscriptionId}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           token,
           accepted: true,
@@ -48,10 +54,16 @@ export function ContractAcceptForm({ token, subscriptionId }: Props) {
         setMessage(payload.error?.message ?? "No se pudo registrar aceptación.");
       } else {
         setMessage("Contrato aceptado correctamente.");
+        router.refresh();
       }
-    } catch {
-      setMessage("Error inesperado aceptando contrato.");
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        setMessage("La firma tardó demasiado. Intenta nuevamente.");
+      } else {
+        setMessage("Error inesperado aceptando contrato.");
+      }
     } finally {
+      if (timeoutId) clearTimeout(timeoutId);
       setLoading(false);
     }
   }

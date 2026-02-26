@@ -2,6 +2,7 @@ import { ContractAcceptForm } from "@/components/contract-accept-form";
 import { TransferProofForm } from "@/components/transfer-proof-form";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveValidToken } from "@/lib/onboarding";
+import Image from "next/image";
 
 type ApiData = {
   subscription: {
@@ -107,9 +108,10 @@ export default async function OnboardingPage({
   return (
     <main className="min-h-screen bg-[var(--bg)]">
       {/* ── Top bar ─────────────────────────────── */}
-      <header className="border-b border-[var(--k-border)] bg-white">
+      <header className="border-b border-[var(--border)] bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
-          <span className="font-[var(--font-display)] text-lg font-bold tracking-tight text-gray-900">
+          <span className="flex items-center gap-2 font-[var(--font-display)] text-lg font-bold tracking-tight text-gray-900">
+            <Image src="/logo.png" alt="Kumera" width={26} height={26} className="h-6 w-6 rounded-sm" />
             Kumera
           </span>
           <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
@@ -120,7 +122,7 @@ export default async function OnboardingPage({
 
       <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
         {/* ── Welcome card ──────────────────────── */}
-        <section className="mb-8 rounded-2xl border border-[var(--k-border)] bg-white p-6 shadow-sm sm:p-8">
+        <section className="mb-8 rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm sm:p-8">
           <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-emerald-700">
             Proceso de contratación
           </p>
@@ -138,13 +140,16 @@ export default async function OnboardingPage({
           <p className="mt-3 text-xs text-gray-400">
             Este enlace vence: {new Date(data.expiresAt).toLocaleString("es-CL")}
           </p>
+          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+            Conexion segura HTTPS activa. Verifica que el dominio sea <strong>clientes.kumeraweb.com</strong>.
+          </p>
         </section>
 
         {/* ── Steps grid ────────────────────────── */}
         <section className="grid gap-6 lg:grid-cols-2">
           {/* ── Step 1: Contrato ────────────────── */}
-          <article className="rounded-2xl border border-[var(--k-border)] bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[var(--k-border)] px-6 py-4">
+          <article className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                 1
               </span>
@@ -153,6 +158,9 @@ export default async function OnboardingPage({
               </h2>
             </div>
             <div className="space-y-4 p-6">
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                Revisa bien el contrato antes de firmar.
+              </p>
               {data.contract?.html_rendered ? (
                 <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
                   <div className="mb-3 flex items-center justify-between gap-2">
@@ -176,8 +184,8 @@ export default async function OnboardingPage({
           </article>
 
           {/* ── Step 2: Pago ────────────────────── */}
-          <article className="rounded-2xl border border-[var(--k-border)] bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[var(--k-border)] px-6 py-4">
+          <article className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
               <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${data.contract?.accepted ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-500"}`}>
                 2
               </span>
@@ -186,6 +194,19 @@ export default async function OnboardingPage({
               </h2>
             </div>
             <div className="space-y-4 p-6">
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Metodo de pago</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+                    <p className="font-semibold">Transferencia bancaria</p>
+                    <p className="text-xs text-emerald-800">Disponible ahora</p>
+                  </div>
+                  <div className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 opacity-80">
+                    <p className="font-semibold">Tarjeta / Webpay / Stripe</p>
+                    <p className="text-xs text-gray-500">Proximamente</p>
+                  </div>
+                </div>
+              </div>
               <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm leading-7 text-gray-700">
                 <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
                   <span className="font-medium text-gray-500">Titular</span>
@@ -220,7 +241,7 @@ export default async function OnboardingPage({
         </section>
 
         {/* ── Footer ────────────────────────────── */}
-        <footer className="mt-12 border-t border-[var(--k-border)] pt-6 text-center text-xs text-gray-400">
+        <footer className="mt-12 border-t border-[var(--border)] pt-6 text-center text-xs text-gray-400">
           Kumera Servicios Digitales SpA · Todos los derechos reservados
         </footer>
       </div>

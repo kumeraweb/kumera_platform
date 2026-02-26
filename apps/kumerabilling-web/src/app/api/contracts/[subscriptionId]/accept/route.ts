@@ -10,7 +10,13 @@ export async function POST(
   context: { params: Promise<{ subscriptionId: string }> },
 ) {
   const { subscriptionId } = await context.params;
-  const parsed = contractAcceptSchema.safeParse(await request.json());
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return fail(400, "BAD_REQUEST", "Invalid JSON body");
+  }
+  const parsed = contractAcceptSchema.safeParse(body);
 
   if (!parsed.success) {
     return fail(400, "VALIDATION_ERROR", "Invalid accept payload", parsed.error.flatten());
@@ -28,27 +34,19 @@ export async function POST(
   const userAgent = headerStore.get("user-agent") ?? "unknown";
   const acceptedAt = new Date().toISOString();
 
-  const { error } = await supabase.from("contracts").insert({
-    subscription_id: subscriptionId,
-    version: "v1",
-    accepted_at: acceptedAt,
-    accepted_ip: ip,
-    accepted_user_agent: userAgent,
-    accepted: true,
-  }).select("id").single();
+  const { data: existingContract, error: existingContractError } = await supabase
+    .from("contracts")
+    .select("id")
+    .eq("subscription_id", subscriptionId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  if (error) {
-    const { data: existingContract } = await supabase
-      .from("contracts")
-      .select("id")
-      .eq("subscription_id", subscriptionId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (!existingContract) {
-      return fail(500, "DB_ERROR", "Failed to save contract acceptance", error.message);
-    }
+  if (existingContractError) {
+    return fail(500, "DB_ERROR", "Failed to fetch contract", existingContractError.message);
+  }
 
+  if (existingContract) {
     const { error: updateContractError } = await supabase
       .from("contracts")
       .update({
@@ -61,31 +59,44 @@ export async function POST(
     if (updateContractError) {
       return fail(500, "DB_ERROR", "Failed to update contract acceptance", updateContractError.message);
     }
+  } else {
+    const { error: insertContractError } = await supabase.from("contracts").insert({
+        subscription_id: subscriptionId,
+        version: "v1",
+        accepted_at: acceptedAt,
+        accepted_ip: ip,
+        accepted_user_agent: userAgent,
+        accepted: true,
+      });
+    if (insertContractError) {
+      return fail(500, "DB_ERROR", "Failed to save contract acceptance", insertContractError.message);
+    }
   }
 
-  await writeAuditLog("contract.accepted", "onboarding-token", {
-    subscriptionId,
-    tokenId: tokenStatus.record.id,
-    signerName: parsed.data.signerName,
-    signerRut: parsed.data.signerRut,
-    signerEmail: parsed.data.signerEmail,
-    acceptedAt,
-    acceptedIp: ip,
-  });
-
-  await supabase.from("onboarding_events").insert({
-    subscription_id: subscriptionId,
-    token_id: tokenStatus.record.id,
-    event_type: "contract.accepted",
-    payload: {
+  await Promise.allSettled([
+    writeAuditLog("contract.accepted", "onboarding-token", {
+      subscriptionId,
+      tokenId: tokenStatus.record.id,
       signerName: parsed.data.signerName,
       signerRut: parsed.data.signerRut,
       signerEmail: parsed.data.signerEmail,
       acceptedAt,
       acceptedIp: ip,
-      acceptedUserAgent: userAgent,
-    },
-  });
+    }),
+    supabase.from("onboarding_events").insert({
+      subscription_id: subscriptionId,
+      token_id: tokenStatus.record.id,
+      event_type: "contract.accepted",
+      payload: {
+        signerName: parsed.data.signerName,
+        signerRut: parsed.data.signerRut,
+        signerEmail: parsed.data.signerEmail,
+        acceptedAt,
+        acceptedIp: ip,
+        acceptedUserAgent: userAgent,
+      },
+    }),
+  ]);
 
   return ok({ accepted: true });
 }
