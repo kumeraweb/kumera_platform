@@ -21,8 +21,8 @@
   --primary-ring: rgba(4, 120, 87, 0.25);
 
   /* Borders */
-  --border: #e5e7eb;
-  --border-strong: #d1d5db;
+  --k-border: #e5e7eb;
+  --k-border-strong: #d1d5db;
 
   /* Feedback */
   --success: #059669;
@@ -69,7 +69,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--border-strong);
+    background: var(--k-border-strong);
     border-radius: 3px;
   }
 }

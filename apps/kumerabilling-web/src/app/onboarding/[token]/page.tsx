@@ -107,7 +107,7 @@ export default async function OnboardingPage({
   return (
     <main className="min-h-screen bg-[var(--bg)]">
       {/* ── Top bar ─────────────────────────────── */}
-      <header className="border-b border-[var(--border)] bg-white">
+      <header className="border-b border-[var(--k-border)] bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
           <span className="font-[var(--font-display)] text-lg font-bold tracking-tight text-gray-900">
             Kumera
@@ -120,7 +120,7 @@ export default async function OnboardingPage({
 
       <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
         {/* ── Welcome card ──────────────────────── */}
-        <section className="mb-8 rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm sm:p-8">
+        <section className="mb-8 rounded-2xl border border-[var(--k-border)] bg-white p-6 shadow-sm sm:p-8">
           <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-emerald-700">
             Proceso de contratación
           </p>
@@ -143,8 +143,8 @@ export default async function OnboardingPage({
         {/* ── Steps grid ────────────────────────── */}
         <section className="grid gap-6 lg:grid-cols-2">
           {/* ── Step 1: Contrato ────────────────── */}
-          <article className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
+          <article className="rounded-2xl border border-[var(--k-border)] bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-[var(--k-border)] px-6 py-4">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                 1
               </span>
@@ -176,8 +176,8 @@ export default async function OnboardingPage({
           </article>
 
           {/* ── Step 2: Pago ────────────────────── */}
-          <article className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
+          <article className="rounded-2xl border border-[var(--k-border)] bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-[var(--k-border)] px-6 py-4">
               <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${data.contract?.accepted ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-500"}`}>
                 2
               </span>
@@ -220,7 +220,7 @@ export default async function OnboardingPage({
         </section>
 
         {/* ── Footer ────────────────────────────── */}
-        <footer className="mt-12 border-t border-[var(--border)] pt-6 text-center text-xs text-gray-400">
+        <footer className="mt-12 border-t border-[var(--k-border)] pt-6 text-center text-xs text-gray-400">
           Kumera Servicios Digitales SpA · Todos los derechos reservados
         </footer>
       </div>
