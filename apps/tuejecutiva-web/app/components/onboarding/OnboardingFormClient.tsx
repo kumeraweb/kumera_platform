@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { analyzeGuardrails } from "@/lib/contentGuardrails";
+import HeroOnboarding from "@/app/components/onboarding/HeroOnboarding";
 
 interface CategoryOption {
   id: string;
@@ -283,55 +284,7 @@ export default function OnboardingFormClient({
   // --- RENDER STAGES ---
 
   if (stage === "welcome") {
-    return (
-      <div className="relative flex min-h-[80vh] flex-col items-center justify-center text-center overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.03] z-0 select-none">
-          <Image
-            src="/images/certification.png"
-            alt="Sello de Certificación"
-            width={600}
-            height={600}
-            className="h-[120%] w-auto max-w-none object-contain blur-[1px]"
-            priority
-          />
-        </div>
-
-        <div className="relative z-10 flex flex-col items-center px-4">
-          <div className="mb-10 animate-in fade-in zoom-in duration-1000">
-            <Image
-              src="/logo/logonbg.png"
-              alt="TuEjecutiva.cl Logo"
-              width={260}
-              height={90}
-              className="h-auto w-52 sm:w-72"
-              priority
-            />
-          </div>
-
-          <h1 className="mb-6 max-w-2xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-150 fill-mode-both">
-            Bienvenida a la red <br />
-            <span className="text-emerald-600">profesional líder</span>
-          </h1>
-
-          <p className="mx-auto mb-12 max-w-lg text-lg text-slate-600 sm:text-xl leading-relaxed animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-300 fill-mode-both">
-            Estás a un paso de potenciar tu carrera. <br className="hidden sm:block" />
-            Completa tu perfil para ser verificada.
-          </p>
-
-          <button
-            onClick={() => setStage("form")}
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-slate-900 px-10 py-4 text-base font-semibold text-white shadow-xl transition-all duration-300 hover:bg-slate-800 hover:shadow-2xl hover:-translate-y-1 animate-in slide-in-from-bottom-4 fade-in duration-1000 delay-500 fill-mode-both"
-          >
-            <span className="relative z-20">Comenzar postulación</span>
-            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          </button>
-
-          <p className="mt-8 text-xs text-slate-400 font-medium tracking-wide uppercase animate-in fade-in duration-1000 delay-700 fill-mode-both">
-            Proceso de postulación manual y selectivo
-          </p>
-        </div>
-      </div>
-    );
+    return <HeroOnboarding onActivate={() => setStage("form")} />;
   }
 
   if (stage === "success") {
