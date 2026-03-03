@@ -10,6 +10,11 @@ const {
   description = "Gestionamos campanas de Google Ads para profesionales y pymes en Chile. Optimizacion semanal, reportes claros y clientes reales desde $50.000/mes. Sin contratos de permanencia.",
   canonical = SITE_URL,
 } = Astro.props;
+const ADS_TRACKING_ID =
+  import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-17952824212";
+const ADS_WA_LABEL =
+  import.meta.env.PUBLIC_GOOGLE_ADS_WA_LABEL || "RoL-CLqotvgbEJS3yfBC";
+const ADS_FORM_LABEL = import.meta.env.PUBLIC_GOOGLE_ADS_FORM_LABEL || "";
 import "../styles/global.css";
 ---
 
@@ -56,13 +61,15 @@ import "../styles/global.css";
     />
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17952824212"
+    <script
+      async
+      src={`https://www.googletagmanager.com/gtag/js?id=${ADS_TRACKING_ID}`}
     ></script>
-    <script is:inline>
-      const ADS_ID = "AW-17952824212";
-      const ADS_WA_LABEL = "RoL-CLqotvgbEJS3yfBC";
-      const ADS_PHONE_LABEL = "REEMPLAZAR_LABEL_PHONE";
-      const ADS_FORM_LABEL = "REEMPLAZAR_LABEL_FORM";
+    <script
+      is:inline
+      define:vars={{ ADS_TRACKING_ID, ADS_WA_LABEL, ADS_FORM_LABEL }}
+    >
+      const ADS_ID = ADS_TRACKING_ID;
 
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -71,7 +78,12 @@ import "../styles/global.css";
       gtag("js", new Date());
       gtag("config", ADS_ID);
 
+      function isValidConversionLabel(label) {
+        return !!label && !label.startsWith("REEMPLAZAR_");
+      }
+
       function gtag_report_ads_conversion(label, url) {
+        if (!isValidConversionLabel(label)) return false;
         const callback = function () {
           if (typeof url !== "undefined") {
             window.location = url;
@@ -90,10 +102,6 @@ import "../styles/global.css";
         return gtag_report_ads_conversion(ADS_WA_LABEL, url);
       }
 
-      function gtag_report_phone_conversion(url) {
-        return gtag_report_ads_conversion(ADS_PHONE_LABEL, url);
-      }
-
       function gtag_report_form_conversion() {
         return gtag_report_ads_conversion(ADS_FORM_LABEL);
       }
@@ -101,7 +109,6 @@ import "../styles/global.css";
       // Backwards compatibility with old tracker name.
       window.gtag_report_conversion = gtag_report_wa_conversion;
       window.gtag_report_wa_conversion = gtag_report_wa_conversion;
-      window.gtag_report_phone_conversion = gtag_report_phone_conversion;
       window.gtag_report_form_conversion = gtag_report_form_conversion;
     </script>
 
@@ -274,7 +281,7 @@ import "../styles/global.css";
         });
       });
 
-      // Google Ads conversion tracking for WhatsApp and call clicks
+      // Google Ads conversion tracking for WhatsApp clicks only.
       document.addEventListener("click", (event) => {
         const target = event.target;
         if (!(target instanceof Element)) return;
@@ -286,8 +293,7 @@ import "../styles/global.css";
           href.startsWith("https://wa.me/") ||
           href.startsWith("http://wa.me/") ||
           href.includes("api.whatsapp.com");
-        const isPhoneCall = href.startsWith("tel:");
-        if (!isWhatsapp && !isPhoneCall) return;
+        if (!isWhatsapp) return;
 
         if (typeof window.gtag_report_conversion !== "function") return;
 
@@ -298,9 +304,7 @@ import "../styles/global.css";
           event.altKey ||
           event.button !== 0;
         const opensNewTab = link.target === "_blank";
-        const reportFn = isPhoneCall
-          ? window.gtag_report_phone_conversion
-          : window.gtag_report_wa_conversion;
+        const reportFn = window.gtag_report_wa_conversion;
 
         if (typeof reportFn !== "function") return;
 
