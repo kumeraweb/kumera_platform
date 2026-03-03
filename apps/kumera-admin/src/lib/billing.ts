@@ -80,6 +80,10 @@ function getBillingValidationReplyToEmail() {
   );
 }
 
+function getBillingValidationAuditToEmail() {
+  return process.env.BILLING_VALIDATION_AUDIT_TO_EMAIL || process.env.CONTACT_INBOX_EMAIL || "contacto@kumeraweb.com";
+}
+
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -127,11 +131,11 @@ export async function sendPaymentValidatedEmail(params: {
         from: getBillingValidationFromEmail(),
         to: [to],
         reply_to: getBillingValidationReplyToEmail(),
-        subject: "Pago validado - Kumera",
+        subject: "Pago recibido y verificado - Kumera",
         html: `
           <div style="font-family:Arial,sans-serif;color:#111827;line-height:1.6">
             <p>Hola ${safeCompanyName},</p>
-            <p>Confirmamos que tu pago fue validado correctamente.</p>
+            <p>Te confirmamos que tu pago fue recibido y verificado correctamente.</p>
             <ul>
               <li>Servicio: ${safeServiceName}</li>
               <li>Plan: ${safePlanName}</li>
@@ -139,8 +143,84 @@ export async function sendPaymentValidatedEmail(params: {
               <li>Fecha validación: ${validatedAtText}</li>
               <li>Próximo cobro: ${nextDueDateText}</li>
             </ul>
+            <p>Tu servicio será activado en las próximas horas.</p>
             <p>Si tienes dudas, responde este correo.</p>
             <p>Equipo Kumera</p>
+          </div>
+        `,
+      }),
+    });
+  } catch (error) {
+    return {
+      sent: false as const,
+      reason: "provider_network_error" as const,
+      details: error instanceof Error ? error.message : "unknown_error",
+    };
+  }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    return { sent: false as const, reason: "provider_error" as const, details: body };
+  }
+
+  return { sent: true as const };
+}
+
+export async function sendPaymentValidatedAdminNotice(params: {
+  companyName: string;
+  customerEmail: string;
+  serviceName: string;
+  planName: string;
+  amountCents: number;
+  validatedAtIso: string;
+  nextDueDateIso: string;
+  customerEmailSent: boolean;
+  customerEmailFailureReason?: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return { sent: false as const, reason: "missing_resend_api_key" as const };
+  }
+
+  const to = getBillingValidationAuditToEmail().trim().toLowerCase();
+  if (!to) {
+    return { sent: false as const, reason: "missing_recipient" as const };
+  }
+
+  const validatedAtText = new Date(params.validatedAtIso).toLocaleDateString("es-CL");
+  const nextDueDateText = new Date(params.nextDueDateIso).toLocaleDateString("es-CL");
+  const amountText = `$${Math.floor((params.amountCents ?? 0) / 100).toLocaleString("es-CL")} CLP`;
+  const safeCompanyName = escapeHtml(params.companyName);
+  const safeCustomerEmail = escapeHtml(params.customerEmail);
+  const safeServiceName = escapeHtml(params.serviceName);
+  const safePlanName = escapeHtml(params.planName);
+  const customerStatus = params.customerEmailSent ? "ENVIADO" : `FALLIDO (${params.customerEmailFailureReason ?? "unknown"})`;
+
+  let response: Response;
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: getBillingValidationFromEmail(),
+        to: [to],
+        reply_to: getBillingValidationReplyToEmail(),
+        subject: `Confirmación interna - correo de validación (${safeCompanyName})`,
+        html: `
+          <div style="font-family:Arial,sans-serif;color:#111827;line-height:1.6">
+            <p>Correo de verificación procesado para cliente <strong>${safeCompanyName}</strong>.</p>
+            <ul>
+              <li>Email cliente: ${safeCustomerEmail}</li>
+              <li>Estado correo cliente: ${customerStatus}</li>
+              <li>Servicio: ${safeServiceName}</li>
+              <li>Plan: ${safePlanName}</li>
+              <li>Monto validado: ${amountText}</li>
+              <li>Fecha validación: ${validatedAtText}</li>
+              <li>Próximo cobro: ${nextDueDateText}</li>
+            </ul>
           </div>
         `,
       }),

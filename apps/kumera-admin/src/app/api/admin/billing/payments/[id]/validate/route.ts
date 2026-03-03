@@ -1,7 +1,12 @@
 import { requireAdminApi, ROLE } from "@/lib/auth";
 import { createBillingServiceClient } from "@/lib/db";
 import { fail, ok } from "@/lib/http";
-import { calculateMonthlyNextPaymentDate, sendPaymentValidatedEmail, writeBillingAuditLog } from "@/lib/billing";
+import {
+  calculateMonthlyNextPaymentDate,
+  sendPaymentValidatedAdminNotice,
+  sendPaymentValidatedEmail,
+  writeBillingAuditLog,
+} from "@/lib/billing";
 
 export async function POST(_: Request, context: { params: Promise<{ id: string }> }) {
   const auth = await requireAdminApi([ROLE.BILLING]);
@@ -76,15 +81,18 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
   const companyData = Array.isArray(subscriptionData?.companies) ? subscriptionData?.companies[0] : subscriptionData?.companies;
   const serviceData = Array.isArray(subscriptionData?.services) ? subscriptionData?.services[0] : subscriptionData?.services;
   const planData = Array.isArray(subscriptionData?.plans) ? subscriptionData?.plans[0] : subscriptionData?.plans;
+  const companyName = companyData?.legal_name ?? "cliente";
+  const serviceName = serviceData?.name ?? "Servicio Kumera";
+  const planName = planData?.name ?? "Plan";
 
   let emailNotification: { sent: boolean; reason?: string } = { sent: false, reason: "missing_recipient" };
   const recipientEmail = companyData?.email?.trim();
   if (recipientEmail) {
     const emailResult = await sendPaymentValidatedEmail({
       to: recipientEmail,
-      companyName: companyData?.legal_name ?? "cliente",
-      serviceName: serviceData?.name ?? "Servicio Kumera",
-      planName: planData?.name ?? "Plan",
+      companyName,
+      serviceName,
+      planName,
       amountCents: payment.amount_cents,
       validatedAtIso: now.toISOString(),
       nextDueDateIso,
@@ -105,7 +113,29 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
         recipientEmail,
       });
     }
+
   }
+
+  const adminNoticeResult = await sendPaymentValidatedAdminNotice({
+    companyName,
+    customerEmail: recipientEmail ?? "(sin email registrado)",
+    serviceName,
+    planName,
+    amountCents: payment.amount_cents,
+    validatedAtIso: now.toISOString(),
+    nextDueDateIso,
+    customerEmailSent: emailNotification.sent,
+    customerEmailFailureReason: emailNotification.sent ? undefined : emailNotification.reason,
+  });
+
+  await writeBillingAuditLog(
+    adminNoticeResult.sent ? "payment.validated.admin_notice_sent" : "payment.validated.admin_notice_failed",
+    auth.user.id,
+    {
+      paymentId: id,
+      reason: adminNoticeResult.sent ? null : adminNoticeResult.reason,
+    },
+  );
 
   return ok({
     validated: true,
