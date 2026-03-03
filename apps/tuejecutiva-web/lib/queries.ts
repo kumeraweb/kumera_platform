@@ -327,7 +327,11 @@ export async function getExecutivePlansByExecutiveId(
     );
   }
 
-  return ((legacyData ?? []) as Array<Omit<ExecutivePlanRecord, "active">>).map((plan) => ({
+  const normalizedLegacyData = (legacyData ?? []) as unknown as Array<
+    Omit<ExecutivePlanRecord, "active">
+  >;
+
+  return normalizedLegacyData.map((plan) => ({
     ...plan,
     active: true,
   }));
