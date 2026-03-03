@@ -11,12 +11,17 @@ const createExecutiveSchema = z.object({
   specialty: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   whatsapp_message: z.string().nullable().optional(),
+  photo_url: z.string().url().nullable().optional(),
+  company_logo_url: z.string().url().nullable().optional(),
+  faq: z.unknown().nullable().optional(),
   plan: z.enum(["bronce", "plata", "oro"]).default("bronce"),
   experience_years: z.number().int().min(0).max(80).nullable().optional(),
   company_website_url: z.string().url().nullable().optional(),
   coverage_all: z.boolean().default(false),
   category_ids: z.array(z.string().uuid()).min(1),
   region_ids: z.array(z.string().uuid()).default([]),
+  submission_id: z.string().uuid().nullable().optional(),
+  mark_submission_approved: z.boolean().default(false),
 });
 
 function normalizeText(value: string | null | undefined) {
@@ -54,6 +59,9 @@ export async function POST(req: Request) {
       specialty: normalizeText(body.specialty),
       description: normalizeText(body.description),
       whatsapp_message: normalizeText(body.whatsapp_message),
+      photo_url: normalizeText(body.photo_url),
+      company_logo_url: normalizeText(body.company_logo_url),
+      faq: body.faq ?? null,
       plan: body.plan,
       experience_years: body.experience_years ?? null,
       company_website_url: normalizeText(body.company_website_url),
@@ -102,6 +110,17 @@ export async function POST(req: Request) {
     .single();
 
   if (freshError || !fresh) return fail(freshError?.message ?? "Created but failed fetching executive", 500);
+
+  if (body.mark_submission_approved && body.submission_id) {
+    const { error: submissionError } = await tuejecutiva
+      .from("onboarding_submissions")
+      .update({ status: "approved" })
+      .eq("id", body.submission_id);
+
+    if (submissionError) {
+      return fail(`Executive created but could not update submission: ${submissionError.message}`, 500);
+    }
+  }
 
   return ok({ executive: fresh }, 201);
 }

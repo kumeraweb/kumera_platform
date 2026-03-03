@@ -4,9 +4,6 @@ import TuejecutivaAdminClient from "./ui-client";
 
 export const dynamic = "force-dynamic";
 
-type Category = { id: string; slug: string; name: string };
-type Region = { id: string; code: string; name: string };
-
 type ExecutiveRow = {
   id: string;
   name: string;
@@ -63,16 +60,11 @@ function normalizeExecutiveRows(rows: unknown[]): ExecutiveRow[] {
 export default async function TuejecutivaAdminPage() {
   await requireAdminPage([ROLE.TUEJECUTIVA]);
   const tuejecutiva = createTuejecutivaServiceClient();
-  const siteUrl = process.env.NEXT_PUBLIC_TUEJECUTIVA_SITE_URL || "https://tuejecutiva.cl";
 
   const [
-    { data: categories, error: categoriesError },
-    { data: regions, error: regionsError },
     { data: executives, error: executivesError },
     { data: submissions, error: submissionsError },
   ] = await Promise.all([
-    tuejecutiva.from("categories").select("id, slug, name").order("name", { ascending: true }),
-    tuejecutiva.from("regions").select("id, code, name").order("name", { ascending: true }),
     tuejecutiva
       .from("executives")
       .select(
@@ -88,19 +80,16 @@ export default async function TuejecutivaAdminPage() {
       .limit(200),
   ]);
 
-  const errors = [categoriesError?.message, regionsError?.message, executivesError?.message, submissionsError?.message].filter(Boolean);
+  const errors = [executivesError?.message, submissionsError?.message].filter(Boolean);
 
   return (
     <div>
       <div className="mb-6">
         <h1 className="section-title" style={{ fontSize: 20 }}>TuEjecutiva</h1>
-        <p className="section-desc">Tokens de onboarding, creación manual de ejecutivas y postulaciones pendientes.</p>
+        <p className="section-desc">Genera tokens, revisa postulaciones pendientes y administra ejecutivas creadas.</p>
       </div>
       {errors.length > 0 ? <div className="admin-alert admin-alert-error mb-4">Error: {errors.join(" | ")}</div> : null}
       <TuejecutivaAdminClient
-        onboardingAdminBaseUrl={`${siteUrl}/admin`}
-        initialCategories={(categories ?? []) as Category[]}
-        initialRegions={(regions ?? []) as Region[]}
         initialSubmissions={(submissions ?? []) as SubmissionRow[]}
         initialExecutives={normalizeExecutiveRows((executives ?? []) as unknown[])}
       />
