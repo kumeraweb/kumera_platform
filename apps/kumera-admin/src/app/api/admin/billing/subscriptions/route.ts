@@ -10,6 +10,7 @@ export async function GET() {
   const { data, error } = await billing
     .from("subscriptions")
     .select("id,status,created_at,company_id,companies(legal_name),services(slug,name),plans(id,name,price_cents)")
+    .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -26,9 +27,14 @@ export async function GET() {
     .order("due_date", { ascending: true });
   if (upcomingPaymentsError) return fail(upcomingPaymentsError.message, 500);
 
+  const now = new Date();
   const nextDueDateBySubscriptionId = new Map<string, string>();
+  const fallbackDueDateBySubscriptionId = new Map<string, string>();
   for (const payment of upcomingPayments ?? []) {
-    if (!nextDueDateBySubscriptionId.has(payment.subscription_id)) {
+    if (!fallbackDueDateBySubscriptionId.has(payment.subscription_id)) {
+      fallbackDueDateBySubscriptionId.set(payment.subscription_id, payment.due_date);
+    }
+    if (new Date(payment.due_date).getTime() >= now.getTime() && !nextDueDateBySubscriptionId.has(payment.subscription_id)) {
       nextDueDateBySubscriptionId.set(payment.subscription_id, payment.due_date);
     }
   }
@@ -36,7 +42,7 @@ export async function GET() {
   return ok({
     subscriptions: subscriptions.map((subscription) => ({
       ...subscription,
-      next_due_date: nextDueDateBySubscriptionId.get(subscription.id) ?? null,
+      next_due_date: nextDueDateBySubscriptionId.get(subscription.id) ?? fallbackDueDateBySubscriptionId.get(subscription.id) ?? null,
     })),
   });
 }

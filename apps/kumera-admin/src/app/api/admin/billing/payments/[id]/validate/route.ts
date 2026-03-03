@@ -1,13 +1,7 @@
 import { requireAdminApi, ROLE } from "@/lib/auth";
 import { createBillingServiceClient } from "@/lib/db";
 import { fail, ok } from "@/lib/http";
-import { writeBillingAuditLog } from "@/lib/billing";
-
-function calculateNextPaymentDate(validatedAt: Date): Date {
-  const next = new Date(validatedAt);
-  next.setMonth(next.getMonth() + 1);
-  return next;
-}
+import { calculateMonthlyNextPaymentDate, sendPaymentValidatedEmail, writeBillingAuditLog } from "@/lib/billing";
 
 export async function POST(_: Request, context: { params: Promise<{ id: string }> }) {
   const auth = await requireAdminApi([ROLE.BILLING]);
@@ -18,7 +12,18 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
 
   const { data: payment, error: paymentError } = await billing
     .from("payments")
-    .select("id,subscription_id,amount_cents,status")
+    .select(`
+      id,
+      subscription_id,
+      amount_cents,
+      status,
+      subscriptions(
+        id,
+        companies(legal_name,email),
+        services(name),
+        plans(name)
+      )
+    `)
     .eq("id", id)
     .single();
   if (paymentError || !payment) return fail("Payment not found", 404);
@@ -45,7 +50,7 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
     .maybeSingle();
   if (existingNextPendingError) return fail(existingNextPendingError.message, 500);
 
-  const nextDueDate = calculateNextPaymentDate(now);
+  const nextDueDate = calculateMonthlyNextPaymentDate(now);
   if (!existingNextPending) {
     const { error: insertError } = await billing.from("payments").insert({
       subscription_id: payment.subscription_id,
@@ -66,9 +71,46 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
 
   await writeBillingAuditLog("payment.validated", auth.user.id, { paymentId: id });
 
+  const nextDueDateIso = existingNextPending?.due_date ?? nextDueDate.toISOString();
+  const subscriptionData = Array.isArray(payment.subscriptions) ? payment.subscriptions[0] : payment.subscriptions;
+  const companyData = Array.isArray(subscriptionData?.companies) ? subscriptionData?.companies[0] : subscriptionData?.companies;
+  const serviceData = Array.isArray(subscriptionData?.services) ? subscriptionData?.services[0] : subscriptionData?.services;
+  const planData = Array.isArray(subscriptionData?.plans) ? subscriptionData?.plans[0] : subscriptionData?.plans;
+
+  let emailNotification: { sent: boolean; reason?: string } = { sent: false, reason: "missing_recipient" };
+  const recipientEmail = companyData?.email?.trim();
+  if (recipientEmail) {
+    const emailResult = await sendPaymentValidatedEmail({
+      to: recipientEmail,
+      companyName: companyData?.legal_name ?? "cliente",
+      serviceName: serviceData?.name ?? "Servicio Kumera",
+      planName: planData?.name ?? "Plan",
+      amountCents: payment.amount_cents,
+      validatedAtIso: now.toISOString(),
+      nextDueDateIso,
+    });
+
+    emailNotification = emailResult.sent
+      ? { sent: true }
+      : { sent: false, reason: emailResult.reason };
+
+    if (!emailResult.sent) {
+      await writeBillingAuditLog("payment.validated.email_failed", auth.user.id, {
+        paymentId: id,
+        reason: emailResult.reason,
+      });
+    } else {
+      await writeBillingAuditLog("payment.validated.email_sent", auth.user.id, {
+        paymentId: id,
+        recipientEmail,
+      });
+    }
+  }
+
   return ok({
     validated: true,
-    nextDueDate: (existingNextPending?.due_date ?? nextDueDate.toISOString()),
+    nextDueDate: nextDueDateIso,
     generatedNextPayment: !existingNextPending,
+    emailNotification,
   });
 }

@@ -50,6 +50,117 @@ export function getOnboardingTokenTtlHours() {
   return Math.floor(raw);
 }
 
+export function calculateMonthlyNextPaymentDate(validatedAt: Date) {
+  return new Date(
+    Date.UTC(
+      validatedAt.getUTCFullYear(),
+      validatedAt.getUTCMonth() + 1,
+      validatedAt.getUTCDate(),
+      12,
+      0,
+      0,
+      0,
+    ),
+  );
+}
+
+function getBillingValidationFromEmail() {
+  return (
+    process.env.BILLING_VALIDATION_FROM_EMAIL ||
+    process.env.CONTACT_FROM_EMAIL ||
+    "Kumera Billing <noreply@kumeraweb.com>"
+  );
+}
+
+function getBillingValidationReplyToEmail() {
+  return (
+    process.env.BILLING_VALIDATION_REPLY_TO_EMAIL ||
+    process.env.CONTACT_REPLY_TO_EMAIL ||
+    "contacto@kumeraweb.com"
+  );
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+export async function sendPaymentValidatedEmail(params: {
+  to: string;
+  companyName: string;
+  serviceName: string;
+  planName: string;
+  amountCents: number;
+  validatedAtIso: string;
+  nextDueDateIso: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return { sent: false as const, reason: "missing_resend_api_key" as const };
+  }
+
+  const to = params.to.trim().toLowerCase();
+  if (!to) {
+    return { sent: false as const, reason: "missing_recipient" as const };
+  }
+
+  const validatedAtText = new Date(params.validatedAtIso).toLocaleDateString("es-CL");
+  const nextDueDateText = new Date(params.nextDueDateIso).toLocaleDateString("es-CL");
+  const amountText = `$${Math.floor((params.amountCents ?? 0) / 100).toLocaleString("es-CL")} CLP`;
+  const safeCompanyName = escapeHtml(params.companyName);
+  const safeServiceName = escapeHtml(params.serviceName);
+  const safePlanName = escapeHtml(params.planName);
+
+  let response: Response;
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: getBillingValidationFromEmail(),
+        to: [to],
+        reply_to: getBillingValidationReplyToEmail(),
+        subject: "Pago validado - Kumera",
+        html: `
+          <div style="font-family:Arial,sans-serif;color:#111827;line-height:1.6">
+            <p>Hola ${safeCompanyName},</p>
+            <p>Confirmamos que tu pago fue validado correctamente.</p>
+            <ul>
+              <li>Servicio: ${safeServiceName}</li>
+              <li>Plan: ${safePlanName}</li>
+              <li>Monto validado: ${amountText}</li>
+              <li>Fecha validación: ${validatedAtText}</li>
+              <li>Próximo cobro: ${nextDueDateText}</li>
+            </ul>
+            <p>Si tienes dudas, responde este correo.</p>
+            <p>Equipo Kumera</p>
+          </div>
+        `,
+      }),
+    });
+  } catch (error) {
+    return {
+      sent: false as const,
+      reason: "provider_network_error" as const,
+      details: error instanceof Error ? error.message : "unknown_error",
+    };
+  }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    return { sent: false as const, reason: "provider_error" as const, details: body };
+  }
+
+  return { sent: true as const };
+}
+
 export async function writeBillingAuditLog(action: string, actor: string, payload: Record<string, unknown>) {
   const billing = createBillingServiceClient();
   await billing.from("audit_logs").insert({ action, actor, payload });

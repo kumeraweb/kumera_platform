@@ -403,7 +403,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
       return;
     }
 
-    setMessage("Token regenerado.");
+    setMessage(payload.renewed ? "Token renovado." : "Token regenerado.");
     setOnboardingUrl(payload.onboardingUrl ?? null);
     setWorking(false);
   }
@@ -725,7 +725,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                     </td>
                     <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
                     <td>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           disabled={working || payment.status === "validated" || (payment.status === "pending" && !payment.latest_proof)}
                           className="admin-btn admin-btn-success admin-btn-sm"
@@ -736,6 +736,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                           Validar
                         </button>
                         <button disabled={working || payment.status === "rejected"} className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => onRejectPayment(payment.id)} type="button">Rechazar</button>
+                        <button
+                          disabled={working}
+                          className="admin-btn admin-btn-secondary admin-btn-sm"
+                          onClick={() => onRegenerateToken(payment.subscription_id)}
+                          type="button"
+                        >
+                          Renovar token
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -838,7 +846,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="section-title">Clientes onboardeados</h2>
-            <p className="section-desc">Clientes y suscripciones creadas en onboarding.</p>
+            <p className="section-desc">Solo clientes con pago validado y suscripción activa.</p>
           </div>
           <a className="admin-btn admin-btn-ghost admin-btn-sm" href={legacyAdminUrl} rel="noreferrer" target="_blank">Legacy admin ↗</a>
         </div>
@@ -856,48 +864,56 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
               </tr>
             </thead>
             <tbody>
-              {subscriptions.map((subscription) => (
-                <tr key={subscription.id}>
-                  <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{subscription.id.slice(0, 8)}…</span></td>
-                  <td style={{ fontWeight: 500 }}>{subscription.companies?.legal_name ?? "-"}</td>
-                  <td>{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
-                  <td>{subscription.plans?.name ?? "-"}</td>
-                  <td><StatusBadge status={subscription.status} /></td>
-                  <td>
-                    {subscription.next_due_date ? (
-                      (() => {
-                        const dueDate = new Date(subscription.next_due_date);
-                        const startToday = new Date();
-                        startToday.setHours(0, 0, 0, 0);
-                        const startDue = new Date(dueDate);
-                        startDue.setHours(0, 0, 0, 0);
-                        const days = Math.ceil((startDue.getTime() - startToday.getTime()) / (1000 * 60 * 60 * 24));
-                        const isOverdue = days < 0;
-                        const isSoon = days >= 0 && days <= 7;
-                        const color = isOverdue
-                          ? "#ef4444"
-                          : isSoon
-                            ? "#f59e0b"
-                            : "var(--admin-text)";
-                        const weight = isOverdue || isSoon ? 700 : 500;
-                        return (
-                          <span style={{ color, fontWeight: weight }}>
-                            {dueDate.toLocaleDateString("es-CL")}
-                          </span>
-                        );
-                      })()
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td>
-                    <div className="flex flex-wrap gap-2">
-                      <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Regenerar token</button>
-                      <button disabled={working} className="admin-btn admin-btn-primary admin-btn-sm" onClick={() => onGeneratePaymentLink(subscription.id)} type="button">Generar link de pago</button>
-                    </div>
+              {subscriptions.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                    No hay clientes onboardeados aún.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                subscriptions.map((subscription) => (
+                  <tr key={subscription.id}>
+                    <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{subscription.id.slice(0, 8)}…</span></td>
+                    <td style={{ fontWeight: 500 }}>{subscription.companies?.legal_name ?? "-"}</td>
+                    <td>{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
+                    <td>{subscription.plans?.name ?? "-"}</td>
+                    <td><StatusBadge status={subscription.status} /></td>
+                    <td>
+                      {subscription.next_due_date ? (
+                        (() => {
+                          const dueDate = new Date(subscription.next_due_date);
+                          const startToday = new Date();
+                          startToday.setHours(0, 0, 0, 0);
+                          const startDue = new Date(dueDate);
+                          startDue.setHours(0, 0, 0, 0);
+                          const days = Math.ceil((startDue.getTime() - startToday.getTime()) / (1000 * 60 * 60 * 24));
+                          const isOverdue = days < 0;
+                          const isSoon = days >= 0 && days <= 7;
+                          const color = isOverdue
+                            ? "#ef4444"
+                            : isSoon
+                              ? "#f59e0b"
+                              : "var(--admin-text)";
+                          const weight = isOverdue || isSoon ? 700 : 500;
+                          return (
+                            <span style={{ color, fontWeight: weight }}>
+                              {dueDate.toLocaleDateString("es-CL")}
+                            </span>
+                          );
+                        })()
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td>
+                      <div className="flex flex-wrap gap-2">
+                        <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Renovar token</button>
+                        <button disabled={working} className="admin-btn admin-btn-primary admin-btn-sm" onClick={() => onGeneratePaymentLink(subscription.id)} type="button">Generar link de pago</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
