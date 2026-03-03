@@ -114,7 +114,12 @@ export async function sendPaymentValidatedEmail(params: {
 
   const validatedAtText = new Date(params.validatedAtIso).toLocaleDateString("es-CL");
   const nextDueDateText = new Date(params.nextDueDateIso).toLocaleDateString("es-CL");
-  const amountText = `$${Math.floor((params.amountCents ?? 0) / 100).toLocaleString("es-CL")} CLP`;
+  const amountBase = Math.floor((params.amountCents ?? 0) / 100);
+  const ivaAmount = Math.round(amountBase * 0.19);
+  const amountTotal = amountBase + ivaAmount;
+  const amountBaseText = `$${amountBase.toLocaleString("es-CL")} CLP`;
+  const ivaAmountText = `$${ivaAmount.toLocaleString("es-CL")} CLP`;
+  const amountTotalText = `$${amountTotal.toLocaleString("es-CL")} CLP`;
   const safeCompanyName = escapeHtml(params.companyName);
   const safeServiceName = escapeHtml(params.serviceName);
   const safePlanName = escapeHtml(params.planName);
@@ -139,7 +144,7 @@ export async function sendPaymentValidatedEmail(params: {
             <ul>
               <li>Servicio: ${safeServiceName}</li>
               <li>Plan: ${safePlanName}</li>
-              <li>Monto validado: ${amountText}</li>
+              <li>Monto validado: ${amountBaseText} + IVA (19%: ${ivaAmountText}) = ${amountTotalText}</li>
               <li>Fecha validación: ${validatedAtText}</li>
               <li>Próximo cobro: ${nextDueDateText}</li>
             </ul>
@@ -189,7 +194,12 @@ export async function sendPaymentValidatedAdminNotice(params: {
 
   const validatedAtText = new Date(params.validatedAtIso).toLocaleDateString("es-CL");
   const nextDueDateText = new Date(params.nextDueDateIso).toLocaleDateString("es-CL");
-  const amountText = `$${Math.floor((params.amountCents ?? 0) / 100).toLocaleString("es-CL")} CLP`;
+  const amountBase = Math.floor((params.amountCents ?? 0) / 100);
+  const ivaAmount = Math.round(amountBase * 0.19);
+  const amountTotal = amountBase + ivaAmount;
+  const amountBaseText = `$${amountBase.toLocaleString("es-CL")} CLP`;
+  const ivaAmountText = `$${ivaAmount.toLocaleString("es-CL")} CLP`;
+  const amountTotalText = `$${amountTotal.toLocaleString("es-CL")} CLP`;
   const safeCompanyName = escapeHtml(params.companyName);
   const safeCustomerEmail = escapeHtml(params.customerEmail);
   const safeServiceName = escapeHtml(params.serviceName);
@@ -217,7 +227,7 @@ export async function sendPaymentValidatedAdminNotice(params: {
               <li>Estado correo cliente: ${customerStatus}</li>
               <li>Servicio: ${safeServiceName}</li>
               <li>Plan: ${safePlanName}</li>
-              <li>Monto validado: ${amountText}</li>
+              <li>Monto validado: ${amountBaseText} + IVA (19%: ${ivaAmountText}) = ${amountTotalText}</li>
               <li>Fecha validación: ${validatedAtText}</li>
               <li>Próximo cobro: ${nextDueDateText}</li>
             </ul>
