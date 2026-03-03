@@ -26,13 +26,13 @@ const problems = [
 <section class="problem-section" id="problema">
   <div class="problem-container">
     <div class="problem-header reveal">
-      <span class="section-tag section-tag-dark">
+      <span class="section-tag">
         <span class="tag-line"></span>
         ¿Te pasa esto?
       </span>
       <h2 class="problem-title">
-        El problema no es <span class="gradient-text-amber">Google Ads.</span
-        ><br />
+        El problema no es <span class="problem-highlight">Google Ads.</span><br
+        />
         Es no tener a alguien que lo gestione bien.
       </h2>
     </div>
@@ -53,12 +53,16 @@ const problems = [
         ))
       }
     </div>
+
+    <div class="problem-cta reveal reveal-delay-4">
+      <a href="#resultados" class="btn-primary"> ¿Cómo lo solucionamos? → </a>
+    </div>
   </div>
 </section>
 
 <style>
   .problem-section {
-    background: var(--bg-light);
+    background: var(--off-white);
     padding: var(--section-py) 0;
   }
 
@@ -74,12 +78,35 @@ const problems = [
     margin-bottom: 3.5rem;
   }
 
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #b45309;
+  }
+  .tag-line {
+    display: inline-block;
+    width: 1.5rem;
+    height: 2px;
+    background: #b45309;
+    border-radius: 1px;
+  }
+
   .problem-title {
     margin-top: 1rem;
     font-size: clamp(2rem, 3.5vw, 2.75rem);
     font-weight: 700;
-    color: var(--text-dark);
+    color: var(--black);
     line-height: 1.15;
+  }
+
+  .problem-highlight {
+    color: #b45309;
   }
 
   .problem-grid {
@@ -96,8 +123,8 @@ const problems = [
 
   .problem-card {
     position: relative;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-light);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
     border-radius: var(--radius-xl);
     padding: 2rem 1.75rem;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -114,7 +141,7 @@ const problems = [
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--amber), #fbbf24);
+    background: linear-gradient(90deg, #d97706, #fbbf24);
     border-radius: 3px 3px 0 0;
     opacity: 0;
     transition: opacity 0.3s;
@@ -130,8 +157,8 @@ const problems = [
     width: 2.75rem;
     height: 2.75rem;
     border-radius: var(--radius-md);
-    background: var(--amber-soft);
-    color: var(--amber);
+    background: rgba(217, 119, 6, 0.08);
+    color: #d97706;
     margin-bottom: 1.25rem;
     transition: transform 0.3s;
   }
@@ -142,7 +169,7 @@ const problems = [
   .problem-card__title {
     font-size: 1.0625rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: var(--black);
     letter-spacing: -0.02em;
     margin-bottom: 0.625rem;
     line-height: 1.3;
@@ -151,6 +178,16 @@ const problems = [
   .problem-card__desc {
     font-size: 0.9375rem;
     line-height: 1.65;
-    color: var(--text-body);
+    color: var(--gray-500);
+  }
+
+  .problem-cta {
+    margin-top: 3rem;
+  }
+  @media (max-width: 767px) {
+    .problem-cta .btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
   }
 </style>

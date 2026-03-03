@@ -1,5 +1,5 @@
 ---
-import { ArrowRight, Check } from "@lucide/astro";
+import { ArrowRight, Check, MessageCircle } from "@lucide/astro";
 const baseFeatures = [
   "Estructuración completa de campañas",
   "1–2 campañas activas",
@@ -24,9 +24,9 @@ const crecimientoExtras = [
     <div class="pricing__header reveal">
       <span class="section-label">Inversión</span>
       <h2 class="pricing__title">
-        <span class="line-reveal"><span>Estructura de servicio</span></span>
+        <span class="line-reveal"><span>Planes claros.</span></span>
         <span class="line-reveal line-reveal-d1"
-          ><span><span class="keyword">según inversión.</span></span></span
+          ><span><span class="keyword">Sin sorpresas.</span></span></span
         >
       </h2>
       <p class="pricing__subtitle">
@@ -68,9 +68,14 @@ const crecimientoExtras = [
         </div>
 
         <div class="pricing__plan-actions">
-          <a class="btn-primary pricing__plan-cta-inline" href="#contacto">
-            Empezar ahora
-            <ArrowRight size={16} />
+          <a
+            class="btn-wa pricing__plan-cta-inline"
+            href="https://wa.me/56987435207?text=Hola%2C%20me%20interesa%20el%20Plan%20Base%20de%20%2459.000%2Fmes%20para%20mi%20negocio"
+            target="_blank"
+            rel="noopener"
+          >
+            <MessageCircle size={16} />
+            Elegir Plan Base
           </a>
         </div>
       </article>
@@ -108,9 +113,14 @@ const crecimientoExtras = [
         </div>
 
         <div class="pricing__plan-actions">
-          <a class="btn-primary pricing__plan-cta-inline" href="#contacto">
-            Empezar ahora
-            <ArrowRight size={16} />
+          <a
+            class="btn-wa pricing__plan-cta-inline"
+            href="https://wa.me/56987435207?text=Hola%2C%20me%20interesa%20el%20Plan%20Crecimiento%20de%20%2489.000%2Fmes.%20Mi%20inversi%C3%B3n%20mensual%20en%20Ads%20es%20de%20aprox%20%24"
+            target="_blank"
+            rel="noopener"
+          >
+            <MessageCircle size={16} />
+            Elegir Plan Crecimiento
           </a>
         </div>
       </article>
@@ -229,7 +239,7 @@ const crecimientoExtras = [
     letter-spacing: 0.1em;
     text-transform: uppercase;
     font-weight: 600;
-    color: var(--gray-500);
+    color: var(--accent);
     margin-bottom: 0.25rem;
   }
 

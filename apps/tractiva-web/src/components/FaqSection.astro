@@ -1,5 +1,5 @@
 ---
-import { Plus } from "@lucide/astro";
+import { Plus, MessageCircle } from "@lucide/astro";
 
 const faqs = [
     {
@@ -11,12 +11,12 @@ const faqs = [
         a: "Las campañas se activan en los primeros 5 días. La primera semana empiezas a recibir tráfico. Entre las semanas 2 y 4 optimizamos y empiezas a ver consultas consistentes. Desde el mes 2, las campañas están en su punto óptimo.",
     },
     {
-        q: "¿Hay contrato de permanencia?",
-        a: "No. Trabajamos mes a mes. Si en algún momento quieres pausar o cancelar, lo haces sin penalización. Creemos que te quedas porque ves resultados, no porque te amarramos.",
+        q: "¿Y si mis campañas no funcionan?",
+        a: "Cada semana revisamos métricas y ajustamos. Si algo no rinde, lo cambiamos. No hay contrato de permanencia: si en algún momento quieres pausar o cancelar, lo haces sin penalización. Creemos que te quedas porque ves resultados, no porque te amarramos.",
     },
     {
-        q: "¿Qué pasa si mis campañas no funcionan?",
-        a: "Cada semana revisamos métricas y ajustamos. Si algo no rinde, lo cambiamos. Si después de un período razonable los resultados no son los esperados, lo conversamos transparentemente y evaluamos opciones juntos.",
+        q: "¿Cuánto tengo que invertir en total cada mes?",
+        a: "Tu inversión total es la suma de nuestro fee (desde $59.000 + IVA) más lo que inviertes en Google Ads. Por ejemplo, con el Plan Base y una inversión publicitaria de $200.000, tu costo total sería aproximadamente $270.000/mes. Te asesoramos cuánto conviene invertir según tu rubro.",
     },
     {
         q: "¿Quién gestiona mi cuenta?",
@@ -24,7 +24,7 @@ const faqs = [
     },
     {
         q: "¿Qué incluye la gestión mensual?",
-        a: "Estructura de campañas, optimización semanal, gestión de palabras negativas, testeo de anuncios, seguimiento de conversiones y reporte mensual. No incluye la inversión publicitaria ni diseño web.",
+        a: "Estructura de campañas, optimización semanal, gestión de palabras negativas, testeo de anuncios, seguimiento de conversiones y reporte mensual. No incluye la inversión publicitaria ni diseño web (aunque el setup incluye una landing page gratis).",
     },
 ];
 ---
@@ -67,7 +67,15 @@ const faqs = [
 
         <div class="faq__cta reveal reveal-delay-4">
             <p class="faq__cta-text">¿Tienes otra pregunta?</p>
-            <a href="#contacto" class="btn-primary"> Conversemos → </a>
+            <a
+                href="https://wa.me/56987435207?text=Hola%2C%20tengo%20una%20pregunta%20sobre%20el%20servicio%20de%20Google%20Ads"
+                target="_blank"
+                rel="noopener"
+                class="btn-wa"
+            >
+                <MessageCircle size={16} />
+                Pregúntanos por WhatsApp
+            </a>
         </div>
     </div>
 </section>
@@ -104,5 +112,11 @@ const faqs = [
     .faq__cta-text {
         font-size: 0.9375rem;
         color: var(--gray-500);
+    }
+    @media (max-width: 767px) {
+        .faq__cta .btn-wa {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>

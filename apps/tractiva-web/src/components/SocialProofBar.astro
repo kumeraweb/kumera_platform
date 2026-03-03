@@ -1,15 +1,68 @@
 ---
-const principles = [
+import { Users, TrendingDown, BarChart3, ShieldCheck } from "@lucide/astro";
+
+const stats = [
     {
-        text: "Optimización real cada semana — no campañas en piloto automático.",
+        icon: "users",
+        number: "+20",
+        label: "clientes satisfechos",
+        desc: "Pymes y profesionales que confían en nosotros",
     },
-    { text: "Reportes que muestran exactamente cuánto costó cada consulta." },
-    { text: "Acceso completo a tu cuenta de Google Ads — siempre es tuya." },
+    {
+        icon: "trending",
+        number: "-40%",
+        label: "costo por consulta",
+        desc: "Reducción promedio en los primeros 3 meses",
+    },
+    {
+        icon: "chart",
+        number: "100%",
+        label: "transparencia",
+        desc: "Tu cuenta siempre es tuya y ves cada peso",
+    },
+    {
+        icon: "shield",
+        number: "$0",
+        label: "si no funciona",
+        desc: "Sin contrato. Cancelas cuando quieras",
+    },
+];
+
+const principles = [
+    "Optimización real cada semana — no campañas en piloto automático.",
+    "Reportes que muestran exactamente cuánto costó cada consulta.",
+    "Acceso completo a tu cuenta de Google Ads — siempre es tuya.",
 ];
 ---
 
-<section class="proof">
+<section class="proof" id="resultados">
     <div class="proof__container">
+        <!-- Stats grid -->
+        <div class="proof__stats">
+            {
+                stats.map((stat, i) => (
+                    <div
+                        class={`proof__stat reveal reveal-delay-${Math.min(i + 1, 4)}`}
+                    >
+                        <div class="proof__stat-icon">
+                            {stat.icon === "users" && <Users size={20} />}
+                            {stat.icon === "trending" && (
+                                <TrendingDown size={20} />
+                            )}
+                            {stat.icon === "chart" && <BarChart3 size={20} />}
+                            {stat.icon === "shield" && (
+                                <ShieldCheck size={20} />
+                            )}
+                        </div>
+                        <span class="proof__stat-number">{stat.number}</span>
+                        <span class="proof__stat-label">{stat.label}</span>
+                        <span class="proof__stat-desc">{stat.desc}</span>
+                    </div>
+                ))
+            }
+        </div>
+
+        <!-- Principles -->
         <div class="proof__content">
             <h2 class="proof__title reveal">
                 <span class="line-reveal"><span>No prometemos.</span></span>
@@ -29,15 +82,20 @@ const principles = [
                     principles.map((p, i) => (
                         <li class={`proof__item reveal reveal-delay-${i + 2}`}>
                             <span class="proof__dash">—</span>
-                            <span>{p.text}</span>
+                            <span>{p}</span>
                         </li>
                     ))
                 }
             </ul>
 
             <div class="proof__cta reveal reveal-delay-4">
-                <a href="#contacto" class="btn-primary btn-primary--dark">
-                    ¿Listo para ver resultados? →
+                <a
+                    href="https://wa.me/56987435207?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20c%C3%B3mo%20trabajan%20con%20Google%20Ads"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn-primary btn-primary--dark"
+                >
+                    Hablemos de tu negocio →
                 </a>
             </div>
         </div>
@@ -54,6 +112,56 @@ const principles = [
         margin: 0 auto;
         padding: 0 var(--section-px);
     }
+
+    /* Stats Grid */
+    .proof__stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        margin-bottom: clamp(4rem, 8vh, 6rem);
+    }
+    @media (min-width: 768px) {
+        .proof__stats {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    .proof__stat {
+        background: var(--black);
+        padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.25rem, 2.5vw, 2rem);
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .proof__stat-icon {
+        color: var(--accent-light);
+        margin-bottom: 0.625rem;
+    }
+    .proof__stat-number {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 2.75rem);
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: -0.04em;
+        line-height: 1;
+    }
+    .proof__stat-label {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--white);
+        margin-top: 0.25rem;
+    }
+    .proof__stat-desc {
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: var(--gray-500);
+        margin-top: 0.125rem;
+    }
+
+    /* Content */
     .proof__content {
         max-width: 44rem;
     }

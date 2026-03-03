@@ -10,11 +10,6 @@ const {
   description = "Gestionamos campanas de Google Ads para profesionales y pymes en Chile. Optimizacion semanal, reportes claros y clientes reales desde $50.000/mes. Sin contratos de permanencia.",
   canonical = SITE_URL,
 } = Astro.props;
-const ADS_TRACKING_ID =
-  import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-17952824212";
-const ADS_WA_LABEL =
-  import.meta.env.PUBLIC_GOOGLE_ADS_WA_LABEL || "RoL-CLqotvgbEJS3yfBC";
-const ADS_FORM_LABEL = import.meta.env.PUBLIC_GOOGLE_ADS_FORM_LABEL || "";
 import "../styles/global.css";
 ---
 
@@ -61,15 +56,12 @@ import "../styles/global.css";
     />
 
     <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src={`https://www.googletagmanager.com/gtag/js?id=${ADS_TRACKING_ID}`}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17952824212"
     ></script>
-    <script
-      is:inline
-      define:vars={{ ADS_TRACKING_ID, ADS_WA_LABEL, ADS_FORM_LABEL }}
-    >
-      const ADS_ID = ADS_TRACKING_ID;
+    <script is:inline>
+      const ADS_ID = "AW-17952824212";
+      const ADS_WA_LABEL = "RoL-CLqotvgbEJS3yfBC";
+      const ADS_FORM_LABEL = "";
 
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -142,7 +134,7 @@ import "../styles/global.css";
             {
               "@type": "Offer",
               name: "Setup inicial de campaña Google Ads",
-              price: "75000",
+              price: "79000",
               priceCurrency: "CLP",
               description:
                 "Configuración completa de cuenta, campañas, grupos de anuncios y landing page incluida.",
@@ -150,7 +142,7 @@ import "../styles/global.css";
             {
               "@type": "Offer",
               name: "Gestión mensual de Google Ads",
-              price: "50000",
+              price: "59000",
               priceCurrency: "CLP",
               description:
                 "Optimización semanal, reportes de costo por lead, acceso total a la cuenta.",
@@ -165,22 +157,17 @@ import "../styles/global.css";
     <div class="scroll-progress" id="scroll-progress"></div>
     <slot />
     <a
-      href="https://wa.me/56987435207?text=Hola!%20Te%20escribo%20desde%20tractiva.cl%20y%20me%20gustar%C3%ADa%20potenciar%20mi%20negocio%20con%20Google%20Ads&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=floating_mobile"
+      href="https://wa.me/56987435207?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Google%20Ads%20para%20mi%20negocio"
       class="ws-float"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Necesitas un ejecutivo? Escríbenos por WhatsApp"
     >
-      <svg
-        class="ws-float__orbit"
-        viewBox="0 0 120 120"
-        aria-hidden="true"
-      >
+      <svg class="ws-float__orbit" viewBox="0 0 120 120" aria-hidden="true">
         <defs>
           <path
             id="wsTextPath"
-            d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"
-          ></path>
+            d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"></path>
         </defs>
         <text>
           <textPath href="#wsTextPath" startOffset="0%">

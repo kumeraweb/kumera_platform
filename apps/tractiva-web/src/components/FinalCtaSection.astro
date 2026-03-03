@@ -1,5 +1,5 @@
 ---
-import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
+import { MessageCircle, ArrowRight, Phone } from "@lucide/astro";
 ---
 
 <section class="cta" id="contacto">
@@ -14,21 +14,25 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
           >
         </h2>
         <p class="cta__subtitle">
-          Sin compromiso. 15 minutos. Analizamos tu caso gratis.
+          Sin compromiso. 15 minutos. Analizamos tu caso y te decimos con
+          honestidad si Google Ads puede funcionar para tu negocio.
         </p>
         <a
-          href="https://wa.me/56987435207?text=Hola!%20Te%20escribo%20desde%20tractiva.cl%20y%20me%20gustar%C3%ADa%20potenciar%20mi%20negocio%20con%20Google%20Ads&utm_source=google&utm_medium=cpc&utm_campaign=search_gestion_google_ads&utm_term=%7Bkeyword%7D&utm_content=cta_main"
+          href="https://wa.me/56987435207?text=Hola%2C%20quiero%20agendar%20una%20evaluaci%C3%B3n%20gratuita%20de%2015%20minutos%20para%20mi%20negocio"
           target="_blank"
           rel="noopener"
           class="btn-wa cta-wa-main"
         >
           <MessageCircle size={20} />
-          Hablar por WhatsApp
+          Escribir por WhatsApp
         </a>
+        <p class="cta__wa-note">Respuesta en menos de 2 horas</p>
       </div>
 
       <div class="cta__right reveal reveal-delay-1">
-        <p class="cta__form-label">O si prefieres, escríbenos:</p>
+        <p class="cta__form-label">
+          O completa este formulario y te contactamos:
+        </p>
         <form class="cta-form" id="contact-form">
           <div class="cta-form__field">
             <label for="cf-nombre" class="cta-form__label">Nombre</label>
@@ -42,37 +46,64 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
               placeholder="Tu nombre"
             />
           </div>
+          <div class="cta-form__row">
+            <div class="cta-form__field">
+              <label for="cf-telefono" class="cta-form__label"
+                >WhatsApp o teléfono</label
+              >
+              <input
+                type="tel"
+                id="cf-telefono"
+                name="telefono"
+                required
+                autocomplete="tel"
+                class="cta-form__input"
+                placeholder="+56 9 1234 5678"
+              />
+            </div>
+            <div class="cta-form__field">
+              <label for="cf-rubro" class="cta-form__label">¿Tu rubro?</label>
+              <select
+                id="cf-rubro"
+                name="rubro"
+                class="cta-form__input cta-form__select"
+              >
+                <option value="" disabled selected>Seleccionar...</option>
+                <option value="abogado">Abogado/a</option>
+                <option value="dentista">Clínica dental</option>
+                <option value="salud">Salud / Médico</option>
+                <option value="servicio-local">Servicio local</option>
+                <option value="comercio">Comercio</option>
+                <option value="educacion">Educación</option>
+                <option value="consultoria">Consultoría</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
           <div class="cta-form__field">
-            <label for="cf-email" class="cta-form__label">Email</label>
+            <label for="cf-email" class="cta-form__label"
+              >Email <span class="cta-form__optional">(opcional)</span></label
+            >
             <input
               type="email"
               id="cf-email"
               name="email"
-              required
               autocomplete="email"
               class="cta-form__input"
               placeholder="tu@email.com"
             />
-          </div>
-          <div class="cta-form__field">
-            <label for="cf-mensaje" class="cta-form__label"
-              >Mensaje <span class="cta-form__optional">(opcional)</span></label
-            >
-            <textarea
-              id="cf-mensaje"
-              name="mensaje"
-              rows="3"
-              class="cta-form__input cta-form__textarea"
-              placeholder="Cuéntanos sobre tu negocio..."></textarea>
           </div>
           <button
             type="submit"
             class="btn-primary btn-primary--dark cta-form__submit"
             id="cf-submit"
           >
-            <Mail size={16} />
-            <span id="cf-btn-text">Enviar mensaje</span>
+            <Phone size={16} />
+            <span id="cf-btn-text">Quiero que me contacten</span>
           </button>
+          <p class="cta-form__reassurance">
+            Te contactamos en menos de 2 horas hábiles. Sin spam.
+          </p>
           <p class="cta-form__status" id="cf-status"></p>
         </form>
       </div>
@@ -120,7 +151,7 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
       status.classList.add("cta-form__status--err");
     } finally {
       btn.disabled = false;
-      btnText.textContent = "Enviar mensaje";
+      btnText.textContent = "Quiero que me contacten";
     }
   });
 </script>
@@ -165,12 +196,17 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
     margin-top: 1.25rem;
     font-size: 1rem;
     color: var(--gray-400);
-    line-height: 1.6;
+    line-height: 1.65;
     margin-bottom: 2rem;
   }
   .cta-wa-main {
     font-size: 1.0625rem;
     padding: 1.125rem 2.25rem;
+  }
+  .cta__wa-note {
+    margin-top: 0.625rem;
+    font-size: 0.8125rem;
+    color: var(--gray-500);
   }
   @media (max-width: 767px) {
     .cta-wa-main {
@@ -190,7 +226,17 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
   .cta-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
+  }
+  .cta-form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 480px) {
+    .cta-form__row {
+      grid-template-columns: 1fr;
+    }
   }
   .cta-form__field {
     display: flex;
@@ -218,15 +264,23 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
     transition: border-color 0.2s ease;
     outline: none;
   }
+  .cta-form__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+    cursor: pointer;
+  }
+  .cta-form__select option {
+    background: #1a1a1a;
+    color: var(--white);
+  }
   .cta-form__input::placeholder {
     color: var(--gray-600);
   }
   .cta-form__input:focus {
     border-color: var(--accent);
-  }
-  .cta-form__textarea {
-    resize: vertical;
-    min-height: 4.5rem;
   }
   .cta-form__submit {
     width: 100%;
@@ -236,6 +290,11 @@ import { MessageCircle, ArrowRight, Mail } from "@lucide/astro";
   .cta-form__submit:disabled {
     opacity: 0.6;
     cursor: wait;
+  }
+  .cta-form__reassurance {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    text-align: center;
   }
   .cta-form__status {
     font-size: 0.875rem;

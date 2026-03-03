@@ -1,5 +1,5 @@
 ---
-
+import { MessageCircle } from "@lucide/astro";
 ---
 
 <section class="postura">
@@ -53,10 +53,13 @@
                 </p>
                 <p class="postura__strong">No excusas.</p>
                 <a
-                    href="#contacto"
-                    class="btn-primary btn-primary--dark postura__cta"
+                    href="https://wa.me/56987435207?text=Hola%2C%20he%20invertido%20en%20Google%20Ads%20pero%20no%20veo%20resultados.%20%C2%BFPueden%20revisar%20mi%20caso%3F"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn-wa postura__cta"
                 >
-                    Hablemos →
+                    <MessageCircle size={18} />
+                    Hablemos de tu caso
                 </a>
             </div>
         </div>
@@ -133,5 +136,11 @@
     }
     .postura__cta {
         margin-top: 2rem;
+    }
+    @media (max-width: 767px) {
+        .postura__cta {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
