@@ -1,13 +1,17 @@
-# Kumera Platform Docs
+# Kumera Docs (Minimal Canonical)
 
-Central documentation for monorepo operation, migration stages, and schema design.
+Only four active areas are allowed:
 
-## Sections
-- `architecture/`: platform architecture and boundaries.
-- `bootstrap/`: environment variables and reset/deployment runbooks.
-- `migration/`: controlled migration plans and checklists.
-- `operations/`: CI/CD, Vercel, cron and runbooks.
-- `apps/`: app-level references and status.
+1. `monorepo/` -> global source of truth and maintenance rules.
+2. `applications/<app>/` -> one source + one next-steps + one `supabase/` folder per app.
+3. `shared/forms/` -> shared forms standard source of truth.
+4. `lineamientos campañas google ads/` -> private campaign planning workspace.
 
-## Critical Runbooks
-- `operations/supabase-critical-notes-2026-02-25.md`: incident notes and non-obvious pitfalls discovered during real migration/cutover.
+## Canonical entry points
+- [Monorepo source of truth](./monorepo/source-of-truth.md)
+- [Billing source of truth](./applications/billing/source-of-truth.md)
+- [Tuejecutiva source of truth](./applications/tuejecutiva/source-of-truth.md)
+- [LeadOS source of truth](./applications/leados/source-of-truth.md)
+- [Tractiva source of truth](./applications/tractiva/source-of-truth.md)
+- [Kumera Admin source of truth](./applications/kumera-admin/source-of-truth.md)
+- [Forms source of truth](./shared/forms/source-of-truth.md)

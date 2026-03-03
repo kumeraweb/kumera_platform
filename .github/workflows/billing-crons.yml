@@ -9,23 +9,9 @@ jobs:
   billing-jobs:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger generate-next-payments
-        run: |
-          curl --fail --show-error --silent \
-            -X POST "${{ secrets.BILLING_BASE_URL }}/api/jobs/generate-next-payments" \
-            -H "Authorization: Bearer ${{ secrets.BILLING_CRON_SECRET }}" \
-            -H "Content-Type: application/json"
-
-      - name: Trigger overdue-marking
-        run: |
-          curl --fail --show-error --silent \
-            -X POST "${{ secrets.BILLING_BASE_URL }}/api/jobs/overdue-marking" \
-            -H "Authorization: Bearer ${{ secrets.BILLING_CRON_SECRET }}" \
-            -H "Content-Type: application/json"
-
-      - name: Trigger reminders
-        run: |
-          curl --fail --show-error --silent \
-            -X POST "${{ secrets.BILLING_BASE_URL }}/api/jobs/reminders" \
-            -H "Authorization: Bearer ${{ secrets.BILLING_CRON_SECRET }}" \
-            -H "Content-Type: application/json"
+      - uses: actions/checkout@v4
+      - name: Run billing cron jobs script
+        env:
+          BILLING_BASE_URL: ${{ secrets.BILLING_BASE_URL }}
+          BILLING_CRON_SECRET: ${{ secrets.BILLING_CRON_SECRET }}
+        run: bash apps/kumerabilling-web/scripts/cron/run-billing-crons.sh

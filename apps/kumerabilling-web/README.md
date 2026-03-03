@@ -17,8 +17,10 @@ Portal interno centralizado para onboarding, contrato digital simple y validaci√
 
 ## Configuraci√≥n
 1. Copiar `.env.example` a `.env.local` y completar variables.
-2. Configurar proyecto Supabase y aplicar `supabase/migrations/20260224_000001_init.sql`.
-3. Cargar seed `supabase/seed.sql`.
+2. Usar como referencia las migraciones documentadas en:
+   - `docs/monorepo/supabase/migrations/`
+   - `docs/applications/billing/supabase/migrations/`
+3. Cargar seed local `apps/kumerabilling-web/supabase/seed.sql` si aplica al entorno.
 4. Crear bucket de storage `payment-proofs` en Supabase.
 5. Crear usuario admin en Supabase Auth e insertar su perfil en `admin_profiles`.
 

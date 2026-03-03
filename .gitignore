@@ -13,3 +13,6 @@ coverage/
 !.env.example
 .env.local
 .DS_Store
+
+# Lineamientos internos Google Ads (no versionar)
+/docs/lineamientos campañas google ads/

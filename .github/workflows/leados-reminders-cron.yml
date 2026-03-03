@@ -9,10 +9,9 @@ jobs:
   leados-reminders:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger LeadOS reminders processor
-        run: |
-          curl --fail --show-error --silent \
-            -X POST "${{ secrets.LEADOS_BASE_URL }}/api/reminders/process" \
-            -H "Authorization: Bearer ${{ secrets.LEADOS_CRON_SECRET }}" \
-            -H "x-internal-cron-secret: ${{ secrets.LEADOS_CRON_SECRET }}" \
-            -H "Content-Type: application/json"
+      - uses: actions/checkout@v4
+      - name: Run LeadOS reminders cron script
+        env:
+          LEADOS_BASE_URL: ${{ secrets.LEADOS_BASE_URL }}
+          LEADOS_CRON_SECRET: ${{ secrets.LEADOS_CRON_SECRET }}
+        run: bash apps/leadosku-web/leados-system/scripts/cron/run-reminders-cron.sh
