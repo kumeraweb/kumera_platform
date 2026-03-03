@@ -271,29 +271,64 @@ export async function getExecutiveBySlug(slug: string): Promise<ExecutiveRecord 
 export async function getExecutivePlansByExecutiveId(
   executiveId: string
 ): Promise<ExecutivePlanRecord[]> {
+  const activeSelect = [
+    "id",
+    "executive_id",
+    "name",
+    "price_from",
+    "target",
+    "description",
+    "features",
+    "active",
+    "created_at",
+    "updated_at",
+  ].join(",");
+
   const { data, error } = await supabase
     .from("executive_plans")
-    .select(
-      [
-        "id",
-        "executive_id",
-        "name",
-        "price_from",
-        "target",
-        "description",
-        "features",
-        "active",
-        "created_at",
-        "updated_at",
-      ].join(",")
-    )
+    .select(activeSelect)
     .eq("executive_id", executiveId)
     .eq("active", true)
     .order("created_at", { ascending: true });
 
-  if (error) {
+  if (!error) {
+    return (data ?? []) as unknown as ExecutivePlanRecord[];
+  }
+
+  const missingActiveColumn =
+    /active/i.test(error.message) &&
+    /(column|does not exist|schema cache)/i.test(error.message);
+
+  if (!missingActiveColumn) {
     throw new Error(`getExecutivePlansByExecutiveId failed: ${error.message}`);
   }
 
-  return (data ?? []) as unknown as ExecutivePlanRecord[];
+  const legacySelect = [
+    "id",
+    "executive_id",
+    "name",
+    "price_from",
+    "target",
+    "description",
+    "features",
+    "created_at",
+    "updated_at",
+  ].join(",");
+
+  const { data: legacyData, error: legacyError } = await supabase
+    .from("executive_plans")
+    .select(legacySelect)
+    .eq("executive_id", executiveId)
+    .order("created_at", { ascending: true });
+
+  if (legacyError) {
+    throw new Error(
+      `getExecutivePlansByExecutiveId failed: ${error.message}; fallback failed: ${legacyError.message}`
+    );
+  }
+
+  return ((legacyData ?? []) as Array<Omit<ExecutivePlanRecord, "active">>).map((plan) => ({
+    ...plan,
+    active: true,
+  }));
 }
