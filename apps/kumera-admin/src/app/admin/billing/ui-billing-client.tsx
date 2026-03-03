@@ -140,7 +140,12 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }, [form.customerType, form.serviceSlug, platformServices, templates]);
   const currentFormSnapshot = useMemo(() => JSON.stringify(form), [form]);
   const pendingPayments = useMemo(
-    () => payments.filter((payment) => !["validated", "rejected"].includes(payment.status)),
+    () =>
+      payments.filter(
+        (payment) =>
+          !["validated", "rejected"].includes(payment.status) &&
+          payment.onboarding_state !== "renewal_pending_payment",
+      ),
     [payments],
   );
   const rejectedPayments = useMemo(
