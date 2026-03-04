@@ -74,6 +74,7 @@ function StatusBadge({ status }: { status: string }) {
     pending_onboarding: "badge-warning",
     draft: "badge-neutral",
     rejected: "badge-error",
+    suspended: "badge-warning",
     cancelled: "badge-error",
     archived: "badge-neutral",
   };
@@ -194,6 +195,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         return subscription.services?.slug === clientServiceFilter;
       }),
     [clientServiceFilter, subscriptions],
+  );
+  const activeSubscriptions = useMemo(
+    () => filteredSubscriptions.filter((subscription) => subscription.status === "active"),
+    [filteredSubscriptions],
+  );
+  const inactiveSubscriptions = useMemo(
+    () => filteredSubscriptions.filter((subscription) => subscription.status === "suspended" || subscription.status === "cancelled"),
+    [filteredSubscriptions],
   );
 
   async function loadAll() {
@@ -553,6 +562,41 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     onCloseInvoiceModal();
   }
 
+  async function onUpdateSubscriptionStatus(subscriptionId: string, status: "active" | "suspended") {
+    const confirmMessage =
+      status === "suspended"
+        ? "¿Dar de baja este cliente? Se conservará el historial y podrás reactivarlo luego."
+        : "¿Reactivar este cliente?";
+    const confirmed = window.confirm(confirmMessage);
+    if (!confirmed) return;
+
+    let reason: string | undefined;
+    if (status === "suspended") {
+      const input = window.prompt("Motivo de baja (opcional):");
+      reason = input?.trim() || undefined;
+    }
+
+    setWorking(true);
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch(`/api/admin/billing/subscriptions/${subscriptionId}/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status, reason }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo actualizar el estado de la suscripción.");
+      setWorking(false);
+      return;
+    }
+
+    setMessage(status === "suspended" ? "Cliente dado de baja correctamente." : "Cliente reactivado correctamente.");
+    setWorking(false);
+    await loadAll();
+  }
+
   return (
     <div className="grid gap-5">
       {/* Page header */}
@@ -566,7 +610,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           <button className={`admin-btn admin-btn-sm ${section === "onboarding" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("onboarding")} type="button">Onboarding</button>
           <button className={`admin-btn admin-btn-sm ${section === "templates" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("templates")} type="button">Plantillas</button>
           <button className={`admin-btn admin-btn-sm ${section === "payments" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("payments")} type="button">Pagos</button>
-          <button className={`admin-btn admin-btn-sm ${section === "clients" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("clients")} type="button">Clientes activos</button>
+          <button className={`admin-btn admin-btn-sm ${section === "clients" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("clients")} type="button">Clientes</button>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
@@ -587,7 +631,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </div>
           <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
             <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Clientes activos</p>
-            <p className="m-0 mt-1 text-lg font-semibold">{subscriptions.length}</p>
+            <p className="m-0 mt-1 text-lg font-semibold">{subscriptions.filter((subscription) => subscription.status === "active").length}</p>
           </div>
         </div>
       </div>
@@ -1146,7 +1190,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="section-title">Clientes onboardeados</h2>
-            <p className="section-desc">Solo clientes con pago validado y suscripción activa.</p>
+            <p className="section-desc">Activos arriba. Suspendidos/cancelados en listado desplegable.</p>
           </div>
           <a className="admin-btn admin-btn-ghost admin-btn-sm" href={legacyAdminUrl} rel="noreferrer" target="_blank">Legacy admin ↗</a>
         </div>
@@ -1165,10 +1209,13 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           <div className="rounded-lg border p-3 md:col-span-2" style={{ borderColor: "var(--admin-border)" }}>
             <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Resultados</p>
             <p className="m-0 mt-1 text-base font-semibold">
-              {filteredSubscriptions.length} cliente(s) {clientServiceFilter === "all" ? "activos" : "en el servicio filtrado"}
+              {activeSubscriptions.length} activo(s) y {inactiveSubscriptions.length} inactivo(s)
             </p>
           </div>
         </div>
+        <h3 className="mt-5 text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
+          Clientes activos ({activeSubscriptions.length})
+        </h3>
         <div className="mt-4 overflow-x-auto">
           <table className="admin-table">
             <thead>
@@ -1183,14 +1230,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
               </tr>
             </thead>
             <tbody>
-              {filteredSubscriptions.length === 0 ? (
+              {activeSubscriptions.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
-                    No hay clientes para el filtro seleccionado.
+                    No hay clientes activos para el filtro seleccionado.
                   </td>
                 </tr>
               ) : (
-                filteredSubscriptions.map((subscription) => (
+                activeSubscriptions.map((subscription) => (
                   <tr key={subscription.id}>
                     <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{subscription.id.slice(0, 8)}…</span></td>
                     <td style={{ fontWeight: 500 }}>{subscription.companies?.legal_name ?? "-"}</td>
@@ -1206,6 +1253,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                     </td>
                     <td>
                       <div className="flex flex-wrap gap-2">
+                        <button
+                          disabled={working}
+                          className="admin-btn admin-btn-warning admin-btn-sm"
+                          onClick={() => onUpdateSubscriptionStatus(subscription.id, "suspended")}
+                          type="button"
+                        >
+                          Dar de baja
+                        </button>
                         <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Renovar token</button>
                         <button disabled={working} className="admin-btn admin-btn-success admin-btn-sm" onClick={() => onOpenInvoiceModal(subscription)} type="button">Enviar boleta</button>
                       </div>
@@ -1216,6 +1271,55 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
             </tbody>
           </table>
         </div>
+
+        <details className="mt-4 rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
+          <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
+            Clientes inactivos (suspendidos/cancelados): {inactiveSubscriptions.length}
+          </summary>
+          <div className="mt-4 overflow-x-auto">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Servicio</th>
+                  <th>Plan</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inactiveSubscriptions.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                      No hay clientes inactivos para el filtro seleccionado.
+                    </td>
+                  </tr>
+                ) : (
+                  inactiveSubscriptions.map((subscription) => (
+                    <tr key={subscription.id}>
+                      <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{subscription.id.slice(0, 8)}…</span></td>
+                      <td style={{ fontWeight: 500 }}>{subscription.companies?.legal_name ?? "-"}</td>
+                      <td>{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
+                      <td>{subscription.plans?.name ?? "-"}</td>
+                      <td><StatusBadge status={subscription.status} /></td>
+                      <td>
+                        <button
+                          disabled={working}
+                          className="admin-btn admin-btn-success admin-btn-sm"
+                          onClick={() => onUpdateSubscriptionStatus(subscription.id, "active")}
+                          type="button"
+                        >
+                          Reactivar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </details>
       </div>
       ) : null}
 

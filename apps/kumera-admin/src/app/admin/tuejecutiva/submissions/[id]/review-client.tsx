@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 
 type Category = { id: string; slug: string; name: string };
@@ -56,6 +57,7 @@ export default function TuejecutivaSubmissionReviewClient({
   initialCategories,
   initialRegions,
 }: Props) {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [regions] = useState<Region[]>(initialRegions);
   const [message, setMessage] = useState<string | null>(null);
@@ -86,7 +88,7 @@ export default function TuejecutivaSubmissionReviewClient({
     coverage_all: submission.coverage_all,
     category_ids: submission.category_ids,
     region_ids: submission.region_ids,
-    mark_submission_approved: submission.status !== "approved",
+    mark_submission_approved: submission.status === "pending" || submission.status === "reviewed",
   });
 
   const canSubmit = useMemo(
@@ -210,6 +212,36 @@ export default function TuejecutivaSubmissionReviewClient({
     setMessage("Ejecutiva creada correctamente. Ya puedes volver al listado.");
   }
 
+  async function onDiscardSubmission() {
+    if (submission.status === "approved") {
+      setError("Esta postulación ya está aprobada y no se puede descartar.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "¿Descartar esta postulación? Se marcará como rechazada y saldrá del listado de pendientes."
+    );
+    if (!confirmed) return;
+
+    setWorking(true);
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch(`/api/admin/tuejecutiva/submissions/${submission.id}/discard`, {
+      method: "POST",
+    });
+    const payload = await response.json().catch(() => ({}));
+    setWorking(false);
+
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo descartar la postulación.");
+      return;
+    }
+
+    router.push("/admin/tuejecutiva?discarded=1");
+    router.refresh();
+  }
+
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -223,6 +255,16 @@ export default function TuejecutivaSubmissionReviewClient({
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge status={submission.status} />
+          {submission.status !== "approved" ? (
+            <button
+              type="button"
+              className="admin-btn admin-btn-danger admin-btn-sm"
+              onClick={onDiscardSubmission}
+              disabled={working}
+            >
+              Descartar postulación
+            </button>
+          ) : null}
           <Link href="/admin/tuejecutiva" className="admin-btn admin-btn-secondary admin-btn-sm no-underline">
             Volver al listado
           </Link>

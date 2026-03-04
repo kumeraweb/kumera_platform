@@ -10,9 +10,8 @@ export async function GET() {
   const { data, error } = await billing
     .from("subscriptions")
     .select("id,status,created_at,company_id,companies(legal_name,email),services(slug,name),plans(id,name,price_cents)")
-    .eq("status", "active")
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(400);
 
   if (error) return fail(error.message, 500);
   const subscriptions = data ?? [];

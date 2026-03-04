@@ -59,7 +59,7 @@ export default function TuejecutivaAdminClient({
     reused: boolean;
   }>(null);
 
-  const [submissions] = useState<SubmissionRow[]>(initialSubmissions);
+  const [submissions, setSubmissions] = useState<SubmissionRow[]>(initialSubmissions);
   const [executives] = useState<ExecutiveRow[]>(initialExecutives);
   const [tokenForm, setTokenForm] = useState({ email: "", expires_in_days: 7 });
 
@@ -86,6 +86,29 @@ export default function TuejecutivaAdminClient({
         ? "Token activo reutilizado."
         : "Token creado correctamente."
     );
+  }
+
+  async function onDiscardSubmission(submissionId: string) {
+    const confirmed = window.confirm(
+      "¿Descartar esta postulación? Se marcará como rechazada y saldrá del listado de pendientes."
+    );
+    if (!confirmed) return;
+
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch(`/api/admin/tuejecutiva/submissions/${submissionId}/discard`, {
+      method: "POST",
+    });
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo descartar la postulación.");
+      return;
+    }
+
+    setSubmissions((prev) => prev.filter((row) => row.id !== submissionId));
+    setMessage("Postulación descartada.");
   }
 
   return (
@@ -199,12 +222,21 @@ export default function TuejecutivaAdminClient({
                       {new Date(row.created_at).toLocaleString("es-CL")}
                     </td>
                     <td>
-                      <a
-                        href={`/admin/tuejecutiva/submissions/${row.id}`}
-                        className="admin-btn admin-btn-secondary admin-btn-sm no-underline"
-                      >
-                        Revisar
-                      </a>
+                      <div className="flex flex-wrap gap-2">
+                        <a
+                          href={`/admin/tuejecutiva/submissions/${row.id}`}
+                          className="admin-btn admin-btn-secondary admin-btn-sm no-underline"
+                        >
+                          Revisar
+                        </a>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-danger admin-btn-sm"
+                          onClick={() => onDiscardSubmission(row.id)}
+                        >
+                          Descartar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
