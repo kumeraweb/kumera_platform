@@ -51,7 +51,11 @@ export async function POST(
   }
 
   if (!allowedMime.has(file.type)) {
-    return fail(400, "INVALID_FILE_TYPE", "Solo se permiten imágenes o PDF");
+    return fail(
+      400,
+      "INVALID_FILE_TYPE",
+      "Formato no permitido. Adjunta un pantallazo/imagen (JPG, PNG, WEBP, HEIC) o un PDF.",
+    );
   }
 
   if (file.size > maxBytes) {

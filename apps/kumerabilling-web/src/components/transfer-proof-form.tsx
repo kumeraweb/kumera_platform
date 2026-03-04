@@ -28,7 +28,7 @@ export function TransferProofForm({
     event.preventDefault();
 
     if (!file) {
-      setMessage("Selecciona un archivo de comprobante (imagen o PDF).");
+      setMessage("Selecciona un comprobante en formato imagen (pantallazo) o PDF.");
       return;
     }
     if (disabled) {
@@ -81,6 +81,9 @@ export function TransferProofForm({
             className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 disabled:opacity-50"
           />
         </div>
+        <p className="mt-2 text-xs text-gray-500">
+          Formatos permitidos: JPG, PNG, WEBP, HEIC o PDF (máx. 8MB).
+        </p>
       </label>
       <button
         type="submit"

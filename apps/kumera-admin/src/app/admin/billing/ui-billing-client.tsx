@@ -949,7 +949,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
 
       <div className="admin-card">
         <h2 className="section-title">Renovaciones mensuales (pendiente de pago)</h2>
-        <p className="section-desc">Clientes activos con cuota mensual pendiente. Aquí no hay re-firma de contrato.</p>
+        <p className="section-desc">Clientes activos con cuota mensual pendiente. Aquí no hay re-firma de contrato y aquí se reenvía el link de pago mensual.</p>
         <div className="mt-4 overflow-x-auto">
           <table className="admin-table">
             <thead>
@@ -1205,15 +1205,6 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                     <td>
                       <div className="flex flex-wrap gap-2">
                         <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Renovar token</button>
-                        <button
-                          disabled={working || !subscription.has_pending_payment}
-                          className="admin-btn admin-btn-primary admin-btn-sm"
-                          onClick={() => onGeneratePaymentLink(subscription.id)}
-                          type="button"
-                          title={!subscription.has_pending_payment ? "No hay pago pendiente para esta suscripción." : undefined}
-                        >
-                          Generar link de pago
-                        </button>
                         <button disabled={working} className="admin-btn admin-btn-success admin-btn-sm" onClick={() => onOpenInvoiceModal(subscription)} type="button">Enviar boleta</button>
                       </div>
                     </td>
