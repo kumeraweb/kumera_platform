@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-100 mt-auto">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link href="/" className="block mb-4">
               <Image
@@ -26,9 +26,65 @@ export default function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold text-slate-900 tracking-wide uppercase">
-              Legal
+              Para Clientes
             </h3>
-            <ul className="mt-4 space-y-4">
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link
+                  href="/servicios"
+                  className="text-sm text-slate-500 hover:text-slate-900"
+                >
+                  Buscar Profesional
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/verificacion"
+                  className="text-sm text-slate-500 hover:text-slate-900"
+                >
+                  Proceso de Verificación
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 tracking-wide uppercase">
+              Para Profesionales
+            </h3>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link
+                  href="/postular"
+                  className="text-sm text-slate-500 hover:text-slate-900"
+                >
+                  Publicar Perfil Gratis
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/planes-ejecutivas"
+                  className="text-sm text-slate-500 hover:text-slate-900"
+                >
+                  Planes y Precios
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/soy-ejecutiva"
+                  className="text-sm text-slate-500 hover:text-slate-900"
+                >
+                  Cómo Funciona
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 tracking-wide uppercase">
+              Legal y Contacto
+            </h3>
+            <ul className="mt-4 space-y-3">
               <li>
                 <Link
                   href="/terminos"
@@ -45,22 +101,6 @@ export default function Footer() {
                   Política de Privacidad
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/verificacion"
-                  className="text-sm text-slate-500 hover:text-slate-900"
-                >
-                  Proceso de Verificación
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 tracking-wide uppercase">
-              Transparencia
-            </h3>
-            <ul className="mt-4 space-y-4">
               <li className="text-sm text-slate-500">
                 Operado por{" "}
                 <a
@@ -73,7 +113,6 @@ export default function Footer() {
                 </a>
               </li>
               <li className="text-sm text-slate-500">
-                Contacto:{" "}
                 <a
                   href={`mailto:${siteConfig.contactEmail}`}
                   className="text-emerald-600 hover:underline"
@@ -86,9 +125,9 @@ export default function Footer() {
         </div>
         <div className="mt-12 border-t border-gray-100 pt-8">
           <p className="text-center text-xs text-slate-600 max-w-3xl mx-auto font-medium">
-            TuEjecutiva.cl es un directorio informativo independiente. No vende planes directamente ni representa
-            oficialmente a las empresas listadas. Cada ejecutiva es un agente independiente responsable de su
-            relación comercial y cumplimiento normativo con la empresa indicada.
+            TuEjecutiva.cl es un directorio informativo independiente. No vende
+            planes directamente ni representa oficialmente a las empresas
+            listadas. Cada profesional es responsable de su relación comercial.
           </p>
           <p className="text-center text-xs text-slate-400 mt-3">
             © {currentYear} {siteConfig.name}. Todos los derechos reservados.

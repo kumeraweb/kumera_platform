@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ElementType } from "react";
+import type { Metadata } from "next";
 import {
   Ambulance,
   HeartHandshake,
@@ -11,6 +12,12 @@ import {
 import { getCategoriesWithExecutives } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Servicios",
+  description:
+    "Explora categorías de servicio y conecta con profesionales verificados en Chile. Contacto directo por WhatsApp o teléfono.",
+};
 
 const iconMap: Record<string, ElementType> = {
   "planes-de-rescate-y-ambulancia": Ambulance,

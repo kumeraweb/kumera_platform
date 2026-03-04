@@ -29,24 +29,13 @@ export default function TrackedCallLink({
       return
     }
 
-    const navigate = () => {
-      if (target === '_blank') {
-        window.open(href, '_blank', 'noopener,noreferrer')
-        return
-      }
-      window.location.href = href
-    }
-
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'click_to_call', {
         contact_channel: 'phone',
         destination: href,
         premium_conversion_configured: Boolean(conversionSendTo)
       })
-      return
     }
-
-    navigate()
   }
 
   return <a {...props} href={href} target={target} rel={safeRel} onClick={handleClick} />

@@ -19,11 +19,11 @@ export default function HowItWorks() {
               <Search className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900">
-              1. Define tu necesidad
+              1. Elige una categoría
             </h3>
             <p className="mt-2 text-slate-600">
-              Ya sea un plan de Isapre, un Seguro de Vida o Servicios para tu
-              Hogar, encuentra a quien realmente sabe del tema.
+              Explora las categorías de servicio disponibles y encuentra
+              profesionales especializados en lo que necesitas.
             </p>
           </div>
 
@@ -32,11 +32,11 @@ export default function HowItWorks() {
               <FileCheck className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900">
-              2. Elige una experta verificada
+              2. Revisa perfiles verificados
             </h3>
             <p className="mt-2 text-slate-600">
-              Revisa su perfil, antecedentes y valoraciones. Asegúrate de hablar
-              con una profesional real, no con un bot.
+              Cada profesional tiene identidad confirmada y credenciales
+              validadas. Revisa su perfil y elige con confianza.
             </p>
           </div>
 
@@ -45,11 +45,11 @@ export default function HowItWorks() {
               <MessageCircle className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900">
-              3. Contrata con seguridad
+              3. Contacta directamente
             </h3>
             <p className="mt-2 text-slate-600">
-              Contacta directamente por WhatsApp o teléfono. Recibe asesoría
-              personalizada y evita estafas electrónicas.
+              Escribe por WhatsApp o llama. Sin intermediarios, sin bots. Hablas
+              directo con quien te va a atender.
             </p>
           </div>
         </div>

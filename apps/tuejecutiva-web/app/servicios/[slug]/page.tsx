@@ -38,9 +38,9 @@ function filterExecutives(
   }
   return list.filter((exec) => {
     if (exec.coverage_all) return true;
-  const execRegionCodes = (exec.executive_regions ?? [])
-    .map((join) => join?.regions?.code)
-    .filter((code): code is string => Boolean(code));
+    const execRegionCodes = (exec.executive_regions ?? [])
+      .map((join) => join?.regions?.code)
+      .filter((code): code is string => Boolean(code));
     return execRegionCodes.some((code) => regionCodes.includes(code));
   });
 }
@@ -144,9 +144,8 @@ export default async function ServicioDetallePage({
               </h2>
               <p
                 id="filter-status"
-                className={`text-sm text-slate-500 mt-1 ${
-                  coverageAllOnly || selectedRegions.length > 0 ? "" : "hidden"
-                }`}
+                className={`text-sm text-slate-500 mt-1 ${coverageAllOnly || selectedRegions.length > 0 ? "" : "hidden"
+                  }`}
               >
                 Filtrando por:{" "}
                 {coverageAllOnly
@@ -180,19 +179,29 @@ export default async function ServicioDetallePage({
       <section className="bg-emerald-50 py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-bold text-slate-900">
-            ¿Eres ejecutiva de {category.name}?
+            ¿Eres profesional de {category.name}?
           </h2>
-          <p className="mt-4 text-slate-600">
-            Únete a nuestra plataforma y recibe clientes calificados.
+          <p className="mt-4 text-slate-600 max-w-xl mx-auto">
+            Publica tu perfil verificado y recibe contactos directos de clientes
+            que buscan tu servicio. Empieza gratis y crece con planes opcionales.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/postular"
-              className="inline-block rounded-md bg-emerald-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500"
+              className="inline-block rounded-md bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors"
             >
-              Postular como Ejecutiva
+              Publicar mi Perfil Gratis
+            </a>
+            <a
+              href="/planes-ejecutivas"
+              className="text-sm font-semibold text-emerald-700 hover:text-emerald-600"
+            >
+              Ver planes para destacar →
             </a>
           </div>
+          <p className="mt-4 text-xs text-slate-500">
+            Las profesionales destacadas reciben más visibilidad y contactos en su categoría.
+          </p>
         </div>
       </section>
     </main>

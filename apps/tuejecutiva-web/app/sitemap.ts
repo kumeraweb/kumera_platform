@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { getCategories, getExecutives } from "@/lib/queries";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tuejecutiva.cl";
   const now = new Date().toISOString();
 
-  return [
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
       lastModified: now,
@@ -16,6 +17,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/soy-ejecutiva`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/planes-ejecutivas`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: `${siteUrl}/postular`,
@@ -42,4 +55,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
   ];
+
+  let categoryPages: MetadataRoute.Sitemap = [];
+  let executivePages: MetadataRoute.Sitemap = [];
+
+  try {
+    const categories = await getCategories();
+    categoryPages = categories.map((cat) => ({
+      url: `${siteUrl}/servicios/${cat.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // Graceful fallback — static pages only
+  }
+
+  try {
+    const executives = await getExecutives();
+    executivePages = executives.map((exec) => ({
+      url: `${siteUrl}/ejecutivas/${exec.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    // Graceful fallback — static pages only
+  }
+
+  return [...staticPages, ...categoryPages, ...executivePages];
 }

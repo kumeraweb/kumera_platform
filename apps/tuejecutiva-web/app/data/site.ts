@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "TuEjecutiva",
   description:
-    "Portal de confianza que conecta usuarios con ejecutivas de contratación verificadas en Chile. Evita estafas y contacta profesionales validadas.",
+    "Directorio de profesionales verificados en Chile. Conecta con ejecutivas y ejecutivos reales, con identidad confirmada y contacto directo.",
   operator: "Kumera (www.kumeraweb.com)",
   contactEmail: "contacto@kumeraweb.com",
 };

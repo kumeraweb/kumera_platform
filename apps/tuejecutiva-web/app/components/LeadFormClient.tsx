@@ -55,6 +55,13 @@ export default function LeadFormClient() {
       }
 
       setIsSubmitted(true);
+
+      if (typeof window !== 'undefined' && typeof (window as { gtag?: (...args: unknown[]) => void }).gtag === 'function') {
+        (window as { gtag?: (...args: unknown[]) => void }).gtag!('event', 'form_postulacion_submit', {
+          form_name: 'postulacion_ejecutiva',
+        });
+      }
+
       form.reset();
       setTimeout(() => {
         router.push("/postular/gracias");
@@ -140,9 +147,8 @@ export default function LeadFormClient() {
         <div className="pt-4">
           <div
             id="status-message"
-            className={`text-sm font-medium text-emerald-600 mb-3 text-center bg-emerald-50 p-2 rounded-lg ${
-              isSubmitted ? "" : "hidden"
-            }`}
+            className={`text-sm font-medium text-emerald-600 mb-3 text-center bg-emerald-50 p-2 rounded-lg ${isSubmitted ? "" : "hidden"
+              }`}
           >
             ¡Solicitud recibida! Te contactaremos pronto.
           </div>
@@ -155,11 +161,10 @@ export default function LeadFormClient() {
             type="submit"
             id="submit-btn"
             disabled={isSubmitting}
-            className={`block w-full rounded-lg px-3.5 py-2.5 text-center text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 transition-colors ${
-              isSubmitted
+            className={`block w-full rounded-lg px-3.5 py-2.5 text-center text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 transition-colors ${isSubmitted
                 ? "bg-emerald-600 text-white"
                 : "bg-slate-900 text-white hover:bg-slate-800"
-            }`}
+              }`}
           >
             {isSubmitting ? "Enviando..." : isSubmitted ? "Enviado" : "Postular Ahora"}
           </button>

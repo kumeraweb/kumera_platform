@@ -8,7 +8,7 @@ import { Menu, X } from 'lucide-react'
 const links = [
   { href: '/servicios', label: 'Servicios' },
   { href: '/#como-funciona', label: '¿Cómo funciona?' },
-  { href: '/soy-ejecutiva', label: 'Soy Ejecutiva' }
+  { href: '/soy-ejecutiva', label: 'Soy Profesional' }
 ]
 
 export default function Header() {
@@ -46,7 +46,7 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="hidden md:flex gap-8">
+        <nav className="hidden md:flex items-center gap-8">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -56,6 +56,12 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/postular"
+            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors"
+          >
+            Publicar Perfil Gratis
+          </Link>
         </nav>
 
         <div className="flex md:hidden">
@@ -89,6 +95,13 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/postular"
+            className="block rounded-lg px-4 py-3 text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-500 text-center transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            Publicar Perfil Gratis
+          </Link>
         </div>
       </div>
     </header>

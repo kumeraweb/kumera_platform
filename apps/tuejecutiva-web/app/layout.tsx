@@ -10,26 +10,26 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const defaultTitle = "TuEjecutiva";
+const defaultTitle = "TuEjecutiva · Profesionales Verificados en Chile";
 const defaultDescription =
-  "Portal de confianza que conecta usuarios con ejecutivas de contratacion verificadas en Chile. Evita estafas y contacta profesionales validadas.";
+  "Directorio de profesionales verificados en Chile. Conecta con ejecutivas y ejecutivos reales, con identidad confirmada y contacto directo por WhatsApp o teléfono.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
     default: defaultTitle,
-    template: `%s | ${defaultTitle}`,
+    template: `%s | TuEjecutiva`,
   },
   description: defaultDescription,
   keywords: [
+    "profesionales verificados Chile",
     "ejecutivas verificadas",
-    "ejecutivas de contratacion",
-    "portal de confianza",
-    "contratar planes",
-    "asesoria de contratacion",
-    "isapres",
-    "seguros",
-    "servicios hogar",
+    "directorio profesional",
+    "contacto directo",
+    "servicios verificados",
+    "consultoras Chile",
+    "auditoría ISO Chile",
+    "marketplace servicios",
   ],
   alternates: {
     canonical: "/",
@@ -92,8 +92,25 @@ export default async function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'AW-17932575934');
+            // GA4 — descomenta y reemplaza G-XXXXXXXXXX con tu ID real
+            // gtag('config', 'G-XXXXXXXXXX');
           `}
         </Script>
+        {/* Meta Pixel — descomenta y reemplaza PIXEL_ID con tu ID real */}
+        {/* <Script id="meta-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', 'PIXEL_ID');
+            fbq('track', 'PageView');
+          `}
+        </Script> */}
         {showChrome ? <Header /> : null}
         <div className="flex-1">{children}</div>
         {showChrome ? <Footer /> : null}
@@ -101,18 +118,33 @@ export default async function RootLayout({
           id="json-ld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "TuEjecutiva.cl",
-              url: "https://tuejecutiva.cl",
-              description:
-                "Plataforma independiente de verificación y contacto entre usuarios y ejecutivas de distintas áreas en Chile.",
-              publisher: {
-                "@type": "Organization",
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
                 name: "TuEjecutiva.cl",
+                url: "https://tuejecutiva.cl",
+                description:
+                  "Directorio de profesionales verificados en Chile. Contacto directo por WhatsApp o teléfono.",
+                publisher: {
+                  "@type": "Organization",
+                  name: "TuEjecutiva.cl",
+                },
               },
-            }),
+              {
+                "@context": "https://schema.org",
+                "@type": "ProfessionalService",
+                name: "TuEjecutiva.cl",
+                url: "https://tuejecutiva.cl",
+                description:
+                  "Directorio de profesionales verificados en Chile. Conecta con ejecutivas y ejecutivos con identidad confirmada.",
+                areaServed: {
+                  "@type": "Country",
+                  name: "Chile",
+                },
+                serviceType: "Directorio Profesional",
+              },
+            ]),
           }}
         />
       </body>

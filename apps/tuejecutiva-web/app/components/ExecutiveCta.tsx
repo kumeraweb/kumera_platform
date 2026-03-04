@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { TrendingUp, Star, Megaphone } from "lucide-react";
+
 export default function ExecutiveCta() {
   return (
     <section className="relative isolate overflow-hidden bg-slate-900 py-24 sm:py-32">
@@ -27,102 +30,119 @@ export default function ExecutiveCta() {
       </div>
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:max-w-none">
-          <div className="grid grid-cols-1 gap-x-8 gap-y-16 lg:grid-cols-2 lg:items-center">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl text-pretty">
-                ¿Eres ejecutiva y vives de comisiones?
-                <span className="block text-emerald-400 mt-2">
-                  Recibe contactos directos.
-                </span>
-              </h2>
-              <p className="mt-6 text-lg leading-8 text-gray-300">
-                Deja de competir solo por precio. En TuEjecutiva.cl verificamos tu
-                identidad y trayectoria para que clientes reales te elijan con
-                confianza.
-              </p>
-              <div className="mt-8 flex gap-x-4 items-center">
-                <a
-                  href="/soy-ejecutiva"
-                  className="rounded-full bg-emerald-500 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 transition-all transform hover:scale-105"
-                >
-                  Postular Gratis
-                </a>
-                <a
-                  href="/planes-ejecutivas"
-                  className="text-sm font-semibold leading-6 text-white hover:text-emerald-300"
-                >
-                  Ver Planes Premium <span aria-hidden="true">→</span>
-                </a>
+        <div className="mx-auto max-w-2xl text-center mb-16">
+          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl text-pretty">
+            ¿Vives de vender servicios?
+            <span className="block text-emerald-400 mt-2">
+              Publica tu perfil y recibe contactos.
+            </span>
+          </h2>
+          <p className="mt-6 text-lg leading-8 text-gray-300 max-w-xl mx-auto">
+            Empieza gratis. A medida que crezcas, elige un plan para destacar y
+            recibir más oportunidades.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {/* Plan Gratis */}
+          <div className="rounded-2xl bg-white/5 backdrop-blur-sm p-6 ring-1 ring-white/10 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                <TrendingUp className="w-5 h-5 text-emerald-400" />
               </div>
-              <p className="mt-4 text-sm text-gray-400">
-                Empieza gratis. Tú decides si destacas tu perfil después.
-              </p>
+              <div>
+                <h3 className="text-white font-semibold">Gratis</h3>
+                <p className="text-xs text-gray-400">Para empezar</p>
+              </div>
             </div>
-            <div className="relative lg:ml-auto">
-              <div className="relative rounded-xl bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 backdrop-blur-sm">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                    <img
-                      src="/images/certification.png"
-                      alt="Sello de Certificación"
-                      className="w-12 h-12 object-contain"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">
-                      Perfil Verificado
-                    </h3>
-                    <p className="text-sm text-slate-500">Más confianza, más cierres</p>
-                  </div>
-                </div>
-                <ul className="space-y-4 text-slate-600 text-sm">
-                  <li className="flex gap-2 items-center">
-                    <svg
-                      className="w-5 h-5 text-emerald-600"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Más confianza = más cierres
-                  </li>
-                  <li className="flex gap-2 items-center">
-                    <svg
-                      className="w-5 h-5 text-emerald-600"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Contactos directos
-                  </li>
-                  <li className="flex gap-2 items-center">
-                    <svg
-                      className="w-5 h-5 text-emerald-600"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Menos curiosos
-                  </li>
-                </ul>
-              </div>
+            <ul className="space-y-2 text-sm text-gray-300 flex-1">
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Perfil verificado publicado
+              </li>
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Contacto directo de clientes
+              </li>
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Tráfico base de tu categoría
+              </li>
+            </ul>
+            <div className="mt-4 pt-3 border-t border-white/10">
+              <p className="text-2xl font-bold text-white">$0</p>
             </div>
           </div>
+
+          {/* Plan Destacada */}
+          <div className="rounded-2xl bg-white/10 backdrop-blur-sm p-6 ring-2 ring-emerald-500/50 flex flex-col relative">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-0.5 text-xs font-semibold text-white">
+              Recomendado
+            </span>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/20">
+                <Star className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Destacada</h3>
+                <p className="text-xs text-gray-400">Más visibilidad</p>
+              </div>
+            </div>
+            <ul className="space-y-2 text-sm text-gray-300 flex-1">
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Todo lo del plan Gratis
+              </li>
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Posición destacada en categoría
+              </li>
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Mayor prioridad en listados
+              </li>
+            </ul>
+            <div className="mt-4 pt-3 border-t border-white/10">
+              <p className="text-2xl font-bold text-white">
+                $49.000 <span className="text-sm font-normal text-gray-400">+ IVA / mes</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Plan Tráfico */}
+          <div className="rounded-2xl bg-white/5 backdrop-blur-sm p-6 ring-1 ring-white/10 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                <Megaphone className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Tráfico a Perfil</h3>
+                <p className="text-xs text-gray-400">Máximo alcance</p>
+              </div>
+            </div>
+            <ul className="space-y-2 text-sm text-gray-300 flex-1">
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Todo lo del plan Destacada
+              </li>
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Campañas dirigidas a tu perfil
+              </li>
+              <li className="flex gap-2">
+                <span className="text-emerald-400">✓</span> Tráfico pagado calificado
+              </li>
+            </ul>
+            <div className="mt-4 pt-3 border-t border-white/10">
+              <p className="text-2xl font-bold text-white">
+                $120.000 <span className="text-sm font-normal text-gray-400">+ IVA / mes</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 text-center">
+          <Link
+            href="/postular"
+            className="rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 transition-all transform hover:scale-105"
+          >
+            Publicar mi Perfil Gratis
+          </Link>
+          <p className="mt-3 text-sm text-gray-400">
+            Sin compromiso. Tú decides si destacas después.
+          </p>
         </div>
       </div>
     </section>

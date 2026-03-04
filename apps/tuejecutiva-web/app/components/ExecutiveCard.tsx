@@ -3,6 +3,8 @@ import {
   getDefaultExecutivePhoto,
   getExecutivePhotoUrl,
 } from "@/lib/executivePhoto";
+import TrackedWhatsappLink from "./TrackedWhatsappLink";
+import TrackedCallLink from "./TrackedCallLink";
 
 export interface ExecutiveRegion {
   code: string;
@@ -184,20 +186,20 @@ export default function ExecutiveCard({ executive }: ExecutiveCardProps) {
         </div>
 
         <div className="mt-auto flex gap-3 pt-4 border-t border-gray-100 relative z-20 pointer-events-auto">
-          <a
+          <TrackedWhatsappLink
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 rounded-lg bg-emerald-600 px-3 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-all hover:shadow hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
           >
             WhatsApp
-          </a>
-          <a
+          </TrackedWhatsappLink>
+          <TrackedCallLink
             href={telLink}
             className="rounded-lg bg-white px-3 py-2.5 text-center text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-colors"
           >
             Llamar
-          </a>
+          </TrackedCallLink>
         </div>
       </div>
     </article>

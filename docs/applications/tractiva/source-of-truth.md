@@ -10,5 +10,8 @@ App: `apps/tractiva-web`
 - `docs/applications/tractiva/supabase/schema.md`
 - `docs/applications/tractiva/supabase/migrations.md`
 
+## Project intent source
+- `docs/applications/tractiva/project-intent.md`
+
 ## App backlog source
 - `docs/applications/tractiva/next-steps.md`
