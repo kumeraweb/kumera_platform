@@ -16,3 +16,6 @@ App: `apps/tuejecutiva-web`
 
 ## Product intent source
 - `docs/applications/tuejecutiva/project-intent.md`
+
+## Campaign implementation source
+- `docs/lineamientos campañas google ads/kumera-services/tuejecutiva/campaign-implementation.md`
