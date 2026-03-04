@@ -99,12 +99,7 @@ export default async function PaymentPage({
   const amountClp = Math.floor(data.subscription.priceCents / 100);
   const ivaClp = Math.round(amountClp * 0.19);
   const totalClp = amountClp + ivaClp;
-  const contractDownloadUrl = data.contract?.id
-    ? `/api/contracts/${data.contract.id}/download?token=${encodeURIComponent(token)}`
-    : null;
-  const completionUrl = data.contract?.id
-    ? `/pago/${encodeURIComponent(token)}/completado?contractId=${encodeURIComponent(data.contract.id)}`
-    : `/pago/${encodeURIComponent(token)}/completado`;
+  const completionUrl = `/pago/${encodeURIComponent(token)}/completado`;
 
   return (
     <main className="min-h-screen bg-[var(--bg)]">
@@ -170,7 +165,7 @@ export default async function PaymentPage({
               token={token}
               paymentId={data.payment.id}
               disabled={!data.contract?.accepted || data.payment.status !== "pending"}
-              contractDownloadUrl={contractDownloadUrl}
+              contractDownloadUrl={null}
               completionUrl={completionUrl}
             />
           </div>

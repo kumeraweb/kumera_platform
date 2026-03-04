@@ -947,9 +947,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         </div>
       </div>
 
-      <div className="admin-card">
-        <h2 className="section-title">Renovaciones mensuales (pendiente de pago)</h2>
-        <p className="section-desc">Clientes activos con cuota mensual pendiente. Aquí no hay re-firma de contrato y aquí se reenvía el link de pago mensual.</p>
+      <details className="admin-card">
+        <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
+          Renovaciones mensuales (pendiente de pago): {renewalPendingPayments.length}
+        </summary>
+        <p className="section-desc mt-3">Clientes activos con cuota mensual pendiente. Aquí no hay re-firma de contrato y aquí se reenvía el link de pago mensual.</p>
         <div className="mt-4 overflow-x-auto">
           <table className="admin-table">
             <thead>
@@ -957,6 +959,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 <th>Cliente</th>
                 <th>Servicio</th>
                 <th>Plan</th>
+                <th>Fecha renovación</th>
                 <th>Estado</th>
                 <th>Comprobante</th>
                 <th>Monto</th>
@@ -966,7 +969,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
             <tbody>
               {renewalPendingPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                  <td colSpan={8} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
                     No hay renovaciones pendientes.
                   </td>
                 </tr>
@@ -976,6 +979,33 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                     <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
                     <td>{payment.subscriptions?.services?.name ?? "-"}</td>
                     <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                    <td>
+                      {payment.due_date ? (
+                        (() => {
+                          const dueDate = new Date(payment.due_date);
+                          const startToday = new Date();
+                          startToday.setHours(0, 0, 0, 0);
+                          const startDue = new Date(dueDate);
+                          startDue.setHours(0, 0, 0, 0);
+                          const days = Math.ceil((startDue.getTime() - startToday.getTime()) / (1000 * 60 * 60 * 24));
+                          const isOverdue = days < 0;
+                          const isSoon = days >= 0 && days <= 7;
+                          const color = isOverdue
+                            ? "#ef4444"
+                            : isSoon
+                              ? "#f59e0b"
+                              : "var(--admin-text)";
+                          const weight = isOverdue || isSoon ? 700 : 500;
+                          return (
+                            <span style={{ color, fontWeight: weight }}>
+                              {dueDate.toLocaleDateString("es-CL")}
+                            </span>
+                          );
+                        })()
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td><StatusBadge status={payment.status} /></td>
                     <td>
                       {payment.latest_proof ? (
@@ -1019,7 +1049,7 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
             </tbody>
           </table>
         </div>
-      </div>
+      </details>
 
       <details className="admin-card">
         <summary className="cursor-pointer text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
@@ -1149,14 +1179,13 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 <th>Plan</th>
                 <th>Estado</th>
                 <th>Cobro mensual</th>
-                <th>Próximo cobro</th>
                 <th>Acción</th>
               </tr>
             </thead>
             <tbody>
               {filteredSubscriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                  <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
                     No hay clientes para el filtro seleccionado.
                   </td>
                 </tr>
@@ -1173,33 +1202,6 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                         <span className="badge badge-warning">pendiente</span>
                       ) : (
                         <span className="badge badge-success">al día</span>
-                      )}
-                    </td>
-                    <td>
-                      {subscription.next_due_date ? (
-                        (() => {
-                          const dueDate = new Date(subscription.next_due_date);
-                          const startToday = new Date();
-                          startToday.setHours(0, 0, 0, 0);
-                          const startDue = new Date(dueDate);
-                          startDue.setHours(0, 0, 0, 0);
-                          const days = Math.ceil((startDue.getTime() - startToday.getTime()) / (1000 * 60 * 60 * 24));
-                          const isOverdue = days < 0;
-                          const isSoon = days >= 0 && days <= 7;
-                          const color = isOverdue
-                            ? "#ef4444"
-                            : isSoon
-                              ? "#f59e0b"
-                              : "var(--admin-text)";
-                          const weight = isOverdue || isSoon ? 700 : 500;
-                          return (
-                            <span style={{ color, fontWeight: weight }}>
-                              {dueDate.toLocaleDateString("es-CL")}
-                            </span>
-                          );
-                        })()
-                      ) : (
-                        "-"
                       )}
                     </td>
                     <td>
