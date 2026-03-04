@@ -8,6 +8,11 @@ declare global {
   }
 }
 
+const DEFAULT_CALL_CONVERSION_SEND_TO = 'AW-17932575934/2s7tCIKl9_UbEL7J9eZC'
+const CONVERSION_VALUE = 1.0
+const CONVERSION_CURRENCY = 'CLP'
+const CONVERSION_TIMEOUT_MS = 1200
+
 type TrackedCallLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   href: string
   conversionSendTo?: string
@@ -29,13 +34,53 @@ export default function TrackedCallLink({
       return
     }
 
+    event.preventDefault()
+
+    const popup =
+      target === '_blank'
+        ? window.open('', '_blank', 'noopener,noreferrer')
+        : null
+
+    let didNavigate = false
+    const navigate = () => {
+      if (didNavigate) return
+      didNavigate = true
+
+      if (popup) {
+        popup.location.href = href
+        return
+      }
+
+      if (target === '_blank') {
+        window.open(href, '_blank', 'noopener,noreferrer')
+        return
+      }
+
+      window.location.href = href
+    }
+
     if (typeof window.gtag === 'function') {
+      const sendTo = conversionSendTo || DEFAULT_CALL_CONVERSION_SEND_TO
+
+      window.gtag('event', 'conversion', {
+        send_to: sendTo,
+        value: CONVERSION_VALUE,
+        currency: CONVERSION_CURRENCY,
+        event_callback: navigate,
+        event_timeout: CONVERSION_TIMEOUT_MS,
+      })
+
       window.gtag('event', 'click_to_call', {
         contact_channel: 'phone',
         destination: href,
-        premium_conversion_configured: Boolean(conversionSendTo)
+        premium_conversion_configured: Boolean(conversionSendTo),
       })
+
+      setTimeout(navigate, CONVERSION_TIMEOUT_MS)
+      return
     }
+
+    navigate()
   }
 
   return <a {...props} href={href} target={target} rel={safeRel} onClick={handleClick} />
