@@ -55,13 +55,61 @@ export async function POST(request: Request) {
     .single();
   if (serviceError || !service) return fail("Service slug not found", 404);
 
-  const { data: plan, error: planError } = await billing
-    .from("plans")
-    .select("id,name,price_cents,billing_cycle_days,service_id")
-    .eq("id", payload.planId)
-    .single();
-  if (planError || !plan) return fail("Plan not found", 404);
-  if (plan.service_id !== service.id) return fail("Plan does not belong to selected service", 400);
+  let planId = payload.planId ?? "";
+  let planName = "";
+  let monthlyAmountCents = 0;
+  if (payload.planId) {
+    const { data: plan, error: planError } = await billing
+      .from("plans")
+      .select("id,name,price_cents,billing_cycle_days,service_id")
+      .eq("id", payload.planId)
+      .single();
+    if (planError || !plan) return fail("Plan not found", 404);
+    if (plan.service_id !== service.id) return fail("Plan does not belong to selected service", 400);
+    planId = plan.id;
+    planName = plan.name;
+    monthlyAmountCents = Number(plan.price_cents ?? 0);
+  } else {
+    const customPlanName = payload.customPlanName?.trim();
+    const customAmountClp = Number(payload.customAmountClp ?? 0);
+    if (!customPlanName || customAmountClp <= 0) {
+      return fail("Plan personalizado inválido", 400);
+    }
+    const customPriceCents = Math.floor(customAmountClp * 100);
+    const { data: existingCustomPlan, error: existingCustomPlanError } = await billing
+      .from("plans")
+      .select("id,name,price_cents")
+      .eq("service_id", service.id)
+      .eq("name", customPlanName)
+      .eq("price_cents", customPriceCents)
+      .maybeSingle();
+    if (existingCustomPlanError) {
+      return fail(existingCustomPlanError.message, 500);
+    }
+    let customPlan = existingCustomPlan;
+    if (!customPlan) {
+      const { data: insertedCustomPlan, error: insertedCustomPlanError } = await billing
+        .from("plans")
+        .insert({
+          service_id: service.id,
+          name: customPlanName,
+          price_cents: customPriceCents,
+          billing_cycle_days: 30,
+        })
+        .select("id,name,price_cents")
+        .single();
+      if (insertedCustomPlanError) {
+        return fail(insertedCustomPlanError.message, 500);
+      }
+      customPlan = insertedCustomPlan;
+    }
+    if (!customPlan) {
+      return fail("No se pudo crear plan personalizado", 500);
+    }
+    planId = customPlan.id;
+    planName = customPlan.name;
+    monthlyAmountCents = Number(customPlan.price_cents ?? 0);
+  }
 
   const { data: template, error: templateError } = await billing
     .from("contract_templates")
@@ -80,7 +128,7 @@ export async function POST(request: Request) {
     .insert({
       company_id: company.id,
       service_id: service.id,
-      plan_id: plan.id,
+      plan_id: planId,
       status: "pending_activation",
     })
     .select("id")
@@ -104,7 +152,6 @@ export async function POST(request: Request) {
     .single();
   if (tokenError || !tokenRow) return fail(tokenError?.message ?? "Could not create token", 500);
 
-  const monthlyAmountCents = Number(plan.price_cents ?? 0);
   const generatedDate = new Date().toLocaleDateString("es-CL");
   const representativeName =
     payload.customerType === "company"
@@ -126,7 +173,7 @@ export async function POST(request: Request) {
     tax_document_type: payload.taxDocumentType,
     service_name: service.name,
     service_slug: service.slug,
-    plan_name: plan.name,
+    plan_name: planName,
     monthly_amount_clp: String(Math.floor(monthlyAmountCents / 100)),
     generated_date: generatedDate,
     kumera_signed_date: generatedDate,
@@ -142,11 +189,11 @@ export async function POST(request: Request) {
     html_rendered: renderedContract,
     content_hash: contentHash,
     accepted: false,
-    metadata: {
-      template_name: template.name,
-      service_slug: service.slug,
-      plan_name: plan.name,
-    },
+      metadata: {
+        template_name: template.name,
+        service_slug: service.slug,
+        plan_name: planName,
+      },
   });
   if (contractError) return fail(contractError.message, 500);
 
@@ -166,7 +213,7 @@ export async function POST(request: Request) {
     payload: {
       templateId: template.id,
       serviceSlug: service.slug,
-      planId: plan.id,
+      planId: planId,
       amountCents: monthlyAmountCents,
     },
   });

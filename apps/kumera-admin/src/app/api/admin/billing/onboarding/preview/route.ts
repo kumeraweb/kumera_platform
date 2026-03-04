@@ -33,13 +33,24 @@ export async function POST(request: Request) {
     .single();
   if (serviceError || !service) return fail("Service slug not found", 404);
 
-  const { data: plan, error: planError } = await billing
-    .from("plans")
-    .select("id,name,price_cents,billing_cycle_days,service_id")
-    .eq("id", payload.planId)
-    .single();
-  if (planError || !plan) return fail("Plan not found", 404);
-  if (plan.service_id !== service.id) return fail("Plan does not belong to selected service", 400);
+  let planId: string | null = null;
+  let planName = "";
+  let monthlyAmountCents = 0;
+  if (payload.planId) {
+    const { data: plan, error: planError } = await billing
+      .from("plans")
+      .select("id,name,price_cents,billing_cycle_days,service_id")
+      .eq("id", payload.planId)
+      .single();
+    if (planError || !plan) return fail("Plan not found", 404);
+    if (plan.service_id !== service.id) return fail("Plan does not belong to selected service", 400);
+    planId = plan.id;
+    planName = plan.name;
+    monthlyAmountCents = Number(plan.price_cents ?? 0);
+  } else {
+    planName = payload.customPlanName?.trim() ?? "";
+    monthlyAmountCents = Math.floor((payload.customAmountClp ?? 0) * 100);
+  }
 
   const { data: template, error: templateError } = await billing
     .from("contract_templates")
@@ -53,7 +64,6 @@ export async function POST(request: Request) {
     return fail("Contract template does not match customer type", 400);
   }
 
-  const monthlyAmountCents = Number(plan.price_cents ?? 0);
   const generatedDate = new Date().toLocaleDateString("es-CL");
   const representativeName =
     payload.customerType === "company"
@@ -75,7 +85,7 @@ export async function POST(request: Request) {
     tax_document_type: payload.taxDocumentType,
     service_name: service.name,
     service_slug: service.slug,
-    plan_name: plan.name,
+    plan_name: planName,
     monthly_amount_clp: String(Math.floor(monthlyAmountCents / 100)),
     generated_date: generatedDate,
     kumera_signed_date: generatedDate,
@@ -84,7 +94,7 @@ export async function POST(request: Request) {
 
   return ok({
     service: { id: service.id, slug: service.slug, name: service.name },
-    plan: { id: plan.id, name: plan.name, priceCents: monthlyAmountCents },
+    plan: { id: planId, name: planName, priceCents: monthlyAmountCents },
     template: { id: template.id, name: template.name, version: template.version },
     contract: {
       htmlRendered: renderedContract,

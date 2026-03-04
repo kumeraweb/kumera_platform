@@ -42,10 +42,13 @@ type SubscriptionRow = {
   status: string;
   created_at: string;
   next_due_date?: string | null;
-  companies?: { legal_name?: string | null };
+  has_pending_payment?: boolean;
+  next_payment_id?: string | null;
+  companies?: { legal_name?: string | null; email?: string | null };
   services?: { slug?: string | null; name?: string | null };
   plans?: { id?: string | null; name?: string | null; price_cents?: number | null };
 };
+type BillingSection = "onboarding" | "templates" | "payments" | "clients";
 
 type Props = { legacyAdminUrl: string };
 const PLATFORM_SERVICE_SLUGS = new Set(["tractiva", "tuejecutiva", "leadosku"]);
@@ -100,6 +103,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewFormSnapshot, setPreviewFormSnapshot] = useState<string | null>(null);
   const [proofPreviewByPaymentId, setProofPreviewByPaymentId] = useState<Record<string, string>>({});
+  const [section, setSection] = useState<BillingSection>("onboarding");
+  const [clientServiceFilter, setClientServiceFilter] = useState<string>("all");
+  const [invoiceModalSubscription, setInvoiceModalSubscription] = useState<SubscriptionRow | null>(null);
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
+  const [invoiceNote, setInvoiceNote] = useState("");
 
   const [form, setForm] = useState({
     customerType: "company" as "company" | "person",
@@ -113,7 +121,10 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     legalRepresentativeRutBody: "",
     legalRepresentativeRutDv: "",
     serviceSlug: "",
+    planMode: "catalog" as "catalog" | "custom",
     planId: "",
+    customPlanName: "",
+    customAmountClp: "",
     contractTemplateId: "",
     taxDocumentType: "factura",
   });
@@ -139,6 +150,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     );
   }, [form.customerType, form.serviceSlug, platformServices, templates]);
   const currentFormSnapshot = useMemo(() => JSON.stringify(form), [form]);
+  const renewalPendingPayments = useMemo(
+    () =>
+      payments.filter(
+        (payment) =>
+          payment.status === "pending" && payment.onboarding_state === "renewal_pending_payment",
+      ),
+    [payments],
+  );
   const pendingPayments = useMemo(
     () =>
       payments.filter(
@@ -155,6 +174,26 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   const validatedPayments = useMemo(
     () => payments.filter((payment) => payment.status === "validated"),
     [payments],
+  );
+  const clientServiceOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const subscription of subscriptions) {
+      const slug = subscription.services?.slug?.trim();
+      if (!slug) continue;
+      const label = subscription.services?.name?.trim() || slug;
+      map.set(slug, label);
+    }
+    return Array.from(map.entries())
+      .map(([slug, label]) => ({ slug, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, "es"));
+  }, [subscriptions]);
+  const filteredSubscriptions = useMemo(
+    () =>
+      subscriptions.filter((subscription) => {
+        if (clientServiceFilter === "all") return true;
+        return subscription.services?.slug === clientServiceFilter;
+      }),
+    [clientServiceFilter, subscriptions],
   );
 
   async function loadAll() {
@@ -208,10 +247,14 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
   }, [form.serviceSlug, platformServices]);
 
   useEffect(() => {
-    if (plansForService.length > 0 && !plansForService.some((plan) => plan.id === form.planId)) {
+    if (
+      form.planMode === "catalog" &&
+      plansForService.length > 0 &&
+      !plansForService.some((plan) => plan.id === form.planId)
+    ) {
       setForm((prev) => ({ ...prev, planId: plansForService[0].id }));
     }
-  }, [form.planId, plansForService]);
+  }, [form.planId, form.planMode, plansForService]);
   useEffect(() => {
     if (templatesForService.length > 0 && !templatesForService.some((template) => template.id === form.contractTemplateId)) {
       setForm((prev) => ({ ...prev, contractTemplateId: templatesForService[0].id }));
@@ -220,7 +263,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
 
   function validateOnboardingForm() {
     if (!form.serviceSlug) return "Debes seleccionar un servicio.";
-    if (!form.planId) return "Debes seleccionar un plan.";
+    if (form.planMode === "catalog" && !form.planId) return "Debes seleccionar un plan.";
+    if (form.planMode === "custom" && !form.customPlanName.trim()) return "Debes indicar nombre del plan personalizado.";
+    if (form.planMode === "custom" && (!form.customAmountClp || Number(form.customAmountClp) <= 0)) {
+      return "Debes indicar monto válido para el plan personalizado.";
+    }
     if (!form.contractTemplateId) {
       return "Debes seleccionar una plantilla de contrato. Si no aparecen, falta ejecutar migraciones/seed de templates.";
     }
@@ -250,6 +297,9 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        planId: form.planMode === "catalog" ? form.planId : undefined,
+        customPlanName: form.planMode === "custom" ? form.customPlanName.trim() : undefined,
+        customAmountClp: form.planMode === "custom" ? Number(form.customAmountClp) : undefined,
         rut: composeRut(form.rutBody, form.rutDv),
         legalRepresentativeRut: composeRut(form.legalRepresentativeRutBody, form.legalRepresentativeRutDv),
       }),
@@ -308,6 +358,9 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        planId: form.planMode === "catalog" ? form.planId : undefined,
+        customPlanName: form.planMode === "custom" ? form.customPlanName.trim() : undefined,
+        customAmountClp: form.planMode === "custom" ? Number(form.customAmountClp) : undefined,
         rut: companyRut,
         legalRepresentativeRut: representativeRut,
       }),
@@ -453,12 +506,90 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     setWorking(false);
   }
 
+  function onOpenInvoiceModal(subscription: SubscriptionRow) {
+    setError(null);
+    setInvoiceFile(null);
+    setInvoiceNote("");
+    setInvoiceModalSubscription(subscription);
+  }
+
+  function onCloseInvoiceModal() {
+    if (working) return;
+    setInvoiceModalSubscription(null);
+    setInvoiceFile(null);
+    setInvoiceNote("");
+  }
+
+  async function onSendInvoice() {
+    if (!invoiceModalSubscription) return;
+    if (!invoiceFile) {
+      setError("Debes adjuntar una boleta PDF antes de enviar.");
+      return;
+    }
+
+    setWorking(true);
+    setError(null);
+    setMessage(null);
+
+    const formData = new FormData();
+    formData.set("invoice_pdf", invoiceFile);
+    if (invoiceNote.trim()) {
+      formData.set("note", invoiceNote.trim());
+    }
+
+    const response = await fetch(`/api/admin/billing/subscriptions/${invoiceModalSubscription.id}/invoice`, {
+      method: "POST",
+      body: formData,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo enviar la boleta.");
+      setWorking(false);
+      return;
+    }
+
+    setMessage(`Boleta enviada a ${payload.recipientEmail ?? "cliente"}.`);
+    setWorking(false);
+    onCloseInvoiceModal();
+  }
+
   return (
     <div className="grid gap-5">
       {/* Page header */}
       <div>
         <h1 className="section-title" style={{ fontSize: 20 }}>Billing</h1>
         <p className="section-desc">Onboarding de clientes, pagos y suscripciones.</p>
+      </div>
+
+      <div className="admin-card">
+        <div className="flex flex-wrap items-center gap-2">
+          <button className={`admin-btn admin-btn-sm ${section === "onboarding" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("onboarding")} type="button">Onboarding</button>
+          <button className={`admin-btn admin-btn-sm ${section === "templates" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("templates")} type="button">Plantillas</button>
+          <button className={`admin-btn admin-btn-sm ${section === "payments" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("payments")} type="button">Pagos</button>
+          <button className={`admin-btn admin-btn-sm ${section === "clients" ? "admin-btn-primary" : "admin-btn-secondary"}`} onClick={() => setSection("clients")} type="button">Clientes activos</button>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Pagos pendientes</p>
+            <p className="m-0 mt-1 text-lg font-semibold">{pendingPayments.length}</p>
+          </div>
+          <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Renovaciones por cobrar</p>
+            <p className="m-0 mt-1 text-lg font-semibold">{renewalPendingPayments.length}</p>
+          </div>
+          <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Pagos rechazados</p>
+            <p className="m-0 mt-1 text-lg font-semibold">{rejectedPayments.length}</p>
+          </div>
+          <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Pagos validados</p>
+            <p className="m-0 mt-1 text-lg font-semibold">{validatedPayments.length}</p>
+          </div>
+          <div className="rounded-lg border p-3" style={{ borderColor: "var(--admin-border)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Clientes activos</p>
+            <p className="m-0 mt-1 text-lg font-semibold">{subscriptions.length}</p>
+          </div>
+        </div>
       </div>
 
       {/* Global alerts */}
@@ -481,6 +612,8 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
         </div>
       ) : null}
 
+      {section === "onboarding" ? (
+      <>
       {/* ─── Crear onboarding ─── */}
       <div className="admin-card">
         <h2 className="section-title">Crear onboarding</h2>
@@ -557,12 +690,23 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
               </select>
             </div>
             <div className="admin-field">
-              <label className="admin-label">Plan</label>
-              <select className="admin-input" value={form.planId} onChange={(e) => setForm((v) => ({ ...v, planId: e.target.value }))} required>
-                <option value="">Seleccionar…</option>
-                {plansForService.map((plan) => (
-                  <option key={plan.id} value={plan.id}>{plan.name} · ${Math.floor(plan.price_cents / 100)}</option>
-                ))}
+              <label className="admin-label">Modo de plan</label>
+              <select
+                className="admin-input"
+                value={form.planMode}
+                onChange={(e) =>
+                  setForm((v) => ({
+                    ...v,
+                    planMode: e.target.value as "catalog" | "custom",
+                    planId: e.target.value === "catalog" ? v.planId : "",
+                    customPlanName: e.target.value === "custom" ? v.customPlanName : "",
+                    customAmountClp: e.target.value === "custom" ? v.customAmountClp : "",
+                  }))
+                }
+                required
+              >
+                <option value="catalog">Plan catálogo</option>
+                <option value="custom">Plan personalizado</option>
               </select>
             </div>
             <div className="admin-field">
@@ -582,6 +726,44 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
               </select>
             </div>
           </div>
+
+          {form.planMode === "catalog" ? (
+            <div className="admin-field">
+              <label className="admin-label">Plan</label>
+              <select className="admin-input" value={form.planId} onChange={(e) => setForm((v) => ({ ...v, planId: e.target.value }))} required>
+                <option value="">Seleccionar…</option>
+                {plansForService.map((plan) => (
+                  <option key={plan.id} value={plan.id}>{plan.name} · ${Math.floor(plan.price_cents / 100)}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="admin-field">
+                <label className="admin-label">Nombre plan personalizado</label>
+                <input
+                  className="admin-input"
+                  placeholder="Ej: Tractiva personalizado"
+                  value={form.customPlanName}
+                  onChange={(e) => setForm((v) => ({ ...v, customPlanName: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="admin-field">
+                <label className="admin-label">Monto mensual (CLP)</label>
+                <input
+                  className="admin-input"
+                  type="number"
+                  min={1}
+                  step={1}
+                  placeholder="Ej: 250000"
+                  value={form.customAmountClp}
+                  onChange={(e) => setForm((v) => ({ ...v, customAmountClp: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <button disabled={working || loading} className="admin-btn admin-btn-primary" type="submit">
@@ -636,8 +818,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </div>
         </div>
       ) : null}
+      </>
+      ) : null}
 
       {/* ─── Templates table ─── */}
+      {section === "templates" ? (
       <div className="admin-card">
         <h2 className="section-title">Plantillas de contrato</h2>
         <p className="section-desc">Plantillas precargadas desde la base de datos.</p>
@@ -666,8 +851,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </table>
         </div>
       </div>
+      ) : null}
 
       {/* ─── Payments table ─── */}
+      {section === "payments" ? (
+      <>
       <div className="admin-card">
         <h2 className="section-title">Pagos pendientes</h2>
         <div className="mt-4 overflow-x-auto">
@@ -748,6 +936,80 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                           type="button"
                         >
                           Renovar token
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <h2 className="section-title">Renovaciones mensuales (pendiente de pago)</h2>
+        <p className="section-desc">Clientes activos con cuota mensual pendiente. Aquí no hay re-firma de contrato.</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Servicio</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Comprobante</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {renewalPendingPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                    No hay renovaciones pendientes.
+                  </td>
+                </tr>
+              ) : (
+                renewalPendingPayments.map((payment) => (
+                  <tr key={payment.id}>
+                    <td style={{ fontWeight: 500 }}>{payment.subscriptions?.companies?.legal_name ?? "-"}</td>
+                    <td>{payment.subscriptions?.services?.name ?? "-"}</td>
+                    <td>{payment.subscriptions?.plans?.name ?? "-"}</td>
+                    <td><StatusBadge status={payment.status} /></td>
+                    <td>
+                      {payment.latest_proof ? (
+                        <button
+                          className="admin-btn admin-btn-ghost admin-btn-sm"
+                          disabled={working}
+                          onClick={() => onOpenProofPreview(payment.id)}
+                          type="button"
+                        >
+                          Ver comprobante
+                        </button>
+                      ) : (
+                        <span className="text-xs" style={{ color: "var(--admin-text-muted)" }}>Sin comprobante</span>
+                      )}
+                    </td>
+                    <td className="font-mono">${Math.floor((payment.amount_cents ?? 0) / 100)}</td>
+                    <td>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          disabled={working || (payment.status === "pending" && !payment.latest_proof)}
+                          className="admin-btn admin-btn-success admin-btn-sm"
+                          onClick={() => onValidatePayment(payment.id)}
+                          type="button"
+                          title={payment.status === "pending" && !payment.latest_proof ? "Primero debe existir comprobante de pago." : undefined}
+                        >
+                          Validar
+                        </button>
+                        <button
+                          disabled={working}
+                          className="admin-btn admin-btn-primary admin-btn-sm"
+                          onClick={() => onGeneratePaymentLink(payment.subscription_id)}
+                          type="button"
+                        >
+                          Reenviar link pago
                         </button>
                       </div>
                     </td>
@@ -845,8 +1107,11 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </table>
         </div>
       </details>
+      </>
+      ) : null}
 
       {/* ─── Subscriptions table ─── */}
+      {section === "clients" ? (
       <div className="admin-card">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -854,6 +1119,25 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
             <p className="section-desc">Solo clientes con pago validado y suscripción activa.</p>
           </div>
           <a className="admin-btn admin-btn-ghost admin-btn-sm" href={legacyAdminUrl} rel="noreferrer" target="_blank">Legacy admin ↗</a>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div className="admin-field md:col-span-1">
+            <label className="admin-label">Filtrar por servicio</label>
+            <select className="admin-input" value={clientServiceFilter} onChange={(e) => setClientServiceFilter(e.target.value)}>
+              <option value="all">Todos los servicios</option>
+              {clientServiceOptions.map((serviceOption) => (
+                <option key={serviceOption.slug} value={serviceOption.slug}>
+                  {serviceOption.label} ({serviceOption.slug})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="rounded-lg border p-3 md:col-span-2" style={{ borderColor: "var(--admin-border)" }}>
+            <p className="m-0 text-xs" style={{ color: "var(--admin-text-muted)" }}>Resultados</p>
+            <p className="m-0 mt-1 text-base font-semibold">
+              {filteredSubscriptions.length} cliente(s) {clientServiceFilter === "all" ? "activos" : "en el servicio filtrado"}
+            </p>
+          </div>
         </div>
         <div className="mt-4 overflow-x-auto">
           <table className="admin-table">
@@ -864,25 +1148,33 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                 <th>Servicio</th>
                 <th>Plan</th>
                 <th>Estado</th>
+                <th>Cobro mensual</th>
                 <th>Próximo cobro</th>
                 <th>Acción</th>
               </tr>
             </thead>
             <tbody>
-              {subscriptions.length === 0 ? (
+              {filteredSubscriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
-                    No hay clientes onboardeados aún.
+                  <td colSpan={8} className="py-8 text-center text-sm" style={{ color: "var(--admin-text-muted)" }}>
+                    No hay clientes para el filtro seleccionado.
                   </td>
                 </tr>
               ) : (
-                subscriptions.map((subscription) => (
+                filteredSubscriptions.map((subscription) => (
                   <tr key={subscription.id}>
                     <td><span className="font-mono text-xs" style={{ color: "var(--admin-text-muted)" }}>{subscription.id.slice(0, 8)}…</span></td>
                     <td style={{ fontWeight: 500 }}>{subscription.companies?.legal_name ?? "-"}</td>
                     <td>{subscription.services?.name ?? subscription.services?.slug ?? "-"}</td>
                     <td>{subscription.plans?.name ?? "-"}</td>
                     <td><StatusBadge status={subscription.status} /></td>
+                    <td>
+                      {subscription.has_pending_payment ? (
+                        <span className="badge badge-warning">pendiente</span>
+                      ) : (
+                        <span className="badge badge-success">al día</span>
+                      )}
+                    </td>
                     <td>
                       {subscription.next_due_date ? (
                         (() => {
@@ -913,7 +1205,16 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
                     <td>
                       <div className="flex flex-wrap gap-2">
                         <button disabled={working} className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => onRegenerateToken(subscription.id)} type="button">Renovar token</button>
-                        <button disabled={working} className="admin-btn admin-btn-primary admin-btn-sm" onClick={() => onGeneratePaymentLink(subscription.id)} type="button">Generar link de pago</button>
+                        <button
+                          disabled={working || !subscription.has_pending_payment}
+                          className="admin-btn admin-btn-primary admin-btn-sm"
+                          onClick={() => onGeneratePaymentLink(subscription.id)}
+                          type="button"
+                          title={!subscription.has_pending_payment ? "No hay pago pendiente para esta suscripción." : undefined}
+                        >
+                          Generar link de pago
+                        </button>
+                        <button disabled={working} className="admin-btn admin-btn-success admin-btn-sm" onClick={() => onOpenInvoiceModal(subscription)} type="button">Enviar boleta</button>
                       </div>
                     </td>
                   </tr>
@@ -923,6 +1224,61 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
           </table>
         </div>
       </div>
+      ) : null}
+
+      {invoiceModalSubscription ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }} role="dialog" aria-modal="true">
+          <div
+            className="w-full max-w-2xl rounded-2xl border p-5"
+            style={{ background: "var(--admin-surface)", borderColor: "var(--admin-border)", boxShadow: "0 8px 48px rgba(0,0,0,0.4)" }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="m-0 text-sm font-semibold" style={{ color: "var(--admin-text)" }}>
+                  Enviar boleta al cliente
+                </p>
+                <p className="m-0 mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+                  Se enviará al correo registrado: <strong>{invoiceModalSubscription.companies?.email ?? "sin email"}</strong>
+                </p>
+              </div>
+              <button className="admin-btn admin-btn-secondary admin-btn-sm" onClick={onCloseInvoiceModal} type="button" disabled={working}>
+                Cerrar
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-4">
+              <div className="admin-field">
+                <label className="admin-label">Boleta PDF</label>
+                <input
+                  className="admin-input"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setInvoiceFile(e.target.files?.[0] ?? null)}
+                />
+              </div>
+              <div className="admin-field">
+                <label className="admin-label">Mensaje opcional</label>
+                <textarea
+                  className="admin-input"
+                  rows={4}
+                  placeholder="Ej: Adjuntamos la boleta correspondiente al servicio del mes."
+                  value={invoiceNote}
+                  onChange={(e) => setInvoiceNote(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+              <button className="admin-btn admin-btn-secondary" type="button" onClick={onCloseInvoiceModal} disabled={working}>
+                Cancelar
+              </button>
+              <button className="admin-btn admin-btn-primary" type="button" onClick={onSendInvoice} disabled={working || !invoiceFile}>
+                {working ? "Enviando..." : "Enviar boleta"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

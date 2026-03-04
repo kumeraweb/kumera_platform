@@ -2,20 +2,49 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { createBillingServiceClient } from "@/lib/db";
 
-export const onboardingSchema = z.object({
-  customerType: z.enum(["company", "person"]).default("company"),
-  companyName: z.string().min(2),
-  rut: z.string().min(3),
-  address: z.string().min(5),
-  email: z.string().email(),
-  phone: z.string().min(6),
-  legalRepresentativeName: z.string().optional(),
-  legalRepresentativeRut: z.string().optional(),
-  serviceSlug: z.string().min(2),
-  planId: z.string().uuid(),
-  contractTemplateId: z.string().uuid(),
-  taxDocumentType: z.enum(["boleta", "factura"]),
-});
+export const onboardingSchema = z
+  .object({
+    customerType: z.enum(["company", "person"]).default("company"),
+    companyName: z.string().min(2),
+    rut: z.string().min(3),
+    address: z.string().min(5),
+    email: z.string().email(),
+    phone: z.string().min(6),
+    legalRepresentativeName: z.string().optional(),
+    legalRepresentativeRut: z.string().optional(),
+    serviceSlug: z.string().min(2),
+    planId: z.string().uuid().optional(),
+    customPlanName: z.string().min(2).max(120).optional(),
+    customAmountClp: z.coerce.number().int().min(1).max(100_000_000).optional(),
+    contractTemplateId: z.string().uuid(),
+    taxDocumentType: z.enum(["boleta", "factura"]),
+  })
+  .superRefine((data, ctx) => {
+    const hasPlanId = Boolean(data.planId);
+    const hasCustom = Boolean(data.customPlanName?.trim()) || data.customAmountClp !== undefined;
+    if (!hasPlanId && !hasCustom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Debes seleccionar un plan o definir un plan personalizado.",
+        path: ["planId"],
+      });
+      return;
+    }
+    if (!hasPlanId && !data.customPlanName?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Debes indicar nombre para el plan personalizado.",
+        path: ["customPlanName"],
+      });
+    }
+    if (!hasPlanId && data.customAmountClp === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Debes indicar monto del plan personalizado.",
+        path: ["customAmountClp"],
+      });
+    }
+  });
 
 export const contractTemplateCreateSchema = z.object({
   serviceId: z.string().uuid(),
@@ -74,6 +103,24 @@ function getBillingValidationFromEmail() {
 
 function getBillingValidationReplyToEmail() {
   return (
+    process.env.BILLING_VALIDATION_REPLY_TO_EMAIL ||
+    process.env.CONTACT_REPLY_TO_EMAIL ||
+    "contacto@kumeraweb.com"
+  );
+}
+
+function getBillingInvoiceFromEmail() {
+  return (
+    process.env.BILLING_INVOICE_FROM_EMAIL ||
+    process.env.BILLING_VALIDATION_FROM_EMAIL ||
+    process.env.CONTACT_FROM_EMAIL ||
+    "Kumera Billing <noreply@kumeraweb.com>"
+  );
+}
+
+function getBillingInvoiceReplyToEmail() {
+  return (
+    process.env.BILLING_INVOICE_REPLY_TO_EMAIL ||
     process.env.BILLING_VALIDATION_REPLY_TO_EMAIL ||
     process.env.CONTACT_REPLY_TO_EMAIL ||
     "contacto@kumeraweb.com"
@@ -233,6 +280,80 @@ export async function sendPaymentValidatedAdminNotice(params: {
             </ul>
           </div>
         `,
+      }),
+    });
+  } catch (error) {
+    return {
+      sent: false as const,
+      reason: "provider_network_error" as const,
+      details: error instanceof Error ? error.message : "unknown_error",
+    };
+  }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    return { sent: false as const, reason: "provider_error" as const, details: body };
+  }
+
+  return { sent: true as const };
+}
+
+export async function sendBillingInvoiceEmail(params: {
+  to: string;
+  companyName: string;
+  serviceName: string;
+  planName: string;
+  fileName: string;
+  fileContentBase64: string;
+  note?: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return { sent: false as const, reason: "missing_resend_api_key" as const };
+  }
+
+  const to = params.to.trim().toLowerCase();
+  if (!to) {
+    return { sent: false as const, reason: "missing_recipient" as const };
+  }
+
+  const safeCompanyName = escapeHtml(params.companyName);
+  const safeServiceName = escapeHtml(params.serviceName);
+  const safePlanName = escapeHtml(params.planName);
+  const safeNote = params.note?.trim() ? `<p>${escapeHtml(params.note.trim())}</p>` : "";
+
+  let response: Response;
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: getBillingInvoiceFromEmail(),
+        to: [to],
+        reply_to: getBillingInvoiceReplyToEmail(),
+        subject: `Boleta de servicio - ${safeCompanyName}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;color:#111827;line-height:1.6">
+            <p>Hola ${safeCompanyName},</p>
+            <p>Te compartimos la boleta correspondiente a tu servicio.</p>
+            <ul>
+              <li>Servicio: ${safeServiceName}</li>
+              <li>Plan: ${safePlanName}</li>
+            </ul>
+            ${safeNote}
+            <p>Adjunto encontrarás el PDF de la boleta.</p>
+            <p>Equipo Kumera</p>
+          </div>
+        `,
+        attachments: [
+          {
+            filename: params.fileName,
+            content: params.fileContentBase64,
+          },
+        ],
       }),
     });
   } catch (error) {
