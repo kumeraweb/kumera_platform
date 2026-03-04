@@ -32,6 +32,7 @@ type PaymentRow = {
     created_at: string;
   } | null;
   subscriptions?: {
+    status?: string | null;
     companies?: { legal_name?: string | null };
     services?: { name?: string | null };
     plans?: { name?: string | null };
@@ -155,7 +156,9 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
     () =>
       payments.filter(
         (payment) =>
-          payment.status === "pending" && payment.onboarding_state === "renewal_pending_payment",
+          payment.status === "pending" &&
+          payment.onboarding_state === "renewal_pending_payment" &&
+          payment.subscriptions?.status === "active",
       ),
     [payments],
   );
@@ -592,6 +595,22 @@ export default function BillingAdminClient({ legacyAdminUrl }: Props) {
       return;
     }
 
+    setSubscriptions((prev) =>
+      prev.map((item) => (item.id === subscriptionId ? { ...item, status } : item)),
+    );
+    setPayments((prev) =>
+      prev.map((payment) =>
+        payment.subscription_id === subscriptionId
+          ? {
+              ...payment,
+              subscriptions: {
+                ...(payment.subscriptions ?? {}),
+                status,
+              },
+            }
+          : payment,
+      ),
+    );
     setMessage(status === "suspended" ? "Cliente dado de baja correctamente." : "Cliente reactivado correctamente.");
     setWorking(false);
     await loadAll();

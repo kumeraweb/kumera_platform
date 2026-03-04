@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   let query = billing
     .from("payments")
     .select(
-      "id,status,amount_cents,due_date,validated_at,rejection_reason,subscription_id,subscriptions(companies(legal_name),services(name),plans(name))",
+      "id,status,amount_cents,due_date,validated_at,rejection_reason,subscription_id,subscriptions(status,companies(legal_name),services(name),plans(name))",
     )
     .order("due_date", { ascending: true })
     .limit(200);
