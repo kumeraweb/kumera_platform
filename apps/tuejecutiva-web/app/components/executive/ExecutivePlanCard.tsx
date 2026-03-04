@@ -14,6 +14,12 @@ function getFeatures(value: unknown): string[] {
 
 export default function ExecutivePlanCard({ plan, whatsappLink }: ExecutivePlanCardProps) {
     const features = getFeatures(plan.features);
+    const planMessage = `Hola, me interesa cotizar el plan *${plan.name}*`;
+    const planWhatsappHref = (() => {
+        if (!whatsappLink || whatsappLink === "#") return "#";
+        const separator = whatsappLink.includes("?") ? "&" : "?";
+        return `${whatsappLink}${separator}text=${encodeURIComponent(planMessage)}`;
+    })();
 
     return (
         <div className="flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden relative group">
@@ -66,7 +72,7 @@ export default function ExecutivePlanCard({ plan, whatsappLink }: ExecutivePlanC
                 </div>
 
                 <TrackedWhatsappLink
-                    href={`${whatsappLink}&text=Hola,%20me%20interesa%20cotizar%20el%20plan%20*${encodeURIComponent(plan.name)}*`}
+                    href={planWhatsappHref}
                     target="_blank"
                     className="mt-auto w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors group-hover:bg-emerald-600 group-hover:text-white"
                 >

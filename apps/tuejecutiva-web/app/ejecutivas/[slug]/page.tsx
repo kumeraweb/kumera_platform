@@ -21,6 +21,7 @@ import {
   getDefaultExecutivePhoto,
   getExecutivePhotoUrl,
 } from "@/lib/executivePhoto";
+import { getContactLinks } from "@/lib/contactLinks";
 import ExecutiveHero from "@/app/components/executive/ExecutiveHero";
 import ExecutivePlansGrid from "@/app/components/executive/ExecutivePlansGrid";
 import ExecutiveCertificate from "@/app/components/executive/ExecutiveCertificate";
@@ -93,18 +94,16 @@ export default async function ExecutiveDetailPage({ params }: PageProps) {
       ? coverageRegions.map((region) => region.name).join(", ")
       : "Sin definir";
 
-  const safePhone = exec.phone || "";
   const safeWhatsapp = exec.whatsapp_message || "Hola, vi tu perfil en TuEjecutiva.cl";
   const safePhotoUrl =
     getExecutivePhotoUrl(exec.photo_url) ||
     getDefaultExecutivePhoto(exec.slug || exec.name);
   const safeCompanyLogoUrl = getCompanyLogoUrl(exec.company_logo_url);
 
-  const waLink = safePhone
-    ? `https://wa.me/${safePhone}?text=${encodeURIComponent(safeWhatsapp)}`
-    : "#";
-  const telLink = safePhone ? `tel:${safePhone}` : "#";
-  const phoneDisplay = formatPhoneForDisplay(safePhone);
+  const contactLinks = getContactLinks(exec.phone, safeWhatsapp);
+  const waLink = contactLinks.waHref;
+  const telLink = contactLinks.telHref;
+  const phoneDisplay = formatPhoneForDisplay(contactLinks.normalizedPhone ? `+${contactLinks.normalizedPhone}` : "");
   const callLabel = phoneDisplay ? `Llamar al ${phoneDisplay}` : "Llamar ahora";
   const safeDescription = exec.description?.trim() || null;
   const safeSpecialty = exec.specialty?.trim() || null;

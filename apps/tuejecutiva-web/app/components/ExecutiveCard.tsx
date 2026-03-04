@@ -3,6 +3,7 @@ import {
   getDefaultExecutivePhoto,
   getExecutivePhotoUrl,
 } from "@/lib/executivePhoto";
+import { getContactLinks } from "@/lib/contactLinks";
 import TrackedWhatsappLink from "./TrackedWhatsappLink";
 import TrackedCallLink from "./TrackedCallLink";
 
@@ -65,17 +66,15 @@ export default function ExecutiveCard({ executive }: ExecutiveCardProps) {
       "relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 hover:shadow-md transition-shadow duration-300";
   }
 
-  const safePhone = executive.phone || "";
   const safeWhatsapp = executive.whatsapp_message || "";
   const companyLogoUrl = getCompanyLogoUrl(executive.company_logo_url);
   const photoUrl =
     getExecutivePhotoUrl(executive.photo_url) ||
     getDefaultExecutivePhoto(executive.slug || executive.name);
 
-  const waLink = safePhone
-    ? `https://wa.me/${safePhone}?text=${encodeURIComponent(safeWhatsapp)}`
-    : "#";
-  const telLink = safePhone ? `tel:${safePhone}` : "#";
+  const contactLinks = getContactLinks(executive.phone, safeWhatsapp);
+  const waLink = contactLinks.waHref;
+  const telLink = contactLinks.telHref;
 
   const safeDescription = executive.description || "Sin descripción.";
   const safeSpecialty = executive.specialty || "Sin especialidad";
