@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getCategories, getExecutives } from "@/lib/queries";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tuejecutiva.cl";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tuejecutiva.cl";
   const now = new Date().toISOString();
 
   const staticPages: MetadataRoute.Sitemap = [

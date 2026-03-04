@@ -15,7 +15,12 @@ const defaultDescription =
   "Directorio de profesionales verificados en Chile. Conecta con ejecutivas y ejecutivos reales, con identidad confirmada y contacto directo por WhatsApp o teléfono.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.NODE_ENV === "production"
+        ? "https://www.tuejecutiva.cl"
+        : "http://localhost:3000")
+  ),
   title: {
     default: defaultTitle,
     template: `%s | TuEjecutiva`,
@@ -123,7 +128,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 name: "TuEjecutiva.cl",
-                url: "https://tuejecutiva.cl",
+                url: "https://www.tuejecutiva.cl",
                 description:
                   "Directorio de profesionales verificados en Chile. Contacto directo por WhatsApp o teléfono.",
                 publisher: {
@@ -135,7 +140,7 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "ProfessionalService",
                 name: "TuEjecutiva.cl",
-                url: "https://tuejecutiva.cl",
+                url: "https://www.tuejecutiva.cl",
                 description:
                   "Directorio de profesionales verificados en Chile. Conecta con ejecutivas y ejecutivos con identidad confirmada.",
                 areaServed: {

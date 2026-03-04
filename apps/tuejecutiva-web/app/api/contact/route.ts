@@ -3,6 +3,7 @@ import { Resend } from "resend";
 
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;
+const AUTOREPLY_TIMEOUT_MS = 2500;
 const rateStore = new Map<string, { count: number; resetAt: number }>();
 
 function getString(value: FormDataEntryValue | null) {
@@ -70,15 +71,25 @@ export async function POST(request: Request) {
   const toInternal = process.env.CONTACT_INBOX_EMAIL || "contacto@kumeraweb.com";
   const contactReplyToEmail =
     process.env.CONTACT_REPLY_TO_EMAIL || "contacto@kumeraweb.com";
+  const siteBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tuejecutiva.cl";
+  const logoUrl = `${siteBaseUrl.replace(/\/$/, "")}/logo/logonbg.png`;
 
   try {
-    const internalResult = await resend.emails.send({
-      from: contactFromEmail,
-      to: toInternal,
-      replyTo: email || undefined,
-      subject: "Nueva postulación desde TuEjecutiva.cl",
-      text: `Nombre: ${nombreFinal}\nTeléfono: ${telefonoFinal}\nEmail: ${emailFinal}`,
-    });
+    let internalResult: Awaited<ReturnType<typeof resend.emails.send>>;
+    try {
+      internalResult = await resend.emails.send({
+        from: contactFromEmail,
+        to: toInternal,
+        replyTo: email || undefined,
+        subject: "Nueva postulación desde TuEjecutiva.cl",
+        text: `Nombre: ${nombreFinal}\nTeléfono: ${telefonoFinal}\nEmail: ${emailFinal}`,
+      });
+    } catch {
+      return NextResponse.json(
+        { error: "No se pudo enviar la postulación. Intenta nuevamente." },
+        { status: 502 }
+      );
+    }
 
     if (internalResult.error) {
       return NextResponse.json(
@@ -88,30 +99,41 @@ export async function POST(request: Request) {
     }
 
     if (email) {
-      const autoReplyResult = await resend.emails.send({
-        from: autoreplyFromEmail,
-        to: email,
-        replyTo: contactReplyToEmail,
-        subject: "Recibimos tu postulación ✔️",
-        html: `
-          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; background-color: #f8fafc; padding: 24px;">
-            <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
-              <div style="display: inline-block; padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 16px;">
-                <img src="https://tuejecutiva.cl/logo/logonbg.png" alt="TuEjecutiva.cl" style="height: 36px; display: block;" />
+      try {
+        const autoReplyResult = await Promise.race([
+          resend.emails.send({
+            from: autoreplyFromEmail,
+            to: email,
+            replyTo: contactReplyToEmail,
+            subject: "Recibimos tu postulación ✔️",
+            html: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; background-color: #f8fafc; padding: 24px;">
+                <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
+                  <div style="display: inline-block; padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 16px;">
+                    <img src="${logoUrl}" alt="TuEjecutiva.cl" style="height: 36px; display: block;" />
+                  </div>
+                  <h2 style="margin: 0 0 12px; font-size: 20px;">Gracias por postular a TuEjecutiva.cl</h2>
+                  <p>Hola ${nombreFinal},</p>
+                  <p>Recibimos tu postulación correctamente. Nuestro equipo la revisará y te contactará si necesitamos más información.</p>
+                  <p style="margin-top: 16px;">TuEjecutiva.cl, una empresa de Kumera Servicios Digitales SpA.</p>
+                  <p style="margin-top: 8px;">Equipo TuEjecutiva.cl</p>
+                </div>
               </div>
-              <h2 style="margin: 0 0 12px; font-size: 20px;">Gracias por postular a TuEjecutiva.cl</h2>
-              <p>Hola ${nombreFinal},</p>
-              <p>Recibimos tu postulación correctamente. Nuestro equipo la revisará y te contactará si necesitamos más información.</p>
-              <p style="margin-top: 16px;">TuEjecutiva.cl, una empresa de Kumera Servicios Digitales SpA.</p>
-              <p style="margin-top: 8px;">Equipo TuEjecutiva.cl</p>
-            </div>
-          </div>
-        `,
-      });
+            `,
+          }),
+          new Promise<"timeout">((resolve) =>
+            setTimeout(() => resolve("timeout"), AUTOREPLY_TIMEOUT_MS)
+          ),
+        ]);
 
-      // No bloquear conversión si solo falla la confirmación al usuario.
-      if (autoReplyResult.error) {
-        console.error("Resend autoreply error (non-blocking):", autoReplyResult.error);
+        // No bloquear conversión si falla o se demora la confirmación al usuario.
+        if (autoReplyResult === "timeout") {
+          console.error("Resend autoreply timeout (non-blocking)");
+        } else if (autoReplyResult.error) {
+          console.error("Resend autoreply error (non-blocking):", autoReplyResult.error);
+        }
+      } catch (error) {
+        console.error("Resend autoreply exception (non-blocking):", error);
       }
     }
 

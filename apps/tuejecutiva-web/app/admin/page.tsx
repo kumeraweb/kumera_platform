@@ -100,7 +100,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
       ? expiresAtParam
       : activeToken?.expires_at || "";
   const tokenLink = tokenValue
-    ? `https://tuejecutiva.cl/onboarding/${tokenValue}`
+    ? `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.tuejecutiva.cl"}/onboarding/${tokenValue}`
     : "";
 
   return (

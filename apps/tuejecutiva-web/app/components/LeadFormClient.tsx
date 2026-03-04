@@ -67,7 +67,11 @@ export default function LeadFormClient() {
         router.push("/postular/gracias");
       }, 800);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado.");
+      if (err instanceof TypeError) {
+        setError("No pudimos enviar tu postulación. Intenta nuevamente.");
+      } else {
+        setError(err instanceof Error ? err.message : "Error inesperado.");
+      }
     } finally {
       setIsSubmitting(false);
     }
