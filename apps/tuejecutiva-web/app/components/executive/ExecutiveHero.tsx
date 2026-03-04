@@ -169,15 +169,17 @@ export default function ExecutiveHero({
                                 {callLabel}
                             </TrackedCallLink>
                         ) : null}
-                        <TrackedWhatsappLink
-                            id="contacto-whatsapp"
-                            href={whatsappLink}
-                            target="_blank"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors w-full sm:w-auto"
-                        >
-                            <MessageCircle className="w-5 h-5" />
-                            WhatsApp a {name.split(" ")[0]}
-                        </TrackedWhatsappLink>
+                        {whatsappLink !== "#" ? (
+                            <TrackedWhatsappLink
+                                id="contacto-whatsapp"
+                                href={whatsappLink}
+                                target="_blank"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors w-full sm:w-auto"
+                            >
+                                <MessageCircle className="w-5 h-5" />
+                                WhatsApp a {name.split(" ")[0]}
+                            </TrackedWhatsappLink>
+                        ) : null}
                         {hasPlans ? (
                             <a
                                 href="#planes-disponibles"

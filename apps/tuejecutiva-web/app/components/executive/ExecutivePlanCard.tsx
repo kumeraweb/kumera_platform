@@ -71,14 +71,20 @@ export default function ExecutivePlanCard({ plan, whatsappLink }: ExecutivePlanC
                     )}
                 </div>
 
-                <TrackedWhatsappLink
-                    href={planWhatsappHref}
-                    target="_blank"
-                    className="mt-auto w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors group-hover:bg-emerald-600 group-hover:text-white"
-                >
-                    Cotizar este plan
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </TrackedWhatsappLink>
+                {planWhatsappHref !== "#" ? (
+                    <TrackedWhatsappLink
+                        href={planWhatsappHref}
+                        target="_blank"
+                        className="mt-auto w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors group-hover:bg-emerald-600 group-hover:text-white"
+                    >
+                        Cotizar este plan
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </TrackedWhatsappLink>
+                ) : (
+                    <span className="mt-auto w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-400 bg-slate-100 rounded-xl cursor-not-allowed">
+                        Contacto no disponible
+                    </span>
+                )}
             </div>
         </div>
     );

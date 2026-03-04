@@ -220,21 +220,30 @@ export default async function ExecutiveDetailPage({ params }: PageProps) {
                 <p className="text-sm text-slate-500">
                   Elige cómo prefieres contactar.
                 </p>
-                <TrackedCallLink
-                  href={telLink}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-all shadow-sm hover:translate-y-px text-center leading-tight whitespace-normal"
-                >
-                  <Phone className="w-4 h-4" />
-                  {callLabel}
-                </TrackedCallLink>
-                <TrackedWhatsappLink
-                  href={waLink}
-                  target="_blank"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp a {exec.name.split(" ")[0]}
-                </TrackedWhatsappLink>
+                {telLink !== "#" ? (
+                  <TrackedCallLink
+                    href={telLink}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-all shadow-sm hover:translate-y-px text-center leading-tight whitespace-normal"
+                  >
+                    <Phone className="w-4 h-4" />
+                    {callLabel}
+                  </TrackedCallLink>
+                ) : null}
+                {waLink !== "#" ? (
+                  <TrackedWhatsappLink
+                    href={waLink}
+                    target="_blank"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp a {exec.name.split(" ")[0]}
+                  </TrackedWhatsappLink>
+                ) : null}
+                {telLink === "#" && waLink === "#" ? (
+                  <p className="text-xs text-rose-600">
+                    Esta ejecutiva no tiene canal de contacto habilitado.
+                  </p>
+                ) : null}
                 <p className="text-[10px] text-center text-slate-400">
                   Respuesta promedio: Menos de 1 hora
                 </p>

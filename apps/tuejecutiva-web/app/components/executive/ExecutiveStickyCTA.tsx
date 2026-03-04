@@ -23,14 +23,16 @@ export default function ExecutiveStickyCTA({ phoneLink, phoneConversionSendTo, w
                         Llamar ahora
                     </TrackedCallLink>
                 ) : null}
-                <TrackedWhatsappLink
-                    href={whatsappLink}
-                    target="_blank"
-                    className="flex items-center justify-center gap-2 w-full bg-white border border-slate-300 text-slate-700 font-semibold py-3.5 px-4 rounded-xl shadow-sm active:scale-[0.98] transition-transform"
-                >
-                    <MessageCircle className="w-5 h-5" />
-                    WhatsApp
-                </TrackedWhatsappLink>
+                {whatsappLink !== "#" ? (
+                    <TrackedWhatsappLink
+                        href={whatsappLink}
+                        target="_blank"
+                        className="flex items-center justify-center gap-2 w-full bg-white border border-slate-300 text-slate-700 font-semibold py-3.5 px-4 rounded-xl shadow-sm active:scale-[0.98] transition-transform"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                        WhatsApp
+                    </TrackedWhatsappLink>
+                ) : null}
                 {hasPlans ? (
                     <a
                         href="#planes-disponibles"

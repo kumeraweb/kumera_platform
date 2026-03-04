@@ -158,13 +158,17 @@ export async function getExecutives(): Promise<ExecutiveRecord[]> {
     .from("executives")
     .select(executivesSelect)
     .eq("verified", true)
+    .not("phone", "is", null)
+    .neq("phone", "")
     .order("name", { ascending: true });
 
   if (error) {
     throw new Error(`getExecutives failed: ${error.message}`);
   }
 
-  return (data ?? []) as unknown as ExecutiveRecord[];
+  return ((data ?? []) as unknown as ExecutiveRecord[]).filter((exec) =>
+    /\d/.test(exec.phone ?? "")
+  );
 }
 
 /**
@@ -213,7 +217,12 @@ export async function getExecutivesByCategory(slug: string): Promise<ExecutiveRe
 
   const executives = (data ?? [])
     .map((row) => (row as { executives?: ExecutiveRecord }).executives)
-    .filter((exec) => Boolean(exec) && (exec as ExecutiveRecord).verified) as ExecutiveRecord[];
+    .filter(
+      (exec) =>
+        Boolean(exec) &&
+        (exec as ExecutiveRecord).verified &&
+        /\d/.test((exec as ExecutiveRecord).phone ?? "")
+    ) as ExecutiveRecord[];
 
   const unique = new Map<string, ExecutiveRecord>();
   executives.forEach((executive) => {
@@ -256,6 +265,8 @@ export async function getExecutiveBySlug(slug: string): Promise<ExecutiveRecord 
     .select(executivesSelect)
     .eq("slug", normalizedSlug)
     .eq("verified", true)
+    .not("phone", "is", null)
+    .neq("phone", "")
     .maybeSingle();
 
   if (error) {
