@@ -1,0 +1,143 @@
+---
+const steps = [
+    {
+        num: "01",
+        title: "Discovery",
+        description:
+            "Levantamos tu objetivo comercial, entendemos tu oferta de valor y definimos a tu público objetivo.",
+    },
+    {
+        num: "02",
+        title: "Propuesta",
+        description:
+            "Estructuramos alcance, entregables, tiempos fijos y presupuesto claro. Sin sorpresas.",
+    },
+    {
+        num: "03",
+        title: "Construcción",
+        description:
+            "Desarrollo iterativo con visibilidad de avances. Nos alineamos contigo hasta el lanzamiento.",
+    },
+    {
+        num: "04",
+        title: "Activación",
+        description:
+            "Firma contractual formal y pagos transparentes vía plataforma Kumera Billing.",
+    },
+];
+---
+
+<section
+    id="proceso"
+    class="py-24 md:py-40 bg-fg text-bg relative overflow-hidden"
+>
+    {/* SVG decorative grid lines */}
+    <svg
+        class="absolute inset-0 w-full h-full opacity-[0.03] pointer-events-none"
+        viewBox="0 0 1400 800"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <line
+            x1="350"
+            y1="0"
+            x2="350"
+            y2="800"
+            stroke="#10b981"
+            stroke-width="1"></line>
+        <line
+            x1="700"
+            y1="0"
+            x2="700"
+            y2="800"
+            stroke="#10b981"
+            stroke-width="1"></line>
+        <line
+            x1="1050"
+            y1="0"
+            x2="1050"
+            y2="800"
+            stroke="#10b981"
+            stroke-width="1"></line>
+        <line
+            x1="0"
+            y1="400"
+            x2="1400"
+            y2="400"
+            stroke="#10b981"
+            stroke-width="0.5"></line>
+    </svg>
+
+    <div class="max-w-[1400px] mx-auto px-6 md:px-10 relative z-10">
+        <div class="mb-16 md:mb-24 max-w-3xl reveal">
+            <p
+                class="text-sm uppercase tracking-[0.15em] text-emerald-400 mb-6"
+            >
+                Proceso
+            </p>
+            <h2
+                class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-bg"
+            >
+                Metodología transparente, de principio a fin.
+            </h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-0">
+            {
+                steps.map((step, i) => (
+                    <div
+                        class:list={[
+                            "py-10 md:py-0 md:pr-10 group",
+                            i > 0
+                                ? "border-t md:border-t-0 md:border-l border-bg/15 md:pl-10"
+                                : "",
+                            "reveal",
+                            `reveal-delay-${i + 1}`,
+                        ]}
+                    >
+                        <span class="font-display text-6xl md:text-7xl text-bg/10 group-hover:text-emerald-500/20 transition-colors duration-500 mb-6 block">
+                            {step.num}
+                        </span>
+                        <h3 class="text-xl font-semibold text-bg mb-3">
+                            {step.title}
+                        </h3>
+                        <p class="text-bg/60 text-sm leading-relaxed">
+                            {step.description}
+                        </p>
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+{/* Social Proof Strip */}
+<section class="py-16 md:py-20 border-b border-border">
+    <div class="max-w-[1400px] mx-auto px-6 md:px-10">
+        <div
+            class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 text-center reveal"
+        >
+            <div class="flex items-center gap-3">
+                <span class="font-display text-4xl md:text-5xl text-fg"
+                    >+20</span
+                >
+                <span class="text-sm text-muted text-left leading-tight"
+                    >clientes<br />satisfechos</span
+                >
+            </div>
+            <div class="hidden md:block w-px h-10 bg-border"></div>
+            <p class="text-muted text-sm md:text-base max-w-md">
+                Empresas y profesionales en Chile que ya convirtieron su
+                presencia digital en un canal real de captación comercial.
+            </p>
+            <div class="hidden md:block w-px h-10 bg-border"></div>
+            <div class="flex items-center gap-1.5">
+                {
+                    [1, 2, 3, 4, 5].map(() => (
+                        <span class="w-2 h-2 rounded-full bg-emerald-500" />
+                    ))
+                }
+            </div>
+        </div>
+    </div>
+</section>

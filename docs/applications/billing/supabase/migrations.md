@@ -15,6 +15,7 @@ Billing-related migrations currently documented:
 - `20260226_000014_billing_tractiva_google_ads_templates_final_clean.sql`
 - `20260304_000015_billing_sitiora_service_plans_template.sql`
 - `20260304_000016_billing_sitiora_one_time_adjustments.sql`
+- `20260305_000017_billing_sitiora_volume_pricing_strategy.sql`
 
 Shared baseline reference:
 - `docs/monorepo/supabase/migrations/20260224_000001_kumera_platform_v2_init.sql`

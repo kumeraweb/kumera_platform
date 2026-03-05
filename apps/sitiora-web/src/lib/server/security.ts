@@ -46,6 +46,14 @@ export const getTrustedOrigins = (request: Request) => {
 
 export const isTrustedOriginRequest = (request: Request) => {
   const trusted = getTrustedOrigins(request);
+  let hostOrigin: string | null = null;
+
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") || new URL(request.url).protocol.replace(":", "");
+  if (host && proto) {
+    const hostOnly = host.split(":")[0].toLowerCase();
+    hostOrigin = normalizeOrigin(`${proto}://${hostOnly}`);
+  }
 
   const originHeader = request.headers.get("origin");
   const origin = originHeader ? normalizeOrigin(originHeader) : null;
@@ -54,6 +62,9 @@ export const isTrustedOriginRequest = (request: Request) => {
   const refererHeader = request.headers.get("referer");
   const referer = refererHeader ? normalizeOrigin(refererHeader) : null;
   if (referer && trusted.has(referer)) return true;
+
+  // Some clients/proxies may omit origin/referer on same-origin POST requests.
+  if (!origin && !referer && hostOrigin && trusted.has(hostOrigin)) return true;
 
   return false;
 };

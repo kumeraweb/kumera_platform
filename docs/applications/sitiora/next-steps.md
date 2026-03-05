@@ -2,6 +2,8 @@
 
 1. Publicar dominio final y configurar `ALLOWED_ORIGINS` en Vercel.
 2. Activar y validar template contractual `Acuerdo Servicio Sitiora` en admin billing.
-3. Definir SLA de respuesta comercial para leads entrantes.
-4. Evaluar fase 2 de persistencia estructurada de leads (`core.marketing_leads`).
-5. Diseñar version visual/branding avanzada sin alterar logica comercial.
+3. Ejecutar migracion `20260305_000017_billing_sitiora_volume_pricing_strategy.sql`.
+4. Validar en admin billing catalogo: Start/Growth/Pro/Custom/E-commerce.
+5. Definir SLA de respuesta comercial para leads entrantes.
+6. Evaluar fase 2 de persistencia estructurada de leads (`core.marketing_leads`).
+7. Diseñar version visual/branding avanzada sin alterar logica comercial.

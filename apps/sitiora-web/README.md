@@ -5,6 +5,7 @@ Landing comercial para venta de servicios de desarrollo web de Kumera (captacion
 ## Variables de entorno
 
 - `RESEND_API_KEY`
+- `PUBLIC_SITE_URL` (canonical/SEO base URL, e.g. `https://sitiora.cl`)
 - `CONTACT_INBOX_EMAIL` (default: `contacto@kumeraweb.com`)
 - `CONTACT_FROM_EMAIL` (default: `Sitiora Kumera <contacto@kumeraweb.com>`)
 - `AUTOREPLY_FROM_EMAIL` (default: `Sitiora Kumera <noreply@kumeraweb.com>`)

@@ -1,0 +1,241 @@
+---
+const whatsappMessage = encodeURIComponent(
+    "Hola, quiero cotizar un sitio web para mi negocio.",
+);
+const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
+---
+
+<section id="contacto" class="py-24 md:py-40 border-t border-border">
+    <div class="max-w-[1400px] mx-auto px-6 md:px-10">
+        <div class="grid lg:grid-cols-2 gap-16 lg:gap-24">
+            {/* Left Column */}
+            <div class="reveal">
+                <p
+                    class="text-sm uppercase tracking-[0.15em] text-emerald-600 mb-6"
+                >
+                    Contacto
+                </p>
+                <h2
+                    class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-fg mb-8"
+                >
+                    Hablemos de tu proyecto.
+                </h2>
+                <p class="text-lg text-muted leading-relaxed mb-12">
+                    Cuéntanos sobre tu negocio y te contactaremos para agendar
+                    una reunión de descubrimiento. Sin compromiso.
+                </p>
+
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <span
+                            class="text-sm font-medium text-emerald-600 mt-0.5 w-6 shrink-0"
+                            >→</span
+                        >
+                        <div>
+                            <p class="text-fg font-medium">
+                                Respuesta en 24 horas hábiles
+                            </p>
+                            <p class="text-sm text-muted">
+                                Te contactaremos rápidamente para evaluar tu
+                                requerimiento.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span
+                            class="text-sm font-medium text-fg mt-0.5 w-6 shrink-0"
+                            >→</span
+                        >
+                        <div>
+                            <p class="text-fg font-medium">
+                                Evaluación honesta
+                            </p>
+                            <p class="text-sm text-muted">
+                                Si no somos la agencia adecuada, te lo diremos y
+                                ahorraremos tu tiempo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-border">
+                    <p class="text-sm text-muted mb-4">
+                        ¿Prefieres algo más directo?
+                    </p>
+                    <a
+                        href={whatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium border border-border text-fg hover:bg-fg hover:text-bg transition-all duration-300"
+                    >
+                        Escribir por WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            {/* Form Column */}
+            <div class="reveal reveal-delay-1">
+                <form id="lead-form" class="space-y-8">
+                    <div>
+                        <label
+                            for="nombre"
+                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                            >Nombre</label
+                        >
+                        <input
+                            type="text"
+                            id="nombre"
+                            name="nombre"
+                            required
+                            placeholder="Tu nombre completo"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-emerald-600 transition-colors duration-300"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            for="email"
+                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                            >Email</label
+                        >
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            placeholder="tu@empresa.cl"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-fg transition-colors duration-300"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            for="telefono"
+                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                            >Teléfono <span class="normal-case text-muted/60"
+                                >(opcional)</span
+                            ></label
+                        >
+                        <input
+                            type="tel"
+                            id="telefono"
+                            name="telefono"
+                            placeholder="+56 9 1234 5678"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-fg transition-colors duration-300"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            for="servicio"
+                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                            >Servicio</label
+                        >
+                        <select
+                            id="servicio"
+                            name="servicio"
+                            required
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base appearance-none focus:outline-none focus:border-fg transition-colors duration-300 cursor-pointer"
+                        >
+                            <option value="" disabled selected hidden
+                                >Selecciona una opción</option
+                            >
+                            <option value="Landing">Landing Page</option>
+                            <option value="Web corporativa"
+                                >Web Corporativa</option
+                            >
+                            <option value="E-commerce / custom"
+                                >E-commerce / Custom</option
+                            >
+                            <option value="Enterprise bajo cotizacion"
+                                >Enterprise / A Medida</option
+                            >
+                        </select>
+                    </div>
+
+                    <div>
+                        <label
+                            for="mensaje"
+                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                            >Mensaje</label
+                        >
+                        <textarea
+                            id="mensaje"
+                            name="mensaje"
+                            required
+                            rows="4"
+                            placeholder="Cuéntanos brevemente qué necesitas y qué resultados buscas..."
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-fg transition-colors duration-300 resize-none"
+                        ></textarea>
+                    </div>
+
+                    <div class="pt-4">
+                        <button
+                            type="submit"
+                            id="submit-btn"
+                            class="inline-flex items-center justify-center rounded-full px-10 py-4 text-base font-medium bg-fg text-bg hover:bg-emerald-600 transition-colors duration-300 w-full md:w-auto"
+                        >
+                            Enviar Solicitud
+                        </button>
+                    </div>
+
+                    <div
+                        id="form-message"
+                        class="hidden text-sm font-medium py-4"
+                    >
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const form = document.getElementById("lead-form");
+    const btn = document.getElementById("submit-btn");
+    const msg = document.getElementById("form-message");
+
+    if (form instanceof HTMLFormElement && btn && msg) {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            btn.setAttribute("disabled", "true");
+            btn.textContent = "Enviando...";
+            btn.classList.add("opacity-60", "cursor-not-allowed");
+            msg.className = "hidden";
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch("/api/contact", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const payload = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw new Error(
+                        payload.error || "No fue posible enviar la solicitud.",
+                    );
+                }
+
+                form.reset();
+                msg.textContent =
+                    "✓ Solicitud enviada. Te contactaremos pronto.";
+                msg.className = "text-sm font-medium py-4 text-fg block";
+                window.dispatchEvent(
+                    new CustomEvent("sitiora_form_submit_success"),
+                );
+            } catch (err: any) {
+                msg.textContent =
+                    err.message || "Ocurrió un error. Intenta nuevamente.";
+                msg.className = "text-sm font-medium py-4 text-red-600 block";
+            } finally {
+                btn.removeAttribute("disabled");
+                btn.textContent = "Enviar Solicitud";
+                btn.classList.remove("opacity-60", "cursor-not-allowed");
+            }
+        });
+    }
+</script>

@@ -1,78 +1,163 @@
-:root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --muted: #475569;
-  --border: #e2e8f0;
-  --primary: #0f766e;
-  --primary-strong: #115e59;
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f5f5f0;
+  --color-fg: #0a0a0a;
+  --color-muted: #71717a;
+  --color-muted-light: #a1a1aa;
+  --color-border: #e4e4e0;
+  --color-accent: #0a0a0a;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans m-0 overflow-x-hidden;
+  }
+
+  ::selection {
+    background: #0a0a0a;
+    color: #f5f5f0;
+  }
 }
 
-body {
-  margin: 0;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
-  color: var(--text);
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-}
+@layer utilities {
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 
-a {
-  color: inherit;
-}
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-.container {
-  width: min(1120px, 92vw);
-  margin: 0 auto;
-}
+  .reveal-delay-1 {
+    transition-delay: 0.1s;
+  }
 
-.section {
-  padding: 72px 0;
-}
+  .reveal-delay-2 {
+    transition-delay: 0.2s;
+  }
 
-.card {
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-}
+  .reveal-delay-3 {
+    transition-delay: 0.3s;
+  }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 10px;
-  padding: 12px 18px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-}
+  .reveal-delay-4 {
+    transition-delay: 0.4s;
+  }
 
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-}
+  .line-appear {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 
-.btn-primary:hover {
-  background: var(--primary-strong);
-}
+  .line-appear.visible {
+    transform: scaleX(1);
+  }
 
-.btn-ghost {
-  border: 1px solid var(--border);
-  background: #fff;
-  color: var(--text);
-}
+  .logo-flip {
+    --logo-line-height: 1.65em;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    height: var(--logo-line-height);
+    width: max-content;
+    vertical-align: bottom;
+  }
 
-.grid {
-  display: grid;
-  gap: 18px;
-}
+  .logo-flip-inner {
+    display: grid;
+    grid-auto-rows: var(--logo-line-height);
+    align-items: center;
+    width: max-content;
+    animation: logoFlip 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-delay: 2.2s;
+  }
 
-@media (max-width: 900px) {
-  .section {
-    padding: 56px 0;
+  .logo-flip-inner span {
+    display: inline-flex;
+    align-items: center;
+    height: var(--logo-line-height);
+    line-height: var(--logo-line-height);
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  .logo-brand {
+    position: relative;
+    padding-right: 0.5em;
+  }
+
+  .logo-brand::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #10b981;
+    animation: dotBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: 0.5s;
+  }
+
+  .logo-tagline {
+    font-size: 0.58em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #10b981;
+  }
+
+  @keyframes dotBounce {
+    0% {
+      transform: scale(0) translateY(4px);
+      opacity: 0;
+    }
+
+    50% {
+      transform: scale(1.4) translateY(-3px);
+      opacity: 1;
+    }
+
+    70% {
+      transform: scale(0.85) translateY(1px);
+    }
+
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes logoFlip {
+
+    0%,
+    38% {
+      transform: translateY(0);
+    }
+
+    45%,
+    88% {
+      transform: translateY(calc(-1 * var(--logo-line-height)));
+    }
+
+    100% {
+      transform: translateY(0);
+    }
   }
 }

@@ -1,0 +1,173 @@
+---
+const faqs = [
+    {
+        q: "¿Incluyen dominio y hosting?",
+        a: "Normalmente sugerimos que el cliente adquiera su propio dominio y hosting para mantener propiedad total. Podemos configurar todo y en planes corporativos incluimos el alojamiento del primer año si lo necesitas.",
+    },
+    {
+        q: "¿En cuánto tiempo entregan el sitio?",
+        a: "Plan Start entre 3 y 5 días hábiles. Plan Growth entre 5 y 7 días hábiles. Plan Pro y superiores según alcance. Los tiempos finales dependen de la velocidad de feedback y entrega de contenidos.",
+    },
+    {
+        q: "¿Mi sitio estará listo para Google Ads?",
+        a: "Sí. Ese es nuestro diferenciador. Tu sitio se entrega con SEO técnico base, velocidad de carga óptima y estructura persuasiva lista para que inyectes tráfico pagado y comience a captar leads desde el día 1.",
+    },
+    {
+        q: "¿Por qué tienen un plan desde $79.000?",
+        a: "Porque usamos procesos asistidos por IA para acelerar producción en proyectos acotados. El plan de entrada tiene alcance controlado y está pensado para emprendedores y profesionales que necesitan salir rápido al mercado.",
+    },
+    {
+        q: "¿Cómo es la forma de pago?",
+        a: "Gestionamos cobros vía plataforma Kumera Billing. Operamos por transferencia bancaria y dejamos condiciones formales por contrato. Habitualmente trabajamos con 50% al inicio y 50% contra entrega.",
+    },
+    {
+        q: "¿Qué pasa si necesito cambios después?",
+        a: "Incluimos un período de ajustes post-lanzamiento. Si tu proyecto requiere mantención continua o iteraciones futuras, podemos acordar un plan de soporte mensual adaptado.",
+    },
+];
+---
+
+<section id="precios" class="py-24 md:py-40">
+    <div class="max-w-[1400px] mx-auto px-6 md:px-10">
+        <div class="grid lg:grid-cols-2 gap-16 lg:gap-24">
+            {/* Pricing Column */}
+            <div>
+                <p
+                    class="text-sm uppercase tracking-[0.15em] text-emerald-600 mb-6 reveal"
+                >
+                    Inversión
+                </p>
+                <h2
+                    class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-fg mb-12 md:mb-16 reveal reveal-delay-1"
+                >
+                    Escalera de entrada y crecimiento.
+                </h2>
+
+                <div class="space-y-0 reveal reveal-delay-2">
+                    <div
+                        class="flex items-baseline justify-between py-6 border-t border-border"
+                    >
+                        <div>
+                            <p class="text-lg md:text-xl font-medium text-fg">
+                                Start
+                            </p>
+                            <p class="text-sm text-muted mt-1">
+                                Emprendedores · landing esencial
+                            </p>
+                        </div>
+                        <p
+                            class="text-lg md:text-xl font-medium text-fg whitespace-nowrap"
+                        >
+                            desde $79.000
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex items-baseline justify-between py-6 border-t border-border"
+                    >
+                        <div>
+                            <p class="text-lg md:text-xl font-medium text-fg">
+                                Growth
+                            </p>
+                            <p class="text-sm text-muted mt-1">
+                                Volumen comercial · landing optimizada
+                            </p>
+                        </div>
+                        <p
+                            class="text-lg md:text-xl font-medium text-fg whitespace-nowrap"
+                        >
+                            desde $149.000
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex items-baseline justify-between py-6 border-t border-border"
+                    >
+                        <div>
+                            <p class="text-lg md:text-xl font-medium text-fg">
+                                Pro
+                            </p>
+                            <p class="text-sm text-muted mt-1">
+                                Multipágina liviana · ticket medio
+                            </p>
+                        </div>
+                        <p
+                            class="text-lg md:text-xl font-medium text-fg whitespace-nowrap"
+                        >
+                            desde $249.000
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex items-baseline justify-between py-6 border-t border-border"
+                    >
+                        <div>
+                            <p class="text-lg md:text-xl font-medium text-fg">
+                                Custom
+                            </p>
+                            <p class="text-sm text-muted mt-1">
+                                Alcance avanzado a medida
+                            </p>
+                        </div>
+                        <p
+                            class="text-lg md:text-xl font-medium text-fg whitespace-nowrap"
+                        >
+                            desde $490.000
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex items-baseline justify-between py-6 border-t border-border border-b"
+                    >
+                        <div>
+                            <p class="text-lg md:text-xl font-medium text-fg">
+                                E-commerce
+                            </p>
+                            <p class="text-sm text-muted mt-1">
+                                Solo bajo evaluacion técnica
+                            </p>
+                        </div>
+                        <p class="text-lg font-medium text-emerald-600">desde $1.290.000</p>
+                    </div>
+                </div>
+
+                <p class="text-sm text-muted mt-6">
+                    Valores en CLP + IVA. Pago unico por proyecto. Cada plan tiene alcance definido y extras cotizados aparte.
+                </p>
+            </div>
+
+            {/* FAQ Column */}
+            <div>
+                <p
+                    class="text-sm uppercase tracking-[0.15em] text-emerald-600 mb-6 reveal"
+                >
+                    Preguntas Frecuentes
+                </p>
+                <h2
+                    class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-fg mb-12 md:mb-16 reveal reveal-delay-1"
+                >
+                    Resolvemos tus dudas.
+                </h2>
+
+                <div class="reveal reveal-delay-2">
+                    {
+                        faqs.map((faq, i) => (
+                            <details class="group border-t border-border [&_summary::-webkit-details-marker]:hidden">
+                                <summary class="flex cursor-pointer items-center justify-between py-6 text-fg font-medium text-base md:text-lg select-none">
+                                    <span class="pr-4">{faq.q}</span>
+                                    <span class="shrink-0 text-emerald-600 transition-transform duration-300 group-open:rotate-45 text-xl leading-none">
+                                        +
+                                    </span>
+                                </summary>
+                                <div class="pb-6 text-muted text-sm md:text-base leading-relaxed pr-12">
+                                    {faq.a}
+                                </div>
+                            </details>
+                        ))
+                    }
+                    <div class="border-t border-border"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

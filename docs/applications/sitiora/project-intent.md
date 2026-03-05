@@ -18,10 +18,11 @@ Captar empresas y profesionales que necesitan:
 
 ## 4) Oferta y pricing
 Niveles publicos iniciales:
-1. Landing: desde $249.000 CLP.
-2. Web corporativa: desde $590.000 CLP.
-3. E-commerce / custom: desde $1.490.000 CLP.
-4. Enterprise: bajo cotizacion y presupuesto.
+1. Start (entrada): desde $79.000 CLP + IVA.
+2. Growth (volumen): desde $149.000 CLP + IVA.
+3. Pro (ticket medio): desde $249.000 CLP + IVA.
+4. Custom: desde $490.000 CLP + IVA.
+5. E-commerce: desde $1.290.000 CLP + IVA.
 
 ## 5) Principios operativos
 1. Claridad de alcance antes de presupuesto final.

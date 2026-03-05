@@ -149,3 +149,4 @@ Purpose: operational audit events from admin and API actions.
 - `20260225_000006_billing_presigned_templates.sql`
 - `20260304_000015_billing_sitiora_service_plans_template.sql`
 - `20260304_000016_billing_sitiora_one_time_adjustments.sql`
+- `20260305_000017_billing_sitiora_volume_pricing_strategy.sql`
