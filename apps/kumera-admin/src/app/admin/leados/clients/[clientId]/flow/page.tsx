@@ -37,8 +37,8 @@ export default async function LeadosClientFlowPage({ params }: { params: Promise
             {client.name} · {client.id}
           </p>
         </div>
-        <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/leados">
-          ← Volver a LeadOS
+        <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/leados/clients">
+          ← Volver a clientes
         </Link>
       </div>
 
