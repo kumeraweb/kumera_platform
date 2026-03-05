@@ -13,5 +13,6 @@ Only four active areas are allowed:
 - [Tuejecutiva source of truth](./applications/tuejecutiva/source-of-truth.md)
 - [LeadOS source of truth](./applications/leados/source-of-truth.md)
 - [Tractiva source of truth](./applications/tractiva/source-of-truth.md)
+- [Sitiora source of truth](./applications/sitiora/source-of-truth.md)
 - [Kumera Admin source of truth](./applications/kumera-admin/source-of-truth.md)
 - [Forms source of truth](./shared/forms/source-of-truth.md)

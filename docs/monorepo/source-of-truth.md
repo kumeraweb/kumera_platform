@@ -1,6 +1,6 @@
 # Monorepo Source of Truth
 
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ## Repository model
 - One GitHub repository.
@@ -31,4 +31,5 @@ Domain/app references are kept in each app folder:
 - Tuejecutiva: `apps/tuejecutiva-web` -> `tuejecutiva`
 - LeadOS: `apps/leadosku-web/leados-system` -> `leados`
 - Tractiva: `apps/tractiva-web` -> billing touchpoints (no dedicated tractiva schema yet)
+- Sitiora: `apps/sitiora-web` -> billing touchpoints (no dedicated sitiora schema yet)
 - Kumera Admin: `apps/kumera-admin` -> cross-schema admin operations

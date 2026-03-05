@@ -52,7 +52,7 @@ type SubscriptionRow = {
 type BillingSection = "onboarding" | "templates" | "payments" | "clients";
 
 type Props = { legacyAdminUrl: string };
-const PLATFORM_SERVICE_SLUGS = new Set(["tractiva", "tuejecutiva", "leadosku"]);
+const PLATFORM_SERVICE_SLUGS = new Set(["tractiva", "tuejecutiva", "leadosku", "sitiora"]);
 
 function composeRut(bodyRaw: string, dvRaw: string) {
   const body = bodyRaw.replace(/\D/g, "");

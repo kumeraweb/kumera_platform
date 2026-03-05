@@ -1,0 +1,157 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const whatsappMessage = encodeURIComponent(
+  "Hola, quiero cotizar un sitio web para mi negocio."
+);
+const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
+---
+
+<Layout>
+  <main>
+    <section class="section">
+      <div class="container grid" style="grid-template-columns: 1.15fr 1fr; align-items: start; gap: 24px;">
+        <article class="card" style="padding: 28px;">
+          <p style="margin: 0 0 10px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #0f766e; font-weight: 700;">
+            Servicio Kumera
+          </p>
+          <h1 style="margin: 0; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.15;">
+            Sitiora: sitios web orientados a conversion comercial
+          </h1>
+          <p style="margin: 16px 0 0; color: var(--muted); line-height: 1.7;">
+            Diseñamos y desarrollamos landings, webs corporativas y proyectos web de mayor escala.
+            Esta pagina es de captacion comercial: tu nos contactas y luego avanzamos propuesta, alcance y presupuesto.
+          </p>
+          <div style="margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <a class="btn btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Hablar por WhatsApp</a>
+            <a class="btn btn-ghost" href="#contacto">Solicitar propuesta</a>
+          </div>
+          <p style="margin: 16px 0 0; font-size: 0.9rem; color: var(--muted);">
+            Cierre comercial manual. Activacion contractual y pago via plataforma de billing Kumera.
+          </p>
+        </article>
+
+        <aside class="card" style="padding: 22px;">
+          <h2 style="margin-top: 0; font-size: 1.2rem;">Pricing de referencia</h2>
+          <ul style="margin: 12px 0 0; padding-left: 18px; color: var(--muted); line-height: 1.8;">
+            <li><strong style="color: var(--text);">Landing</strong> desde $249.000 CLP</li>
+            <li><strong style="color: var(--text);">Web corporativa</strong> desde $590.000 CLP</li>
+            <li><strong style="color: var(--text);">E-commerce / custom</strong> desde $1.490.000 CLP</li>
+            <li><strong style="color: var(--text);">Enterprise</strong> bajo cotizacion y presupuesto</li>
+          </ul>
+          <div class="card" style="margin-top: 18px; padding: 14px; border-radius: 12px;">
+            <p style="margin: 0; font-size: 0.92rem; color: var(--muted);">
+              Si el proyecto no encaja en catalogo, se crea plan personalizado en billing admin para mantener trazabilidad.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0;">
+      <div class="container grid" style="grid-template-columns: repeat(4, 1fr);">
+        <article class="card" style="padding: 16px;">
+          <h3 style="margin: 0 0 10px;">1. Discovery</h3>
+          <p style="margin: 0; color: var(--muted);">Levantamos objetivo comercial, oferta y publico objetivo.</p>
+        </article>
+        <article class="card" style="padding: 16px;">
+          <h3 style="margin: 0 0 10px;">2. Propuesta</h3>
+          <p style="margin: 0; color: var(--muted);">Definimos alcance, entregables, tiempos y presupuesto.</p>
+        </article>
+        <article class="card" style="padding: 16px;">
+          <h3 style="margin: 0 0 10px;">3. Construccion</h3>
+          <p style="margin: 0; color: var(--muted);">Ejecucion tecnica del proyecto segun plan contratado.</p>
+        </article>
+        <article class="card" style="padding: 16px;">
+          <h3 style="margin: 0 0 10px;">4. Activacion</h3>
+          <p style="margin: 0; color: var(--muted);">Formalizacion contractual y pago desde stack de billing Kumera.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contacto" class="section" style="padding-top: 0;">
+      <div class="container card" style="padding: 26px;">
+        <h2 style="margin-top: 0;">Solicita propuesta</h2>
+        <p style="margin-top: 8px; color: var(--muted);">
+          Completa este formulario y te contactaremos para evaluar alcance y presupuesto.
+        </p>
+
+        <form id="lead-form" style="margin-top: 18px; display: grid; gap: 12px;">
+          <input name="nombre" type="text" placeholder="Nombre" required style="padding: 12px; border-radius: 10px; border: 1px solid var(--border);" />
+          <input name="email" type="email" placeholder="Email" required style="padding: 12px; border-radius: 10px; border: 1px solid var(--border);" />
+          <input name="telefono" type="tel" placeholder="Telefono (opcional)" style="padding: 12px; border-radius: 10px; border: 1px solid var(--border);" />
+          <select name="servicio" required style="padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #fff;">
+            <option value="">Selecciona tipo de proyecto</option>
+            <option>Landing</option>
+            <option>Web corporativa</option>
+            <option>E-commerce / custom</option>
+            <option>Enterprise bajo cotizacion</option>
+          </select>
+          <textarea name="mensaje" rows="5" placeholder="Cuéntanos brevemente tu proyecto" required style="padding: 12px; border-radius: 10px; border: 1px solid var(--border);"></textarea>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+            <a class="btn btn-ghost" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Prefiero WhatsApp</a>
+          </div>
+          <p id="lead-status" style="margin: 2px 0 0; color: var(--muted); font-size: 0.92rem;"></p>
+        </form>
+      </div>
+    </section>
+
+    <footer style="padding: 36px 0 52px;">
+      <div class="container" style="font-size: 0.86rem; color: var(--muted); text-align: center;">
+        Sitiora Kumera · Kumera Servicios Digitales SpA
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const form = document.getElementById("lead-form");
+    const status = document.getElementById("lead-status");
+
+    if (form instanceof HTMLFormElement && status) {
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        status.textContent = "Enviando...";
+
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch("/api/contact", {
+            method: "POST",
+            body: formData,
+          });
+
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            status.textContent = payload.error || "No fue posible enviar. Intenta nuevamente.";
+            return;
+          }
+
+          form.reset();
+          status.textContent = "Solicitud enviada. Te responderemos pronto.";
+        } catch {
+          status.textContent = "No fue posible enviar. Intenta nuevamente.";
+        }
+      });
+    }
+  </script>
+
+  <style>
+    @media (max-width: 980px) {
+      .container[style*="grid-template-columns: 1.15fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .container[style*="repeat(4, 1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container[style*="repeat(4, 1fr)"] {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</Layout>

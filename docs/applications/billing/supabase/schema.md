@@ -1,6 +1,6 @@
 # Billing Schema Current State
 
-Last updated: 2026-02-25
+Last updated: 2026-03-04
 
 ## Scope
 This document reflects the current billing architecture used by:
@@ -31,6 +31,7 @@ Expected active slugs:
 - `tractiva`
 - `tuejecutiva`
 - `leadosku`
+- `sitiora`
 
 ### `plans`
 Purpose: plan catalog per service.
@@ -144,3 +145,4 @@ Purpose: operational audit events from admin and API actions.
 - `20260225_000004_billing_customer_types_and_templates.sql`
 - `20260225_000005_billing_seed_services_and_plans.sql`
 - `20260225_000006_billing_presigned_templates.sql`
+- `20260304_000015_billing_sitiora_service_plans_template.sql`

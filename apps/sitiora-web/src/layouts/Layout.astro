@@ -1,0 +1,74 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+}
+
+const SITE_URL = "https://sitiora.kumeraweb.com";
+
+const {
+  title = "Sitiora para Pymes y Servicios - Kumera",
+  description =
+    "Creamos landing pages, webs corporativas y proyectos web de mayor escala para empresas en Chile. Servicio orientado a conversion comercial y crecimiento.",
+  canonical = SITE_URL,
+} = Astro.props;
+
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonical} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Kumera" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Sitiora Kumera" />
+    <meta property="og:locale" content="es_CL" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        name: "Sitiora Kumera",
+        description:
+          "Servicio de desarrollo web para pymes y servicios: landing pages, sitios corporativos y proyectos a medida.",
+        url: SITE_URL,
+        email: "contacto@kumeraweb.com",
+        telephone: "+56994186218",
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "CL",
+          addressLocality: "Santiago",
+        },
+        areaServed: {
+          "@type": "Country",
+          name: "Chile",
+        },
+        priceRange: "$$",
+        currenciesAccepted: "CLP",
+      })}
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
