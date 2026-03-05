@@ -20,6 +20,15 @@ type Props = {
   initialClients: ClientRow[];
 };
 
+const DEFAULT_LEADOS_TEMPLATES = {
+  human_required_message_template:
+    "Muchas gracias. En unos minutos un ejecutivo tomara la conversacion. Si necesitas con urgencia tener respuesta puedes escribirnos ya mismo al {priority_phone} donde te atenderemos de manera prioritaria. Tambien puedes escribirnos a {priority_email}.",
+  close_client_no_response_template:
+    "Gracias por contactarnos. Esta conversacion sera finalizada por falta de respuesta. Si tienes cualquier duda puedes escribirnos con prioridad al {priority_phone} o enviarnos un correo a {priority_email}.",
+  close_attended_other_line_template:
+    "Tu contacto esta siendo atendido en nuestra linea prioritaria. Muchas gracias por contactarnos.",
+};
+
 export default function LeadosAdminClient({ initialClients }: Props) {
   const [clients, setClients] = useState<ClientRow[]>(initialClients);
   const [message, setMessage] = useState<string | null>(null);
@@ -173,6 +182,20 @@ export default function LeadosAdminClient({ initialClients }: Props) {
     setMessage("Canal creado.");
   }
 
+  function applyDefaultTemplatesToCreate() {
+    setClientForm((prev) => ({
+      ...prev,
+      ...DEFAULT_LEADOS_TEMPLATES,
+    }));
+  }
+
+  function applyDefaultTemplatesToEdit() {
+    setEditForm((prev) => ({
+      ...prev,
+      ...DEFAULT_LEADOS_TEMPLATES,
+    }));
+  }
+
   return (
     <div className="grid gap-5">
       {message ? <div className="admin-alert admin-alert-success">{message}</div> : null}
@@ -223,9 +246,18 @@ export default function LeadosAdminClient({ initialClients }: Props) {
 
       {/* ─── PASO 1: Create client ─── */}
       <form className="admin-card" onSubmit={onCreateClient}>
-        <div className="mb-4 flex items-center gap-3">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
           <span className="badge badge-accent">PASO 1</span>
           <h2 className="section-title">Crear cliente LeadOS</h2>
+          </div>
+          <button
+            type="button"
+            className="admin-btn admin-btn-secondary admin-btn-sm"
+            onClick={applyDefaultTemplatesToCreate}
+          >
+            Aplicar template base
+          </button>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="admin-field">
@@ -282,9 +314,18 @@ export default function LeadosAdminClient({ initialClients }: Props) {
       {/* ─── Edit client config ─── */}
       {editingClientId ? (
         <form className="admin-card" onSubmit={onSaveEditClient}>
-          <div className="mb-4 flex items-center gap-3">
-            <span className="badge badge-accent">EDIT</span>
-            <h2 className="section-title">Editar configuración cliente</h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="badge badge-accent">EDIT</span>
+              <h2 className="section-title">Editar configuración cliente</h2>
+            </div>
+            <button
+              type="button"
+              className="admin-btn admin-btn-secondary admin-btn-sm"
+              onClick={applyDefaultTemplatesToEdit}
+            >
+              Aplicar template base
+            </button>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="admin-field">
