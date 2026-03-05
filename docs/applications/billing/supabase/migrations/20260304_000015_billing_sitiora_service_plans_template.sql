@@ -10,7 +10,7 @@ with svc as (
   where slug = 'sitiora'
 )
 insert into billing.plans (service_id, name, price_cents, billing_cycle_days)
-select svc.id, p.name, p.price_cents, 30
+select svc.id, p.name, p.price_cents, 0
 from svc
 join (
   values
@@ -24,6 +24,13 @@ where not exists (
   where bp.service_id = svc.id
     and lower(bp.name) = lower(p.name)
 );
+
+update billing.plans p
+set billing_cycle_days = 0
+from billing.services s
+where p.service_id = s.id
+  and s.slug = 'sitiora'
+  and p.billing_cycle_days <> 0;
 
 with svc as (
   select id

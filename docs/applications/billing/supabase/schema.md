@@ -40,6 +40,8 @@ Purpose: plan catalog per service.
 - `name`
 - `price_cents`
 - `billing_cycle_days`
+  - `> 0` => recurring cycle.
+  - `0` => one-time charge (no automatic renewal payment).
 
 ### `subscriptions`
 Purpose: one subscription per company/service created by onboarding generation.
@@ -146,3 +148,4 @@ Purpose: operational audit events from admin and API actions.
 - `20260225_000005_billing_seed_services_and_plans.sql`
 - `20260225_000006_billing_presigned_templates.sql`
 - `20260304_000015_billing_sitiora_service_plans_template.sql`
+- `20260304_000016_billing_sitiora_one_time_adjustments.sql`

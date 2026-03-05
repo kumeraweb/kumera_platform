@@ -147,7 +147,7 @@ export async function sendPaymentValidatedEmail(params: {
   planName: string;
   amountCents: number;
   validatedAtIso: string;
-  nextDueDateIso: string;
+  nextDueDateIso?: string | null;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -160,7 +160,10 @@ export async function sendPaymentValidatedEmail(params: {
   }
 
   const validatedAtText = new Date(params.validatedAtIso).toLocaleDateString("es-CL");
-  const nextDueDateText = new Date(params.nextDueDateIso).toLocaleDateString("es-CL");
+  const hasNextDueDate = Boolean(params.nextDueDateIso);
+  const nextDueDateText = hasNextDueDate
+    ? new Date(params.nextDueDateIso as string).toLocaleDateString("es-CL")
+    : null;
   const amountBase = Math.floor((params.amountCents ?? 0) / 100);
   const ivaAmount = Math.round(amountBase * 0.19);
   const amountTotal = amountBase + ivaAmount;
@@ -193,7 +196,7 @@ export async function sendPaymentValidatedEmail(params: {
               <li>Plan: ${safePlanName}</li>
               <li>Monto validado: ${amountBaseText} + IVA (19%: ${ivaAmountText}) = ${amountTotalText}</li>
               <li>Fecha validación: ${validatedAtText}</li>
-              <li>Próximo cobro: ${nextDueDateText}</li>
+              ${nextDueDateText ? `<li>Próximo cobro: ${nextDueDateText}</li>` : "<li>Cobro único: sin renovación automática.</li>"}
             </ul>
             <p>Tu servicio será activado en las próximas horas.</p>
             <p>Si tienes dudas, responde este correo.</p>
@@ -225,7 +228,7 @@ export async function sendPaymentValidatedAdminNotice(params: {
   planName: string;
   amountCents: number;
   validatedAtIso: string;
-  nextDueDateIso: string;
+  nextDueDateIso?: string | null;
   customerEmailSent: boolean;
   customerEmailFailureReason?: string;
 }) {
@@ -240,7 +243,10 @@ export async function sendPaymentValidatedAdminNotice(params: {
   }
 
   const validatedAtText = new Date(params.validatedAtIso).toLocaleDateString("es-CL");
-  const nextDueDateText = new Date(params.nextDueDateIso).toLocaleDateString("es-CL");
+  const hasNextDueDate = Boolean(params.nextDueDateIso);
+  const nextDueDateText = hasNextDueDate
+    ? new Date(params.nextDueDateIso as string).toLocaleDateString("es-CL")
+    : null;
   const amountBase = Math.floor((params.amountCents ?? 0) / 100);
   const ivaAmount = Math.round(amountBase * 0.19);
   const amountTotal = amountBase + ivaAmount;
@@ -276,7 +282,7 @@ export async function sendPaymentValidatedAdminNotice(params: {
               <li>Plan: ${safePlanName}</li>
               <li>Monto validado: ${amountBaseText} + IVA (19%: ${ivaAmountText}) = ${amountTotalText}</li>
               <li>Fecha validación: ${validatedAtText}</li>
-              <li>Próximo cobro: ${nextDueDateText}</li>
+              ${nextDueDateText ? `<li>Próximo cobro: ${nextDueDateText}</li>` : "<li>Cobro único: sin renovación automática.</li>"}
             </ul>
           </div>
         `,

@@ -94,7 +94,7 @@ export async function POST(request: Request) {
           service_id: service.id,
           name: customPlanName,
           price_cents: customPriceCents,
-          billing_cycle_days: 30,
+          billing_cycle_days: service.slug === "sitiora" ? 0 : 30,
         })
         .select("id,name,price_cents")
         .single();

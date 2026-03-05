@@ -25,8 +25,8 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
       subscriptions(
         id,
         companies(legal_name,email),
-        services(name),
-        plans(name)
+        services(slug,name),
+        plans(name,billing_cycle_days)
       )
     `)
     .eq("id", id)
@@ -43,30 +43,6 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
     .eq("id", id);
   if (updateError) return fail(updateError.message, 500);
 
-  const { data: existingNextPending, error: existingNextPendingError } = await billing
-    .from("payments")
-    .select("id,due_date")
-    .eq("subscription_id", payment.subscription_id)
-    .eq("status", "pending")
-    .neq("id", payment.id)
-    .gte("due_date", now.toISOString())
-    .order("due_date", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (existingNextPendingError) return fail(existingNextPendingError.message, 500);
-
-  const nextDueDate = calculateMonthlyNextPaymentDate(now);
-  if (!existingNextPending) {
-    const { error: insertError } = await billing.from("payments").insert({
-      subscription_id: payment.subscription_id,
-      method: "bank_transfer",
-      amount_cents: payment.amount_cents,
-      status: "pending",
-      due_date: nextDueDate.toISOString(),
-    });
-    if (insertError) return fail(insertError.message, 500);
-  }
-
   const { error: subscriptionUpdateError } = await billing
     .from("subscriptions")
     .update({ status: "active" })
@@ -76,11 +52,44 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
 
   await writeBillingAuditLog("payment.validated", auth.user.id, { paymentId: id });
 
-  const nextDueDateIso = existingNextPending?.due_date ?? nextDueDate.toISOString();
   const subscriptionData = Array.isArray(payment.subscriptions) ? payment.subscriptions[0] : payment.subscriptions;
   const companyData = Array.isArray(subscriptionData?.companies) ? subscriptionData?.companies[0] : subscriptionData?.companies;
   const serviceData = Array.isArray(subscriptionData?.services) ? subscriptionData?.services[0] : subscriptionData?.services;
   const planData = Array.isArray(subscriptionData?.plans) ? subscriptionData?.plans[0] : subscriptionData?.plans;
+  const billingCycleDays = Number(planData?.billing_cycle_days ?? 30);
+  const isRecurringPlan = billingCycleDays > 0;
+
+  let existingNextPending: { id: string; due_date: string } | null = null;
+  if (isRecurringPlan) {
+    const { data: recurringNextPending, error: recurringNextPendingError } = await billing
+      .from("payments")
+      .select("id,due_date")
+      .eq("subscription_id", payment.subscription_id)
+      .eq("status", "pending")
+      .neq("id", payment.id)
+      .gte("due_date", now.toISOString())
+      .order("due_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (recurringNextPendingError) return fail(recurringNextPendingError.message, 500);
+    existingNextPending = recurringNextPending;
+
+    const nextDueDate = calculateMonthlyNextPaymentDate(now);
+    if (!existingNextPending) {
+      const { error: insertError } = await billing.from("payments").insert({
+        subscription_id: payment.subscription_id,
+        method: "bank_transfer",
+        amount_cents: payment.amount_cents,
+        status: "pending",
+        due_date: nextDueDate.toISOString(),
+      });
+      if (insertError) return fail(insertError.message, 500);
+    }
+  }
+
+  const nextDueDateIso = isRecurringPlan
+    ? (existingNextPending?.due_date ?? calculateMonthlyNextPaymentDate(now).toISOString())
+    : null;
   const companyName = companyData?.legal_name ?? "cliente";
   const serviceName = serviceData?.name ?? "Servicio Kumera";
   const planName = planData?.name ?? "Plan";
@@ -140,7 +149,8 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
   return ok({
     validated: true,
     nextDueDate: nextDueDateIso,
-    generatedNextPayment: !existingNextPending,
+    generatedNextPayment: isRecurringPlan ? !existingNextPending : false,
+    recurringPlan: isRecurringPlan,
     emailNotification,
   });
 }
