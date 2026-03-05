@@ -12,6 +12,10 @@ type Client = {
   notification_email: string;
   score_threshold: number;
   human_forward_number: string;
+  priority_contact_email?: string | null;
+  human_required_message_template?: string | null;
+  close_client_no_response_template?: string | null;
+  close_attended_other_line_template?: string | null;
 };
 
 export default function BackofficePage() {
@@ -25,6 +29,10 @@ export default function BackofficePage() {
     name: '',
     notification_email: '',
     human_forward_number: '',
+    priority_contact_email: '',
+    human_required_message_template: '',
+    close_client_no_response_template: '',
+    close_attended_other_line_template: '',
     score_threshold: 85
   });
 
@@ -94,6 +102,10 @@ export default function BackofficePage() {
       name: '',
       notification_email: '',
       human_forward_number: '',
+      priority_contact_email: '',
+      human_required_message_template: '',
+      close_client_no_response_template: '',
+      close_attended_other_line_template: '',
       score_threshold: 85
     });
     setSuccess('Cliente creado correctamente.');
@@ -239,9 +251,25 @@ export default function BackofficePage() {
                 <input style={inputStyle} placeholder="+56912345678" value={clientForm.human_forward_number} onChange={(e) => setClientForm((v) => ({ ...v, human_forward_number: e.target.value }))} required />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={labelStyle}>Email prioritario</label>
+                <input style={inputStyle} placeholder="contacto@cliente.com" type="email" value={clientForm.priority_contact_email} onChange={(e) => setClientForm((v) => ({ ...v, priority_contact_email: e.target.value }))} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <label style={labelStyle}>Score threshold</label>
                 <input style={inputStyle} placeholder="85" type="number" min={0} max={100} value={clientForm.score_threshold} onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
               </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={labelStyle}>Template HUMAN_REQUIRED</label>
+              <textarea style={inputStyle} placeholder="Usa {priority_phone} y {priority_email}" value={clientForm.human_required_message_template} onChange={(e) => setClientForm((v) => ({ ...v, human_required_message_template: e.target.value }))} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={labelStyle}>Template cierre: cliente no responde</label>
+              <textarea style={inputStyle} placeholder="Usa {priority_phone} y {priority_email}" value={clientForm.close_client_no_response_template} onChange={(e) => setClientForm((v) => ({ ...v, close_client_no_response_template: e.target.value }))} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={labelStyle}>Template cierre: atendido en otra linea</label>
+              <textarea style={inputStyle} placeholder="Usa {priority_phone} y {priority_email}" value={clientForm.close_attended_other_line_template} onChange={(e) => setClientForm((v) => ({ ...v, close_attended_other_line_template: e.target.value }))} />
             </div>
             <button style={btnPrimary}><Plus size={13} /> Crear cliente</button>
           </form>

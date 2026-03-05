@@ -21,6 +21,17 @@ type Message = {
   created_at: string;
 };
 
+type CloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE';
+
+function askCloseReason(): CloseReason | null {
+  const selected = window.prompt(
+    'Selecciona motivo de cierre:\n1) Cliente no responde\n2) Atencion tomada en otra linea\n\nEscribe 1 o 2'
+  );
+  if (selected === '1') return 'CLIENT_NO_RESPONSE';
+  if (selected === '2') return 'ATTENDED_OTHER_LINE';
+  return null;
+}
+
 export default function LeadConversationPage() {
   const params = useParams<{ leadId: string }>();
   const router = useRouter();
@@ -128,7 +139,14 @@ export default function LeadConversationPage() {
   }
 
   async function onCloseLead() {
-    const response = await fetch(`/api/panel/leads/${params.leadId}/close`, { method: 'POST' });
+    const reason = askCloseReason();
+    if (!reason) return;
+
+    const response = await fetch(`/api/panel/leads/${params.leadId}/close`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    });
     if (!response.ok) {
       const payload = await response.json();
       setError(payload.error ?? 'No se pudo cerrar');

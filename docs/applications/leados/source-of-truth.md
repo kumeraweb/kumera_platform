@@ -13,3 +13,4 @@ App: `apps/leadosku-web/leados-system`
 
 ## App backlog source
 - `docs/applications/leados/next-steps.md`
+- `docs/applications/leados/env-contract.md`

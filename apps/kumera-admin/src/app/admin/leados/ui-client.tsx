@@ -9,6 +9,10 @@ type ClientRow = {
   notification_email: string;
   score_threshold: number;
   human_forward_number: string | null;
+  priority_contact_email: string | null;
+  human_required_message_template: string | null;
+  close_client_no_response_template: string | null;
+  close_attended_other_line_template: string | null;
   created_at: string;
 };
 
@@ -25,6 +29,20 @@ export default function LeadosAdminClient({ initialClients }: Props) {
     name: "",
     notification_email: "",
     human_forward_number: "",
+    priority_contact_email: "",
+    human_required_message_template: "",
+    close_client_no_response_template: "",
+    close_attended_other_line_template: "",
+    score_threshold: 85,
+  });
+  const [editingClientId, setEditingClientId] = useState<string>("");
+  const [editForm, setEditForm] = useState({
+    notification_email: "",
+    human_forward_number: "",
+    priority_contact_email: "",
+    human_required_message_template: "",
+    close_client_no_response_template: "",
+    close_attended_other_line_template: "",
     score_threshold: 85,
   });
 
@@ -60,8 +78,56 @@ export default function LeadosAdminClient({ initialClients }: Props) {
     }
 
     setClients((prev) => [payload.client, ...prev]);
-    setClientForm({ name: "", notification_email: "", human_forward_number: "", score_threshold: 85 });
+    setClientForm({
+      name: "",
+      notification_email: "",
+      human_forward_number: "",
+      priority_contact_email: "",
+      human_required_message_template: "",
+      close_client_no_response_template: "",
+      close_attended_other_line_template: "",
+      score_threshold: 85,
+    });
     setMessage("Cliente creado.");
+  }
+
+  function onStartEdit(clientId: string) {
+    const found = clients.find((client) => client.id === clientId);
+    if (!found) return;
+    setEditingClientId(clientId);
+    setEditForm({
+      notification_email: found.notification_email ?? "",
+      human_forward_number: found.human_forward_number ?? "",
+      priority_contact_email: found.priority_contact_email ?? "",
+      human_required_message_template: found.human_required_message_template ?? "",
+      close_client_no_response_template: found.close_client_no_response_template ?? "",
+      close_attended_other_line_template: found.close_attended_other_line_template ?? "",
+      score_threshold: found.score_threshold,
+    });
+  }
+
+  async function onSaveEditClient(event: FormEvent) {
+    event.preventDefault();
+    if (!editingClientId) return;
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch(`/api/admin/leados/clients/${editingClientId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload.error ?? "No se pudo actualizar cliente");
+      return;
+    }
+
+    setClients((prev) =>
+      prev.map((client) => (client.id === editingClientId ? payload.client : client))
+    );
+    setMessage("Cliente actualizado.");
   }
 
   async function onAssignUser(event: FormEvent) {
@@ -140,6 +206,13 @@ export default function LeadosAdminClient({ initialClients }: Props) {
                     <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/leados/clients/${row.id}/flow`}>
                       Gestionar flujo
                     </Link>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-secondary admin-btn-sm ml-2"
+                      onClick={() => onStartEdit(row.id)}
+                    >
+                      Editar
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -168,12 +241,87 @@ export default function LeadosAdminClient({ initialClients }: Props) {
             <input className="admin-input" placeholder="+56912345678" value={clientForm.human_forward_number} onChange={(e) => setClientForm((v) => ({ ...v, human_forward_number: e.target.value }))} required />
           </div>
           <div className="admin-field">
+            <label className="admin-label">Email contacto prioritario</label>
+            <input className="admin-input" type="email" placeholder="contacto@cliente.com" value={clientForm.priority_contact_email} onChange={(e) => setClientForm((v) => ({ ...v, priority_contact_email: e.target.value }))} />
+          </div>
+          <div className="admin-field">
             <label className="admin-label">Score threshold</label>
             <input className="admin-input" type="number" min={0} max={100} value={clientForm.score_threshold} onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Template HUMAN_REQUIRED</label>
+            <textarea
+              className="admin-input min-h-24"
+              placeholder="Usa {priority_phone} y {priority_email}"
+              value={clientForm.human_required_message_template}
+              onChange={(e) => setClientForm((v) => ({ ...v, human_required_message_template: e.target.value }))}
+            />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Template cierre: cliente no responde</label>
+            <textarea
+              className="admin-input min-h-24"
+              placeholder="Usa {priority_phone} y {priority_email}"
+              value={clientForm.close_client_no_response_template}
+              onChange={(e) => setClientForm((v) => ({ ...v, close_client_no_response_template: e.target.value }))}
+            />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Template cierre: atendido en otra línea</label>
+            <textarea
+              className="admin-input min-h-24"
+              placeholder="Usa {priority_phone} y {priority_email}"
+              value={clientForm.close_attended_other_line_template}
+              onChange={(e) => setClientForm((v) => ({ ...v, close_attended_other_line_template: e.target.value }))}
+            />
           </div>
         </div>
         <button className="admin-btn admin-btn-primary mt-4" type="submit">Crear cliente</button>
       </form>
+
+      {/* ─── Edit client config ─── */}
+      {editingClientId ? (
+        <form className="admin-card" onSubmit={onSaveEditClient}>
+          <div className="mb-4 flex items-center gap-3">
+            <span className="badge badge-accent">EDIT</span>
+            <h2 className="section-title">Editar configuración cliente</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="admin-field">
+              <label className="admin-label">Email notificación</label>
+              <input className="admin-input" type="email" value={editForm.notification_email} onChange={(e) => setEditForm((v) => ({ ...v, notification_email: e.target.value }))} required />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Teléfono reenvío humano</label>
+              <input className="admin-input" value={editForm.human_forward_number} onChange={(e) => setEditForm((v) => ({ ...v, human_forward_number: e.target.value }))} required />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Email contacto prioritario</label>
+              <input className="admin-input" type="email" value={editForm.priority_contact_email} onChange={(e) => setEditForm((v) => ({ ...v, priority_contact_email: e.target.value }))} />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Score threshold</label>
+              <input className="admin-input" type="number" min={0} max={100} value={editForm.score_threshold} onChange={(e) => setEditForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
+            </div>
+            <div className="admin-field md:col-span-2">
+              <label className="admin-label">Template HUMAN_REQUIRED</label>
+              <textarea className="admin-input min-h-24" value={editForm.human_required_message_template} onChange={(e) => setEditForm((v) => ({ ...v, human_required_message_template: e.target.value }))} />
+            </div>
+            <div className="admin-field md:col-span-2">
+              <label className="admin-label">Template cierre: cliente no responde</label>
+              <textarea className="admin-input min-h-24" value={editForm.close_client_no_response_template} onChange={(e) => setEditForm((v) => ({ ...v, close_client_no_response_template: e.target.value }))} />
+            </div>
+            <div className="admin-field md:col-span-2">
+              <label className="admin-label">Template cierre: atendido en otra línea</label>
+              <textarea className="admin-input min-h-24" value={editForm.close_attended_other_line_template} onChange={(e) => setEditForm((v) => ({ ...v, close_attended_other_line_template: e.target.value }))} />
+            </div>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button className="admin-btn admin-btn-primary" type="submit">Guardar cambios</button>
+            <button className="admin-btn admin-btn-secondary" type="button" onClick={() => setEditingClientId("")}>Cancelar</button>
+          </div>
+        </form>
+      ) : null}
 
       {/* ─── PASO 2: Assign user ─── */}
       <form className="admin-card" onSubmit={onAssignUser}>

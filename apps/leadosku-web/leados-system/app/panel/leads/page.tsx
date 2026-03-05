@@ -21,6 +21,17 @@ type TenantInfo = {
   client_name: string | null;
 };
 
+type CloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE';
+
+function askCloseReason(): CloseReason | null {
+  const selected = window.prompt(
+    'Selecciona motivo de cierre:\n1) Cliente no responde\n2) Atencion tomada en otra linea\n\nEscribe 1 o 2'
+  );
+  if (selected === '1') return 'CLIENT_NO_RESPONSE';
+  if (selected === '2') return 'ATTENDED_OTHER_LINE';
+  return null;
+}
+
 const PAGE_SIZE = 20;
 
 export default function PanelLeadsPage() {
@@ -137,10 +148,17 @@ export default function PanelLeadsPage() {
   }
 
   async function onCloseLead(leadId: string) {
+    const reason = askCloseReason();
+    if (!reason) return;
+
     setClosingLeadId(leadId);
     setError(null);
 
-    const response = await fetch(`/api/panel/leads/${leadId}/close`, { method: 'POST' });
+    const response = await fetch(`/api/panel/leads/${leadId}/close`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    });
     const payload = await response.json().catch(() => ({}));
 
     if (!response.ok) {

@@ -32,4 +32,5 @@ Domain/app references are kept in each app folder:
 - LeadOS: `apps/leadosku-web/leados-system` -> `leados`
 - Tractiva: `apps/tractiva-web` -> billing touchpoints (no dedicated tractiva schema yet)
 - Sitiora: `apps/sitiora-web` -> billing touchpoints (no dedicated sitiora schema yet)
+- Kumera Web: `apps/kumera-web` -> website/contact touchpoints (no dedicated schema)
 - Kumera Admin: `apps/kumera-admin` -> cross-schema admin operations

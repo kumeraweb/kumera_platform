@@ -9,7 +9,9 @@ export default async function LeadosAdminPage() {
   const leados = createLeadosServiceClient();
   const { data, error } = await leados
     .from("clients")
-    .select("id, name, notification_email, score_threshold, human_forward_number, created_at")
+    .select(
+      "id, name, notification_email, score_threshold, human_forward_number, priority_contact_email, human_required_message_template, close_client_no_response_template, close_attended_other_line_template, created_at"
+    )
     .order("created_at", { ascending: false });
 
   return (

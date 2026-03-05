@@ -2,10 +2,26 @@ import { z } from 'zod';
 import { requireBackofficeAdmin } from '@/lib/domain/authz';
 import { fail, ok } from '@/lib/domain/http';
 
+const optionalEmail = z.preprocess((value) => {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}, z.string().email().optional());
+
+const optionalTemplate = z.preprocess((value) => {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}, z.string().min(1).optional());
+
 const createClientSchema = z.object({
   name: z.string().min(1),
   notification_email: z.string().email(),
   human_forward_number: z.string().min(1),
+  priority_contact_email: optionalEmail,
+  human_required_message_template: optionalTemplate,
+  close_client_no_response_template: optionalTemplate,
+  close_attended_other_line_template: optionalTemplate,
   score_threshold: z.number().int().min(0).max(100),
   strategic_questions: z.array(z.string()).max(3)
 });

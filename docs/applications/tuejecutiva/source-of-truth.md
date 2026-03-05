@@ -13,6 +13,7 @@ App: `apps/tuejecutiva-web`
 
 ## App backlog source
 - `docs/applications/tuejecutiva/next-steps.md`
+- `docs/applications/tuejecutiva/env-contract.md`
 
 ## Product intent source
 - `docs/applications/tuejecutiva/project-intent.md`

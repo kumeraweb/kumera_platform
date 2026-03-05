@@ -12,3 +12,4 @@ App: `apps/kumera-admin`
 
 ## App backlog source
 - `docs/applications/kumera-admin/next-steps.md`
+- `docs/applications/kumera-admin/env-contract.md`

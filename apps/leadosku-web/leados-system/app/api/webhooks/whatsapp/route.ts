@@ -8,6 +8,7 @@ import { sendWhatsappText } from '@/lib/domain/messaging';
 import { sendLeadNotificationEmail } from '@/lib/domain/email';
 import { mapTextToOptionDefensively } from '@/lib/domain/ai';
 import { env } from '@/lib/env';
+import { getHumanRequiredHandoffText } from '@/lib/domain/leadMessaging';
 import {
   clampScore,
   extractDirectOption,
@@ -344,7 +345,9 @@ export async function POST(req: Request) {
 
   const { data: client } = await service
     .from('clients')
-    .select('id, name, score_threshold, notification_email, human_forward_number')
+    .select(
+      'id, name, score_threshold, notification_email, human_forward_number, priority_contact_email, human_required_message_template, close_client_no_response_template, close_attended_other_line_template'
+    )
     .eq('id', channel.client_id)
     .maybeSingle();
   if (!client) {
@@ -558,9 +561,7 @@ export async function POST(req: Request) {
       return fail(escalateLead.error.message, 500);
     }
 
-    const handoffText = client.human_forward_number
-      ? `Gracias. Te derivaré con un ejecutivo. También puedes escribir a ${client.human_forward_number}.`
-      : 'Gracias. Te derivaré con un ejecutivo del equipo.';
+    const handoffText = getHumanRequiredHandoffText(client);
 
     try {
       await sendBotMessage({
@@ -614,9 +615,7 @@ export async function POST(req: Request) {
         return fail(escalateLead.error.message, 500);
       }
 
-      const handoffText = client.human_forward_number
-        ? `Gracias. Te derivaré con un ejecutivo. También puedes escribir a ${client.human_forward_number}.`
-        : 'Gracias. Te derivaré con un ejecutivo del equipo.';
+      const handoffText = getHumanRequiredHandoffText(client);
 
       try {
         await sendBotMessage({
@@ -945,9 +944,7 @@ export async function POST(req: Request) {
       return fail(escalateLead.error.message, 500);
     }
 
-    const handoffText = client.human_forward_number
-      ? `Gracias. Te derivaré con un ejecutivo. También puedes escribir a ${client.human_forward_number}.`
-      : 'Gracias. Te derivaré con un ejecutivo del equipo.';
+    const handoffText = getHumanRequiredHandoffText(client);
 
     try {
       await sendBotMessage({
@@ -1040,9 +1037,7 @@ export async function POST(req: Request) {
       return fail(closeLead.error.message, 500);
     }
 
-    const handoffText = client.human_forward_number
-      ? `Gracias. Te derivaré con un ejecutivo. También puedes escribir a ${client.human_forward_number}.`
-      : 'Gracias. Te derivaré con un ejecutivo del equipo.';
+    const handoffText = getHumanRequiredHandoffText(client);
     try {
       await sendBotMessage({
         service,

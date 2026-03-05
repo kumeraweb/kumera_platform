@@ -1,15 +1,16 @@
-import { z } from 'zod';
-import { requireBackofficeAdmin } from '@/lib/domain/authz';
-import { fail, ok } from '@/lib/domain/http';
+import { z } from "zod";
+import { requireAdminApi, ROLE } from "@/lib/auth";
+import { createLeadosServiceClient } from "@/lib/db";
+import { fail, ok } from "@/lib/http";
 
 const optionalEmail = z.preprocess((value) => {
-  if (typeof value !== 'string') return value;
+  if (typeof value !== "string") return value;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
 }, z.string().email().optional());
 
 const optionalTemplate = z.preprocess((value) => {
-  if (typeof value !== 'string') return value;
+  if (typeof value !== "string") return value;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
 }, z.string().min(1).optional());
@@ -22,37 +23,31 @@ const updateClientSchema = z.object({
   close_client_no_response_template: optionalTemplate,
   close_attended_other_line_template: optionalTemplate,
   score_threshold: z.number().int().min(0).max(100).optional(),
-  strategic_questions: z.array(z.string()).max(3).optional()
+  strategic_questions: z.array(z.string()).max(3).optional(),
 });
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ clientId: string }> }) {
-  const auth = await requireBackofficeAdmin();
-  if (!auth.ok) {
-    return fail(auth.error, auth.status);
-  }
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ clientId: string }> },
+) {
+  const auth = await requireAdminApi([ROLE.LEADOS]);
+  if (!auth.ok) return auth.response;
 
   const payload = await req.json().catch(() => null);
   const parsed = updateClientSchema.safeParse(payload);
-  if (!parsed.success) {
-    return fail('Invalid payload', 400);
-  }
+  if (!parsed.success) return fail("Invalid payload", 400);
 
   const { clientId } = await params;
-
-  const { data, error } = await auth.serviceSupabase
-    .from('clients')
+  const leados = createLeadosServiceClient();
+  const { data, error } = await leados
+    .from("clients")
     .update(parsed.data)
-    .eq('id', clientId)
-    .select('*')
+    .eq("id", clientId)
+    .select("*")
     .maybeSingle();
 
-  if (error) {
-    return fail(error.message, 500);
-  }
-
-  if (!data) {
-    return fail('Client not found', 404);
-  }
+  if (error) return fail(error.message, 500);
+  if (!data) return fail("Client not found", 404);
 
   return ok({ client: data });
 }
