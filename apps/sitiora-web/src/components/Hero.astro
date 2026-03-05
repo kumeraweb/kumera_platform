@@ -5,10 +5,24 @@ const whatsappMessage = encodeURIComponent(
 const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
 ---
 
-<section class="pt-32 pb-20 md:pt-44 md:pb-32 lg:pt-52 lg:pb-40">
+<section
+    class="relative pt-36 pb-24 md:pt-52 md:pb-36 lg:pt-60 lg:pb-44 overflow-hidden"
+>
+    {/* Número de referencia editorial */}
+    <span
+        class="absolute top-24 right-6 md:right-10 section-label text-border-strong select-none hidden md:block"
+        aria-hidden="true">/001</span
+    >
+
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
+        {/* Eyebrow label */}
+        <p class="section-label mb-8 md:mb-10 reveal">
+            Agencia de Diseño Web — Chile
+        </p>
+
+        {/* Headline monumental */}
         <h1
-            class="font-display text-[clamp(2.8rem,8vw,8rem)] leading-[0.95] tracking-[-0.03em] text-fg mb-8 md:mb-12 max-w-[1200px] reveal"
+            class="font-display text-[clamp(3.25rem,9.5vw,10.5rem)] leading-[0.9] tracking-[-0.035em] text-fg mb-10 md:mb-14 max-w-[1150px] reveal reveal-delay-1"
         >
             Diseñamos sitios web que generan <em class="italic"
                 >clientes reales</em
@@ -19,19 +33,21 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
             class="flex flex-col md:flex-row md:items-end md:justify-between gap-8 md:gap-16"
         >
             <p
-                class="text-lg md:text-xl text-muted max-w-xl leading-relaxed reveal reveal-delay-1"
+                class="text-base md:text-lg text-muted max-w-lg leading-relaxed reveal reveal-delay-2"
+                style="font-weight: 300;"
             >
-                Agencia de diseño web en Chile enfocada en conversión comercial.
-                Planes accesibles para emprendedores desde $79.000 y escalamiento
-                a soluciones premium para empresas que necesitan más alcance.
+                Agencia enfocada en conversión comercial. Planes desde $79.000
+                para emprendedores, hasta soluciones enterprise para empresas
+                que necesitan más.
             </p>
 
             <div
-                class="flex flex-col sm:flex-row items-start sm:items-center gap-4 reveal reveal-delay-2"
+                class="flex flex-col sm:flex-row items-start sm:items-center gap-3 reveal reveal-delay-2"
             >
                 <a
                     href="#contacto"
-                    class="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium bg-fg text-bg hover:bg-fg/85 transition-colors duration-300"
+                    class="inline-flex items-center justify-center border border-fg bg-fg text-bg hover:bg-transparent hover:text-fg transition-all duration-300 px-8 py-3.5 rounded-sm"
+                    style="font-size: 0.875rem; letter-spacing: 0.01em;"
                 >
                     Solicitar Propuesta
                 </a>
@@ -39,42 +55,50 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium border border-border text-fg hover:bg-fg hover:text-bg transition-all duration-300"
+                    class="inline-flex items-center justify-center border border-border text-fg hover:border-fg transition-all duration-300 px-8 py-3.5 rounded-sm"
+                    style="font-size: 0.875rem; letter-spacing: 0.01em;"
                 >
                     WhatsApp Directo
                 </a>
             </div>
         </div>
 
-        <div class="h-px bg-border mt-16 md:mt-24 line-appear"></div>
+        {/* Línea separadora */}
+        <div class="h-px bg-border mt-20 md:mt-28 line-appear"></div>
 
-        <div
-            class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mt-12 md:mt-16"
-        >
-            <div class="reveal reveal-delay-1">
-                <p class="font-display text-4xl md:text-5xl text-fg mb-1">
-                    7–14
-                </p>
-                <p class="text-sm text-muted">días una landing</p>
+        {/* Stats row */}
+        <div class="grid grid-cols-2 md:grid-cols-4 mt-0">
+            {
+                [
+                    { num: "7–14", label: "días una landing" },
+                    { num: "100%", label: "foco en conversión" },
+                    { num: "CRO", label: "listo para Google Ads" },
+                    { num: "+20", label: "clientes en Chile" },
+                ].map((stat, i) => (
+                    <div
+                        class:list={[
+                            "py-8 md:py-10 reveal",
+                            `reveal-delay-${i + 1}`,
+                            i > 0 ? "border-l border-border pl-6 md:pl-10" : "",
+                            i > 0 ? "" : "pr-6 md:pr-10",
+                        ]}
+                    >
+                        <p class="font-display text-[clamp(2.25rem,5vw,3.75rem)] text-fg leading-none mb-2">
+                            {stat.num}
+                        </p>
+                        <p class="section-label">{stat.label}</p>
+                    </div>
+                ))
+            }
+        </div>
+
+        {/* Scroll hint */}
+        <div class="mt-4 flex items-center gap-3 reveal reveal-delay-4">
+            <div class="scroll-hint">
+                <div class="w-px h-8 bg-muted/30"></div>
+                <div class="w-1 h-1 rounded-full bg-muted/50"></div>
             </div>
-            <div class="reveal reveal-delay-2">
-                <p class="font-display text-4xl md:text-5xl text-fg mb-1">
-                    100%
-                </p>
-                <p class="text-sm text-muted">foco en conversión</p>
-            </div>
-            <div class="reveal reveal-delay-3">
-                <p class="font-display text-4xl md:text-5xl text-fg mb-1">
-                    CRO
-                </p>
-                <p class="text-sm text-muted">optimizado para ads</p>
-            </div>
-            <div class="reveal reveal-delay-4">
-                <p class="font-display text-4xl md:text-5xl text-fg mb-1">
-                    Chile
-                </p>
-                <p class="text-sm text-muted">foco regional</p>
-            </div>
+            <span class="section-label">scroll</span>
         </div>
     </div>
 </section>

@@ -29,54 +29,21 @@ const steps = [
 
 <section
     id="proceso"
-    class="py-24 md:py-40 bg-fg text-bg relative overflow-hidden"
+    class="py-28 md:py-44 bg-fg text-bg relative overflow-hidden"
 >
-    {/* SVG decorative grid lines */}
-    <svg
-        class="absolute inset-0 w-full h-full opacity-[0.03] pointer-events-none"
-        viewBox="0 0 1400 800"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+    {/* Subtle grain texture overlay */}
+    <div
+        class="absolute inset-0 opacity-[0.025] pointer-events-none"
+        aria-hidden="true"
+        style="background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E&quot;); background-size: 200px;"
     >
-        <line
-            x1="350"
-            y1="0"
-            x2="350"
-            y2="800"
-            stroke="#10b981"
-            stroke-width="1"></line>
-        <line
-            x1="700"
-            y1="0"
-            x2="700"
-            y2="800"
-            stroke="#10b981"
-            stroke-width="1"></line>
-        <line
-            x1="1050"
-            y1="0"
-            x2="1050"
-            y2="800"
-            stroke="#10b981"
-            stroke-width="1"></line>
-        <line
-            x1="0"
-            y1="400"
-            x2="1400"
-            y2="400"
-            stroke="#10b981"
-            stroke-width="0.5"></line>
-    </svg>
+    </div>
 
     <div class="max-w-[1400px] mx-auto px-6 md:px-10 relative z-10">
         <div class="mb-16 md:mb-24 max-w-3xl reveal">
-            <p
-                class="text-sm uppercase tracking-[0.15em] text-emerald-400 mb-6"
-            >
-                Proceso
-            </p>
+            <p class="section-label text-accent-green/70 mb-8">Proceso</p>
             <h2
-                class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-bg"
+                class="font-display text-[clamp(2.25rem,5.5vw,5rem)] leading-[1.0] tracking-[-0.025em] text-bg"
             >
                 Metodología transparente, de principio a fin.
             </h2>
@@ -87,21 +54,27 @@ const steps = [
                 steps.map((step, i) => (
                     <div
                         class:list={[
-                            "py-10 md:py-0 md:pr-10 group",
+                            "py-10 md:py-0 md:pr-12 group relative reveal",
                             i > 0
-                                ? "border-t md:border-t-0 md:border-l border-bg/15 md:pl-10"
+                                ? "border-t md:border-t-0 md:border-l border-bg/10 md:pl-12"
                                 : "",
-                            "reveal",
                             `reveal-delay-${i + 1}`,
                         ]}
                     >
-                        <span class="font-display text-6xl md:text-7xl text-bg/10 group-hover:text-emerald-500/20 transition-colors duration-500 mb-6 block">
+                        <span
+                            class="font-display leading-none text-bg/8 group-hover:text-accent-green/20 transition-colors duration-700 mb-8 block select-none"
+                            style="font-size: clamp(4rem, 8vw, 7rem);"
+                            aria-hidden="true"
+                        >
                             {step.num}
                         </span>
-                        <h3 class="text-xl font-semibold text-bg mb-3">
+                        <h3 class="text-base font-semibold text-bg mb-3 tracking-[-0.01em]">
                             {step.title}
                         </h3>
-                        <p class="text-bg/60 text-sm leading-relaxed">
+                        <p
+                            class="text-bg/50 text-sm leading-relaxed"
+                            style="font-weight: 300;"
+                        >
                             {step.description}
                         </p>
                     </div>
@@ -112,29 +85,50 @@ const steps = [
 </section>
 
 {/* Social Proof Strip */}
-<section class="py-16 md:py-20 border-b border-border">
+<section class="py-14 md:py-18 border-b border-border">
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
         <div
-            class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 text-center reveal"
+            class="flex flex-col md:flex-row items-center justify-between gap-8 reveal"
         >
-            <div class="flex items-center gap-3">
-                <span class="font-display text-4xl md:text-5xl text-fg"
+            <div class="flex items-baseline gap-4">
+                <span
+                    class="font-display text-[clamp(2.5rem,5vw,4rem)] text-fg leading-none"
                     >+20</span
                 >
-                <span class="text-sm text-muted text-left leading-tight"
-                    >clientes<br />satisfechos</span
-                >
+                <span class="section-label">clientes<br />satisfechos</span>
             </div>
+
             <div class="hidden md:block w-px h-10 bg-border"></div>
-            <p class="text-muted text-sm md:text-base max-w-md">
-                Empresas y profesionales en Chile que ya convirtieron su
-                presencia digital en un canal real de captación comercial.
+
+            <p
+                class="text-muted text-sm max-w-sm leading-relaxed text-center md:text-left"
+                style="font-weight: 300;"
+            >
+                Empresas y profesionales en Chile que convirtieron su presencia
+                digital en un canal real de captación comercial.
             </p>
+
             <div class="hidden md:block w-px h-10 bg-border"></div>
-            <div class="flex items-center gap-1.5">
+
+            <div class="flex items-center gap-1">
                 {
                     [1, 2, 3, 4, 5].map(() => (
-                        <span class="w-2 h-2 rounded-full bg-emerald-500" />
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M7 1L8.5 5.5H13L9.5 8L11 12.5L7 10L3 12.5L4.5 8L1 5.5H5.5L7 1Z"
+                                stroke="currentColor"
+                                stroke-width="0.8"
+                                fill="none"
+                                class="text-fg/60"
+                            />
+                        </svg>
                     ))
                 }
             </div>

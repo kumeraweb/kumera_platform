@@ -2,83 +2,108 @@
 
 ---
 
-<footer class="bg-fg text-bg py-16 md:py-24">
+<footer class="bg-fg text-bg" style="padding: 5rem 0 3rem;">
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
-        <div class="grid md:grid-cols-3 gap-12 md:gap-16 mb-16 md:mb-24">
+        {/* Top section: tagline + grid */}
+        <div class="grid md:grid-cols-2 gap-16 md:gap-24 mb-20 md:mb-28">
+            {/* Tagline block */}
             <div>
                 <a
                     href="/"
-                    class="text-2xl font-bold tracking-tight text-bg mb-4 inline-block"
+                    class="inline-block mb-8 text-sm font-semibold tracking-[-0.04em] text-bg"
+                    style="font-size: 1.0625rem;"
                 >
                     <span class="logo-flip">
                         <span class="logo-flip-inner">
-                            <span><span class="logo-brand">Sitiora</span></span>
-                            <span class="logo-tagline">Tu sitio web, ahora</span
+                            <span
+                                ><span
+                                    class="logo-brand"
+                                    style="--dot-color: rgba(245,245,240,0.9);"
+                                    >Sitiora</span
+                                ></span
+                            >
+                            <span
+                                class="logo-tagline"
+                                style="color: rgba(245,245,240,0.4);"
+                                >Tu sitio web, ahora</span
                             >
                         </span>
                     </span>
                 </a>
-                <p class="text-bg/50 text-sm max-w-xs leading-relaxed">
-                    Agencia de diseño web en Chile enfocada en conversión
-                    comercial. Parte de Kumera Platform.
+
+                <p
+                    class="font-display text-[clamp(1.75rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.025em] text-bg/85 max-w-sm"
+                >
+                    Diseño web que convierte visitas en clientes.
                 </p>
             </div>
 
-            <div>
-                <p class="text-xs uppercase tracking-[0.15em] text-bg/40 mb-4">
-                    Navegación
-                </p>
-                <ul class="space-y-2 text-sm">
-                    <li>
-                        <a
-                            href="#servicios"
-                            class="text-bg/70 hover:text-bg transition-colors duration-300"
-                            >Servicios</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#proceso"
-                            class="text-bg/70 hover:text-bg transition-colors duration-300"
-                            >Proceso</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#precios"
-                            class="text-bg/70 hover:text-bg transition-colors duration-300"
-                            >Precios</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#contacto"
-                            class="text-bg/70 hover:text-bg transition-colors duration-300"
-                            >Contacto</a
-                        >
-                    </li>
-                </ul>
-            </div>
+            {/* Links + Contact */}
+            <div class="grid grid-cols-2 gap-10 md:gap-16 content-start">
+                <div>
+                    <p class="section-label text-bg/35 mb-5">Navegación</p>
+                    <ul class="space-y-3">
+                        {
+                            [
+                                { href: "#servicios", label: "Servicios" },
+                                { href: "#proceso", label: "Proceso" },
+                                { href: "#precios", label: "Precios" },
+                                { href: "#contacto", label: "Contacto" },
+                            ].map((link) => (
+                                <li>
+                                    <a
+                                        href={link.href}
+                                        class="text-bg/55 hover:text-bg transition-colors duration-200 link-underline"
+                                        style="font-size: 0.875rem;"
+                                    >
+                                        {link.label}
+                                    </a>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
 
-            <div>
-                <p class="text-xs uppercase tracking-[0.15em] text-bg/40 mb-4">
-                    Contacto
-                </p>
-                <ul class="space-y-2 text-sm text-bg/70">
-                    <li>Santiago, Chile</li>
-                    <li>contacto@kumeraweb.com</li>
-                </ul>
+                <div>
+                    <p class="section-label text-bg/35 mb-5">Contacto</p>
+                    <ul class="space-y-3">
+                        <li>
+                            <a
+                                href="mailto:contacto@kumeraweb.com"
+                                class="text-bg/55 hover:text-bg transition-colors duration-200 link-underline"
+                                style="font-size: 0.875rem;"
+                            >
+                                contacto@kumeraweb.com
+                            </a>
+                        </li>
+                        <li class="text-bg/55" style="font-size: 0.875rem;">
+                            Santiago, Chile
+                        </li>
+                        <li>
+                            <a
+                                href="https://wa.me/56994186218"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-bg/55 hover:text-bg transition-colors duration-200 link-underline"
+                                style="font-size: 0.875rem;"
+                            >
+                                WhatsApp
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
+        {/* Bottom bar */}
         <div
-            class="border-t border-bg/15 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-bg/40"
+            class="border-t border-bg/10 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3"
         >
-            <p>
-                &copy; {new Date().getFullYear()} Sitiora · Kumera Servicios Digitales
+            <p class="section-label text-bg/25">
+                © {new Date().getFullYear()} Sitiora · Kumera Servicios Digitales
                 SpA
             </p>
-            <p>Cierre comercial manual · Billing Kumera</p>
+            <p class="section-label text-bg/20">Parte de Kumera Platform</p>
         </div>
     </div>
 </footer>

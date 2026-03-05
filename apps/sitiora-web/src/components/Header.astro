@@ -6,12 +6,18 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
 ---
 
 <header
-    class="fixed top-0 w-full z-50 bg-bg/95 backdrop-blur-sm border-b border-border"
+    class="fixed top-0 w-full z-50 transition-all duration-500"
+    id="site-header"
 >
     <div
-        class="max-w-[1400px] mx-auto px-6 md:px-10 h-16 flex items-center justify-between"
+        class="max-w-[1400px] mx-auto px-6 md:px-10 h-14 flex items-center justify-between border-b border-border/70"
+        id="header-inner"
     >
-        <a href="/" class="text-xl font-bold tracking-tight text-fg">
+        <a
+            href="/"
+            class="text-sm font-semibold tracking-[-0.04em] text-fg"
+            style="font-size: 1.0625rem;"
+        >
             <span class="logo-flip">
                 <span class="logo-flip-inner">
                     <span><span class="logo-brand">Sitiora</span></span>
@@ -20,37 +26,72 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
             </span>
         </a>
 
-        <nav class="hidden md:flex items-center gap-10 text-sm text-muted">
+        <nav
+            class="hidden md:flex items-center gap-8"
+            style="font-size: 0.8125rem; letter-spacing: 0.01em;"
+        >
             <a
                 href="#servicios"
-                class="hover:text-fg transition-colors duration-300"
+                class="text-muted hover:text-fg transition-colors duration-200 link-underline"
                 >Servicios</a
             >
             <a
                 href="#proceso"
-                class="hover:text-fg transition-colors duration-300">Proceso</a
+                class="text-muted hover:text-fg transition-colors duration-200 link-underline"
+                >Proceso</a
             >
             <a
                 href="#precios"
-                class="hover:text-fg transition-colors duration-300">Precios</a
+                class="text-muted hover:text-fg transition-colors duration-200 link-underline"
+                >Precios</a
             >
         </nav>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
             <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="hidden sm:inline-flex items-center text-sm text-muted hover:text-fg transition-colors duration-300"
+                class="hidden sm:inline-flex items-center text-muted hover:text-fg transition-colors duration-200 link-underline"
+                style="font-size: 0.8125rem;"
             >
                 WhatsApp
             </a>
             <a
                 href="#contacto"
-                class="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-medium bg-fg text-bg hover:bg-fg/85 transition-colors duration-300"
+                class="inline-flex items-center justify-center border border-fg/80 text-fg hover:bg-fg hover:text-bg transition-all duration-300 px-5 py-2 rounded-sm"
+                style="font-size: 0.8125rem; letter-spacing: 0.01em;"
             >
                 Contactar
             </a>
         </div>
     </div>
 </header>
+
+<script>
+    const header = document.getElementById("site-header");
+    const inner = document.getElementById("header-inner");
+
+    if (header && inner) {
+        let scrolled = false;
+
+        const onScroll = () => {
+            const isScrolled = window.scrollY > 40;
+            if (isScrolled !== scrolled) {
+                scrolled = isScrolled;
+                if (scrolled) {
+                    header.style.backgroundColor = "rgba(245, 245, 240, 0.97)";
+                    header.style.backdropFilter = "blur(12px)";
+                    header.style.webkitBackdropFilter = "blur(12px)";
+                } else {
+                    header.style.backgroundColor = "transparent";
+                    header.style.backdropFilter = "none";
+                    header.style.webkitBackdropFilter = "none";
+                }
+            }
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+    }
+</script>

@@ -1,12 +1,18 @@
 ---
 const services = [
     {
+        idx: "01",
         title: "Landing Start / Growth",
         description:
             "Nuestra línea principal para volumen. Landings comerciales rápidas, alcance claro y pensadas para emprendedores y pymes de servicios.",
-        tags: ["Desde $79.000", "Entrega rápida", "CTA + formulario + WhatsApp"],
+        tags: [
+            "Desde $79.000",
+            "Entrega rápida",
+            "CTA · formulario · WhatsApp",
+        ],
     },
     {
+        idx: "02",
         title: "Web Pro / Multipágina",
         description:
             "Cuando el negocio necesita más profundidad comercial: más páginas, mejor estructura y narrativa para vender servicios de mayor valor.",
@@ -14,12 +20,14 @@ const services = [
         highlighted: true,
     },
     {
+        idx: "03",
         title: "E-commerce",
         description:
             "No es nuestro producto principal. Se trabaja solo en proyectos donde exista presupuesto y operación para sostener e-commerce en serio.",
         tags: ["Ticket alto", "Evaluación previa", "Implementación a medida"],
     },
     {
+        idx: "04",
         title: "Enterprise / A Medida",
         description:
             "Portales de clientes, intranets, sistemas web complejos y arquitecturas personalizadas bajo requerimientos específicos de negocio.",
@@ -28,35 +36,12 @@ const services = [
 ];
 ---
 
-<section id="servicios" class="py-24 md:py-40 relative overflow-hidden">
-    {/* SVG decorative line */}
-    <svg
-        class="absolute top-0 right-0 w-[300px] md:w-[500px] h-full opacity-[0.04] pointer-events-none"
-        viewBox="0 0 500 800"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <path
-            d="M 500 0 Q 200 200 450 400 Q 100 600 500 800"
-            stroke="#10b981"
-            stroke-width="1.5"
-            fill="none"></path>
-        <path
-            d="M 480 0 Q 180 200 430 400 Q 80 600 480 800"
-            stroke="#0a0a0a"
-            stroke-width="0.5"
-            fill="none"></path>
-    </svg>
-
-    <div class="max-w-[1400px] mx-auto px-6 md:px-10 relative z-10">
-        <div class="mb-16 md:mb-24 max-w-3xl reveal">
-            <p
-                class="text-sm uppercase tracking-[0.15em] text-emerald-600 mb-6"
-            >
-                Servicios
-            </p>
+<section id="servicios" class="py-28 md:py-44 relative">
+    <div class="max-w-[1400px] mx-auto px-6 md:px-10">
+        <div class="mb-16 md:mb-24 reveal">
+            <p class="section-label mb-8">Servicios</p>
             <h2
-                class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-fg"
+                class="font-display text-[clamp(2.25rem,5.5vw,5rem)] leading-[1.0] tracking-[-0.025em] text-fg max-w-3xl"
             >
                 Soluciones web orientadas a resultados de negocio.
             </h2>
@@ -67,32 +52,48 @@ const services = [
                 services.map((service, i) => (
                     <div
                         class:list={[
-                            "grid md:grid-cols-[1fr_2fr] gap-6 md:gap-12 py-10 md:py-14 border-t border-border group reveal cursor-default",
+                            "grid md:grid-cols-[80px_1fr_2fr] gap-6 md:gap-10 py-10 md:py-12 border-t border-border group cursor-default reveal",
                             `reveal-delay-${i + 1}`,
                         ]}
                     >
-                        <div class="flex items-baseline gap-4">
-                            <span class="text-emerald-600 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-lg">
-                                →
+                        {/* Index */}
+                        <div class="flex items-start md:items-start pt-1">
+                            <span
+                                class="text-accent-green"
+                                style="font-family: var(--font-mono); font-size: 0.625rem; letter-spacing: 0.1em;"
+                                aria-hidden="true"
+                            >
+                                {service.idx}
                             </span>
-                            <span class="font-display text-3xl md:text-4xl text-fg group-hover:translate-x-1 transition-transform duration-300">
-                                {service.title}
-                            </span>
-                            {service.highlighted && (
-                                <span class="text-[10px] uppercase tracking-[0.15em] font-medium text-emerald-600 border border-emerald-600/30 rounded-full px-2.5 py-0.5">
-                                    Popular
-                                </span>
-                            )}
                         </div>
+
+                        {/* Title */}
+                        <div class="flex flex-col justify-between">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <span class="font-display text-2xl md:text-3xl text-fg leading-tight group-hover:translate-x-1 transition-transform duration-500">
+                                    {service.title}
+                                </span>
+                                {service.highlighted && (
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-accent-green inline-block"
+                                        title="Popular"
+                                        aria-label="Popular"
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Content */}
                         <div>
-                            <p class="text-muted text-base md:text-lg leading-relaxed mb-5">
+                            <p
+                                class="text-muted text-sm md:text-base leading-relaxed mb-5"
+                                style="font-weight: 300;"
+                            >
                                 {service.description}
                             </p>
-                            <div class="flex flex-wrap gap-2">
-                                {service.tags.map((tag: string) => (
-                                    <span class="text-xs text-muted-light border border-border rounded-full px-3 py-1 group-hover:border-emerald-600/30 group-hover:text-emerald-600 transition-colors duration-300">
-                                        {tag}
-                                    </span>
+                            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                                {service.tags.map((tag: string, ti: number) => (
+                                    <span class="section-label">{tag}</span>
                                 ))}
                             </div>
                         </div>

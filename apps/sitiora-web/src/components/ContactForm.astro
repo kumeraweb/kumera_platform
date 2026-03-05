@@ -5,68 +5,80 @@ const whatsappMessage = encodeURIComponent(
 const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
 ---
 
-<section id="contacto" class="py-24 md:py-40 border-t border-border">
+<section id="contacto" class="py-28 md:py-44 border-t border-border">
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
-        <div class="grid lg:grid-cols-2 gap-16 lg:gap-24">
+        <div class="grid lg:grid-cols-2 gap-16 lg:gap-28">
             {/* Left Column */}
             <div class="reveal">
-                <p
-                    class="text-sm uppercase tracking-[0.15em] text-emerald-600 mb-6"
-                >
-                    Contacto
-                </p>
+                <p class="section-label mb-8">Contacto</p>
                 <h2
-                    class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] text-fg mb-8"
+                    class="font-display text-[clamp(2.25rem,5.5vw,5rem)] leading-[1.0] tracking-[-0.025em] text-fg mb-8"
                 >
                     Hablemos de tu proyecto.
                 </h2>
-                <p class="text-lg text-muted leading-relaxed mb-12">
+                <p
+                    class="text-base text-muted leading-relaxed mb-14"
+                    style="font-weight: 300;"
+                >
                     Cuéntanos sobre tu negocio y te contactaremos para agendar
                     una reunión de descubrimiento. Sin compromiso.
                 </p>
 
-                <div class="space-y-6">
-                    <div class="flex items-start gap-4">
+                <ul class="space-y-0">
+                    <li
+                        class="flex items-start gap-5 border-t border-border pt-6 pb-6"
+                    >
                         <span
-                            class="text-sm font-medium text-emerald-600 mt-0.5 w-6 shrink-0"
-                            >→</span
+                            class="text-accent-green shrink-0"
+                            style="font-family: var(--font-mono); font-size: 0.625rem; letter-spacing: 0.1em; margin-top: 3px;"
+                            aria-hidden="true">01</span
                         >
                         <div>
-                            <p class="text-fg font-medium">
+                            <p class="text-fg font-medium text-sm mb-1">
                                 Respuesta en 24 horas hábiles
                             </p>
-                            <p class="text-sm text-muted">
+                            <p
+                                class="text-muted text-sm leading-relaxed"
+                                style="font-weight: 300;"
+                            >
                                 Te contactaremos rápidamente para evaluar tu
                                 requerimiento.
                             </p>
                         </div>
-                    </div>
-                    <div class="flex items-start gap-4">
+                    </li>
+                    <li
+                        class="flex items-start gap-5 border-t border-border pt-6 pb-6"
+                    >
                         <span
-                            class="text-sm font-medium text-fg mt-0.5 w-6 shrink-0"
-                            >→</span
+                            class="text-accent-green shrink-0"
+                            style="font-family: var(--font-mono); font-size: 0.625rem; letter-spacing: 0.1em; margin-top: 3px;"
+                            aria-hidden="true">02</span
                         >
                         <div>
-                            <p class="text-fg font-medium">
+                            <p class="text-fg font-medium text-sm mb-1">
                                 Evaluación honesta
                             </p>
-                            <p class="text-sm text-muted">
+                            <p
+                                class="text-muted text-sm leading-relaxed"
+                                style="font-weight: 300;"
+                            >
                                 Si no somos la agencia adecuada, te lo diremos y
                                 ahorraremos tu tiempo.
                             </p>
                         </div>
-                    </div>
-                </div>
+                    </li>
+                </ul>
 
-                <div class="mt-12 pt-8 border-t border-border">
-                    <p class="text-sm text-muted mb-4">
+                <div class="mt-10 pt-8 border-t border-border">
+                    <p class="section-label mb-4">
                         ¿Prefieres algo más directo?
                     </p>
                     <a
                         href={whatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex items-center justify-center rounded-full px-8 py-4 text-base font-medium border border-border text-fg hover:bg-fg hover:text-bg transition-all duration-300"
+                        class="inline-flex items-center justify-center border border-border text-fg hover:border-accent-green hover:text-accent-green transition-all duration-300 px-8 py-3.5 rounded-sm"
+                        style="font-size: 0.875rem; letter-spacing: 0.01em;"
                     >
                         Escribir por WhatsApp
                     </a>
@@ -75,11 +87,9 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
 
             {/* Form Column */}
             <div class="reveal reveal-delay-1">
-                <form id="lead-form" class="space-y-8">
+                <form id="lead-form" class="space-y-8" novalidate>
                     <div>
-                        <label
-                            for="nombre"
-                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                        <label for="nombre" class="section-label mb-3 block"
                             >Nombre</label
                         >
                         <input
@@ -88,14 +98,12 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                             name="nombre"
                             required
                             placeholder="Tu nombre completo"
-                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-emerald-600 transition-colors duration-300"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-sm placeholder:text-muted/35 focus:outline-none focus:border-accent-green transition-colors duration-300"
                         />
                     </div>
 
                     <div>
-                        <label
-                            for="email"
-                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                        <label for="email" class="section-label mb-3 block"
                             >Email</label
                         >
                         <input
@@ -104,38 +112,38 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                             name="email"
                             required
                             placeholder="tu@empresa.cl"
-                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-fg transition-colors duration-300"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-sm placeholder:text-muted/35 focus:outline-none focus:border-accent-green transition-colors duration-300"
                         />
                     </div>
 
                     <div>
                         <label
                             for="telefono"
-                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
-                            >Teléfono <span class="normal-case text-muted/60"
-                                >(opcional)</span
-                            ></label
+                            class="section-label mb-3 flex items-center gap-2"
                         >
+                            Teléfono
+                            <span class="section-label" style="opacity: 0.5;"
+                                >(opcional)</span
+                            >
+                        </label>
                         <input
                             type="tel"
                             id="telefono"
                             name="telefono"
                             placeholder="+56 9 1234 5678"
-                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-fg transition-colors duration-300"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-sm placeholder:text-muted/35 focus:outline-none focus:border-fg transition-colors duration-300"
                         />
                     </div>
 
                     <div>
-                        <label
-                            for="servicio"
-                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                        <label for="servicio" class="section-label mb-3 block"
                             >Servicio</label
                         >
                         <select
                             id="servicio"
                             name="servicio"
                             required
-                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base appearance-none focus:outline-none focus:border-fg transition-colors duration-300 cursor-pointer"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-sm appearance-none focus:outline-none focus:border-accent-green transition-colors duration-300 cursor-pointer"
                         >
                             <option value="" disabled selected hidden
                                 >Selecciona una opción</option
@@ -154,9 +162,7 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                     </div>
 
                     <div>
-                        <label
-                            for="mensaje"
-                            class="block text-xs uppercase tracking-[0.15em] text-muted mb-3"
+                        <label for="mensaje" class="section-label mb-3 block"
                             >Mensaje</label
                         >
                         <textarea
@@ -165,15 +171,16 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                             required
                             rows="4"
                             placeholder="Cuéntanos brevemente qué necesitas y qué resultados buscas..."
-                            class="w-full bg-transparent border-b border-border py-3 text-fg text-base placeholder:text-muted/40 focus:outline-none focus:border-fg transition-colors duration-300 resize-none"
+                            class="w-full bg-transparent border-b border-border py-3 text-fg text-sm placeholder:text-muted/35 focus:outline-none focus:border-fg transition-colors duration-300 resize-none"
                         ></textarea>
                     </div>
 
-                    <div class="pt-4">
+                    <div class="pt-2">
                         <button
                             type="submit"
                             id="submit-btn"
-                            class="inline-flex items-center justify-center rounded-full px-10 py-4 text-base font-medium bg-fg text-bg hover:bg-emerald-600 transition-colors duration-300 w-full md:w-auto"
+                            class="inline-flex items-center justify-center border border-fg bg-fg text-bg hover:bg-transparent hover:text-fg transition-all duration-300 px-10 py-4 rounded-sm w-full md:w-auto"
+                            style="font-size: 0.875rem; letter-spacing: 0.01em;"
                         >
                             Enviar Solicitud
                         </button>
@@ -181,7 +188,8 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
 
                     <div
                         id="form-message"
-                        class="hidden text-sm font-medium py-4"
+                        class="hidden text-sm py-3"
+                        style="font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em;"
                     >
                     </div>
                 </form>
@@ -201,7 +209,7 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
 
             btn.setAttribute("disabled", "true");
             btn.textContent = "Enviando...";
-            btn.classList.add("opacity-60", "cursor-not-allowed");
+            btn.classList.add("opacity-50", "cursor-not-allowed");
             msg.className = "hidden";
 
             const formData = new FormData(form);
@@ -223,18 +231,18 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                 form.reset();
                 msg.textContent =
                     "✓ Solicitud enviada. Te contactaremos pronto.";
-                msg.className = "text-sm font-medium py-4 text-fg block";
+                msg.className = "text-fg block py-3";
                 window.dispatchEvent(
                     new CustomEvent("sitiora_form_submit_success"),
                 );
             } catch (err: any) {
                 msg.textContent =
                     err.message || "Ocurrió un error. Intenta nuevamente.";
-                msg.className = "text-sm font-medium py-4 text-red-600 block";
+                msg.className = "text-red-600 block py-3";
             } finally {
                 btn.removeAttribute("disabled");
                 btn.textContent = "Enviar Solicitud";
-                btn.classList.remove("opacity-60", "cursor-not-allowed");
+                btn.classList.remove("opacity-50", "cursor-not-allowed");
             }
         });
     }
