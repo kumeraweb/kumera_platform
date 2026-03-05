@@ -42,6 +42,31 @@ import "../styles/global.css";
 
     <meta name="theme-color" content="#0f172a" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17993579804"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag =
+        window.gtag ||
+        function () {
+          window.dataLayer.push(arguments);
+        };
+      window.gtag_report_conversion = function (url) {
+        var callback = function () {
+          if (typeof url !== "undefined") {
+            window.location = url;
+          }
+        };
+        window.gtag("event", "conversion", {
+          send_to: "AW-17993579804/zPwUCI3o7YIcEJz6gIRD",
+          value: 1.0,
+          currency: "CLP",
+          event_callback: callback,
+        });
+        return false;
+      };
+      window.gtag("js", new Date());
+      window.gtag("config", "AW-17993579804");
+    </script>
 
     <script
       type="application/ld+json"

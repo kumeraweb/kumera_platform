@@ -7,3 +7,4 @@
 5. Definir SLA de respuesta comercial para leads entrantes.
 6. Evaluar fase 2 de persistencia estructurada de leads (`core.marketing_leads`).
 7. Diseñar version visual/branding avanzada sin alterar logica comercial.
+8. Cargar campana Search Chile v1 segun `docs/lineamientos campañas google ads/kumera-services/sitiora/campana-definitiva-sitiora-v1.md`.

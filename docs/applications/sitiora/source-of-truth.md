@@ -16,3 +16,6 @@ App: `apps/sitiora-web`
 
 ## App backlog source
 - `docs/applications/sitiora/next-steps.md`
+
+## Google Ads planning workspace
+- `docs/lineamientos campañas google ads/kumera-services/sitiora/campana-definitiva-sitiora-v1.md`

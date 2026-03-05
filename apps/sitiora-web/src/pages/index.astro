@@ -10,6 +10,11 @@ import ContactForm from "../components/ContactForm.astro";
 import Footer from "../components/Footer.astro";
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://sitiora.kumeraweb.com";
+const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-17993579804";
+const WHATSAPP_CONVERSION_LABEL =
+  import.meta.env.PUBLIC_GOOGLE_ADS_WHATSAPP_LABEL || "";
+const FORM_CONVERSION_LABEL =
+  import.meta.env.PUBLIC_GOOGLE_ADS_FORM_LABEL || "";
 ---
 
 <Layout canonical={siteUrl}>
@@ -24,8 +29,14 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://sitiora.kumeraweb.co
   </main>
   <Footer />
 
-  <script>
+  <script
+    define:vars={{ GOOGLE_ADS_ID, WHATSAPP_CONVERSION_LABEL, FORM_CONVERSION_LABEL }}
+  >
     window.dataLayer = window.dataLayer || [];
+    const sendAdsConversion = (label) => {
+      if (!label || typeof window.gtag !== "function") return;
+      window.gtag("event", "conversion", { send_to: `${GOOGLE_ADS_ID}/${label}` });
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -55,6 +66,17 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://sitiora.kumeraweb.co
         href: link.href,
         path: window.location.pathname,
       });
+
+      if (typeof window.gtag_report_conversion === "function") {
+        event.preventDefault();
+        window.gtag_report_conversion(link.href);
+        window.setTimeout(() => {
+          window.location.href = link.href;
+        }, 900);
+        return;
+      }
+
+      sendAdsConversion(WHATSAPP_CONVERSION_LABEL);
     });
 
     window.addEventListener("sitiora_form_submit_success", () => {
@@ -62,6 +84,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://sitiora.kumeraweb.co
         event: "sitiora_form_submit_success",
         path: window.location.pathname,
       });
+      sendAdsConversion(FORM_CONVERSION_LABEL);
     });
   </script>
 </Layout>
