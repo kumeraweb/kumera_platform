@@ -8,7 +8,7 @@ Landing comercial para venta de servicios de desarrollo web de Kumera (captacion
 - `PUBLIC_SITE_URL` (canonical/SEO base URL, e.g. `https://sitiora.cl`)
 - `PUBLIC_GOOGLE_ADS_ID` (default: `AW-17993579804`)
 - `PUBLIC_GOOGLE_ADS_WHATSAPP_LABEL` (conversion label para clic a WhatsApp)
-- `PUBLIC_GOOGLE_ADS_FORM_LABEL` (conversion label para envio de formulario)
+- `PUBLIC_GOOGLE_ADS_FORM_SEND_TO` (e.g. `AW-17993579804/XXXXXXXXXXXX`; conversion del formulario con redireccion a `/gracias`)
 - `CONTACT_INBOX_EMAIL` (default: `contacto@kumeraweb.com`)
 - `CONTACT_FROM_EMAIL` (default: `Sitiora Kumera <contacto@kumeraweb.com>`)
 - `AUTOREPLY_FROM_EMAIL` (default: `Sitiora Kumera <noreply@kumeraweb.com>`)

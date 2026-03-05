@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://sitiora.kumeraweb.com";
+const canonical = `${siteUrl.replace(/\/$/, "")}/gracias`;
+---
+
+<Layout
+  title="Gracias por contactarnos | Sitiora"
+  description="Recibimos tu solicitud y te contactaremos a la brevedad."
+  canonical={canonical}
+  noIndex={true}
+>
+  <main class="min-h-screen flex items-center justify-center px-6 py-20">
+    <section class="w-full max-w-2xl border border-border bg-bg p-10 md:p-14 text-center">
+      <p class="text-xs uppercase tracking-[0.2em] text-muted mb-4">Sitiora</p>
+      <h1
+        class="font-display text-[clamp(2rem,5vw,3.5rem)] leading-[1.05] tracking-[-0.02em] text-fg mb-6"
+      >
+        Gracias por contactarnos
+      </h1>
+      <p class="text-muted text-base md:text-lg leading-relaxed mb-10">
+        Ya recibimos tu formulario. Te responderemos por correo o WhatsApp dentro de 24 horas hábiles.
+      </p>
+      <a
+        href="/"
+        class="inline-flex items-center justify-center border border-fg bg-fg text-bg hover:bg-transparent hover:text-fg transition-all duration-300 px-8 py-3 rounded-sm"
+      >
+        Volver al inicio
+      </a>
+    </section>
+  </main>
+</Layout>

@@ -229,12 +229,14 @@ const whatsappUrl = `https://wa.me/56994186218?text=${whatsappMessage}`;
                 }
 
                 form.reset();
-                msg.textContent =
-                    "✓ Solicitud enviada. Te contactaremos pronto.";
-                msg.className = "text-fg block py-3";
                 window.dispatchEvent(
                     new CustomEvent("sitiora_form_submit_success"),
                 );
+                if (typeof window.gtag_report_form_conversion === "function") {
+                    window.gtag_report_form_conversion("/gracias");
+                    return;
+                }
+                window.location.href = "/gracias";
             } catch (err: any) {
                 msg.textContent =
                     err.message || "Ocurrió un error. Intenta nuevamente.";

@@ -13,8 +13,6 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://sitiora.kumeraweb.co
 const GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || "AW-17993579804";
 const WHATSAPP_CONVERSION_LABEL =
   import.meta.env.PUBLIC_GOOGLE_ADS_WHATSAPP_LABEL || "";
-const FORM_CONVERSION_LABEL =
-  import.meta.env.PUBLIC_GOOGLE_ADS_FORM_LABEL || "";
 ---
 
 <Layout canonical={siteUrl}>
@@ -30,7 +28,7 @@ const FORM_CONVERSION_LABEL =
   <Footer />
 
   <script
-    define:vars={{ GOOGLE_ADS_ID, WHATSAPP_CONVERSION_LABEL, FORM_CONVERSION_LABEL }}
+    define:vars={{ GOOGLE_ADS_ID, WHATSAPP_CONVERSION_LABEL }}
   >
     window.dataLayer = window.dataLayer || [];
     const sendAdsConversion = (label) => {
@@ -84,7 +82,6 @@ const FORM_CONVERSION_LABEL =
         event: "sitiora_form_submit_success",
         path: window.location.pathname,
       });
-      sendAdsConversion(FORM_CONVERSION_LABEL);
     });
   </script>
 </Layout>
