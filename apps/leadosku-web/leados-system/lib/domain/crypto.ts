@@ -4,14 +4,14 @@ import { env } from '@/lib/env';
 const ALGO = 'aes-256-gcm';
 
 function getKey(): Buffer {
-  const secret = env.leadosSecretsKey;
+  const secret = env.kumeraMessagingSecretsKey;
   if (!secret) {
-    throw new Error('Missing LEADOS_SECRETS_KEY');
+    throw new Error('Missing KUMERA_MESSAGING_SECRETS_KEY or LEADOS_SECRETS_KEY');
   }
 
   const key = Buffer.from(secret, 'base64');
   if (key.length !== 32) {
-    throw new Error('LEADOS_SECRETS_KEY must be base64 for 32 raw bytes');
+    throw new Error('KUMERA_MESSAGING_SECRETS_KEY must be base64 for 32 raw bytes');
   }
 
   return key;

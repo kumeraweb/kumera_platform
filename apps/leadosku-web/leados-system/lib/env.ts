@@ -14,8 +14,14 @@ export const env = {
   supabaseUrl: getEnv('SUPABASE_URL'),
   supabaseAnonKey: getEnv('SUPABASE_ANON_KEY'),
   supabaseServiceRoleKey: getEnv('SUPABASE_SERVICE_ROLE_KEY'),
-  leadosSecretsKey: process.env.LEADOS_SECRETS_KEY,
-  backofficeAdminEmail: process.env.BACKOFFICE_ADMIN_EMAIL,
+  kumeraMessagingSecretsKey:
+    process.env.KUMERA_MESSAGING_SECRETS_KEY ?? process.env.LEADOS_SECRETS_KEY,
+  kumeraMessagingAdminEmail:
+    process.env.KUMERA_MESSAGING_ADMIN_EMAIL ?? process.env.BACKOFFICE_ADMIN_EMAIL,
+  leadosSecretsKey:
+    process.env.KUMERA_MESSAGING_SECRETS_KEY ?? process.env.LEADOS_SECRETS_KEY,
+  backofficeAdminEmail:
+    process.env.KUMERA_MESSAGING_ADMIN_EMAIL ?? process.env.BACKOFFICE_ADMIN_EMAIL,
   notificationFromEmail:
     process.env.NOTIFICATION_FROM_EMAIL ??
     process.env.CONTACT_FROM_EMAIL ??

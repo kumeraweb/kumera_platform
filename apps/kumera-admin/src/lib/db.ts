@@ -16,11 +16,15 @@ function getSupabaseUrl() {
   return value;
 }
 
-function createServiceClient(schema: "core" | "billing" | "leados" | "tuejecutiva") {
+function createServiceClient(schema: "core" | "billing" | "tuejecutiva" | string) {
   return createClient(getSupabaseUrl(), requireEnv("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     db: { schema },
   });
+}
+
+function getKumeraMessagingSchema() {
+  return process.env.KUMERA_MESSAGING_DB_SCHEMA || process.env.LEADOS_DB_SCHEMA || "leados";
 }
 
 export function createCoreServiceClient() {
@@ -31,8 +35,12 @@ export function createBillingServiceClient() {
   return createServiceClient("billing");
 }
 
+export function createKumeraMessagingServiceClient() {
+  return createServiceClient(getKumeraMessagingSchema());
+}
+
 export function createLeadosServiceClient() {
-  return createServiceClient("leados");
+  return createKumeraMessagingServiceClient();
 }
 
 export function createTuejecutivaServiceClient() {

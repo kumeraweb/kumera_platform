@@ -1,7 +1,7 @@
 'use client';
 
-import { createLeadosBrowserClient } from '@/lib/db';
+import { createKumeraMessagingBrowserClient } from '@/lib/db';
 
 export function createSupabaseBrowserClient() {
-  return createLeadosBrowserClient();
+  return createKumeraMessagingBrowserClient();
 }

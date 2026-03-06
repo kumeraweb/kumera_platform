@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { LEADOS_SCHEMA } from "@/lib/db";
+import { KUMERA_MESSAGING_SCHEMA } from "@/lib/db";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -19,11 +19,11 @@ function getAnonKey() {
   return process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || requireEnv("SUPABASE_ANON_KEY");
 }
 
-export async function createLeadosServerClient() {
+export async function createKumeraMessagingServerClient() {
   const cookieStore = await cookies();
 
   return createServerClient(getSupabaseUrl(), getAnonKey(), {
-    db: { schema: LEADOS_SCHEMA },
+    db: { schema: KUMERA_MESSAGING_SCHEMA },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -35,4 +35,8 @@ export async function createLeadosServerClient() {
       }
     }
   });
+}
+
+export async function createLeadosServerClient() {
+  return createKumeraMessagingServerClient();
 }

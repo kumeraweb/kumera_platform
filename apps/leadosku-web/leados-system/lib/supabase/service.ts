@@ -1,5 +1,5 @@
-import { createLeadosServiceClient } from '@/lib/db';
+import { createKumeraMessagingServiceClient } from '@/lib/db';
 
 export function createSupabaseServiceClient() {
-  return createLeadosServiceClient();
+  return createKumeraMessagingServiceClient();
 }

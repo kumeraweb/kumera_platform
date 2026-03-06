@@ -20,8 +20,9 @@ Estas variables fueron reportadas como cargadas y estan en uso real en codigo:
    - Uso: fallback server anon key
 6. `NEXT_PUBLIC_SUPABASE_URL`
    - Uso: cliente browser Supabase + fallback build
-7. `LEADOS_SECRETS_KEY`
+7. `KUMERA_MESSAGING_SECRETS_KEY`
    - Uso: cifrado/descifrado (`crypto.ts`)
+   - Fallback legacy: `LEADOS_SECRETS_KEY`
 8. `SUPABASE_URL`
    - Uso: conexion server Supabase
 9. `SUPABASE_SERVICE_ROLE_KEY`

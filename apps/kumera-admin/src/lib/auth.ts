@@ -3,13 +3,22 @@ import { NextResponse } from "next/server";
 import { createCoreServiceClient } from "@/lib/db";
 import { createAdminServerAuthClient } from "@/lib/auth-server";
 
-export type GlobalRole = "superadmin" | "admin_billing" | "admin_tuejecutiva" | "admin_leados";
+export type GlobalRole =
+  | "superadmin"
+  | "admin_billing"
+  | "admin_tuejecutiva"
+  | "admin_leados"
+  | "admin_kumeramessaging";
+
+const KUMERA_MESSAGING_ADMIN_ROLE = (process.env.KUMERA_MESSAGING_ADMIN_ROLE ||
+  "admin_leados") as GlobalRole;
 
 export const ROLE = {
   SUPERADMIN: "superadmin" as GlobalRole,
   BILLING: "admin_billing" as GlobalRole,
   TUEJECUTIVA: "admin_tuejecutiva" as GlobalRole,
   LEADOS: "admin_leados" as GlobalRole,
+  KUMERA_MESSAGING: KUMERA_MESSAGING_ADMIN_ROLE,
 };
 
 async function getUserRoles(userId: string): Promise<GlobalRole[]> {
