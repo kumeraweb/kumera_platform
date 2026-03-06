@@ -276,6 +276,25 @@ function toPayload(nodes: BuilderNode[]) {
   }));
 }
 
+function sanitizeNodeReferences(nodes: BuilderNode[]) {
+  const validNodeKeys = new Set(nodes.map((node) => node.node_key).filter(Boolean));
+
+  return nodes.map((node) => ({
+    ...node,
+    options: node.options.map((option) => {
+      if (option.next_type !== "node") {
+        return { ...option, next_node_key: "" };
+      }
+
+      if (!option.next_node_key || validNodeKeys.has(option.next_node_key)) {
+        return option;
+      }
+
+      return { ...option, next_node_key: "" };
+    }),
+  }));
+}
+
 function templateToBuilderNodes(template: TemplateStep[]): BuilderNode[] {
   return [...template]
     .sort((a, b) => a.step_order - b.step_order)
@@ -354,8 +373,27 @@ export default function FlowBuilderClient({ clientId }: Props) {
   const [loadingActiveFlow, setLoadingActiveFlow] = useState(true);
   const [activeFlowLabel, setActiveFlowLabel] = useState<string | null>(null);
 
-  const nodeKeyOptions = useMemo(() => nodes.map((n) => n.node_key).filter(Boolean), [nodes]);
-  const payloadPreview = useMemo(() => JSON.stringify(toPayload(nodes), null, 2), [nodes]);
+  const sanitizedNodes = useMemo(() => sanitizeNodeReferences(nodes), [nodes]);
+  const nodeKeyOptions = useMemo(() => sanitizedNodes.map((n) => n.node_key).filter(Boolean), [sanitizedNodes]);
+  const payloadPreview = useMemo(
+    () =>
+      JSON.stringify(
+        {
+          client_id: clientId,
+          name,
+          welcome_message: welcomeMessage,
+          is_active: true,
+          max_steps: maxSteps,
+          max_irrelevant_streak: maxIrrelevantStreak,
+          max_reminders: maxReminders,
+          reminder_delay_minutes: reminderDelayMinutes,
+          steps: toPayload(sanitizedNodes),
+        },
+        null,
+        2
+      ),
+    [clientId, maxIrrelevantStreak, maxReminders, maxSteps, name, reminderDelayMinutes, sanitizedNodes, welcomeMessage]
+  );
 
   const loadActiveFlow = useCallback(async () => {
     setLoadingActiveFlow(true);
@@ -382,7 +420,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
       setMaxIrrelevantStreak(flow.max_irrelevant_streak);
       setMaxReminders(flow.max_reminders);
       setReminderDelayMinutes(flow.reminder_delay_minutes);
-      setNodes(mapApiFlowToBuilderNodes(flow));
+      setNodes(sanitizeNodeReferences(mapApiFlowToBuilderNodes(flow)));
       setActiveFlowLabel(`${flow.name} · ${new Date(flow.created_at).toLocaleString()}`);
       setSuccess("Flujo activo cargado para edición.");
     } catch (loadError) {
@@ -397,7 +435,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
   }, [loadActiveFlow]);
 
   function applyTractivaTemplate() {
-    setNodes(templateToBuilderNodes(TRACTIVA_TEMPLATE));
+    setNodes(sanitizeNodeReferences(templateToBuilderNodes(TRACTIVA_TEMPLATE)));
     setName("Flujo Tractiva Google Ads");
     setWelcomeMessage(
       "Hola 👋 Soy Tractiva. Somos expertos en administración de campañas en Google Ads 🚀 ¿Qué te gustaría hacer hoy?"
@@ -411,25 +449,27 @@ export default function FlowBuilderClient({ clientId }: Props) {
   }
 
   function updateNode(nodeId: string, patch: Partial<BuilderNode>) {
-    setNodes((prev) => prev.map((node) => (node.id === nodeId ? { ...node, ...patch } : node)));
+    setNodes((prev) => sanitizeNodeReferences(prev.map((node) => (node.id === nodeId ? { ...node, ...patch } : node))));
   }
 
   function addNode() {
     if (nodes.length >= MAX_NODES) return;
-    setNodes((prev) => [
-      ...prev,
-      {
-        id: makeId(),
-        node_key: `nodo_${prev.length + 1}`,
-        prompt_text: "",
-        allow_free_text: false,
-        options: [{ id: makeId(), label_text: "", score_delta: 0, next_type: "terminal", next_node_key: "" }],
-      },
-    ]);
+    setNodes((prev) =>
+      sanitizeNodeReferences([
+        ...prev,
+        {
+          id: makeId(),
+          node_key: `nodo_${prev.length + 1}`,
+          prompt_text: "",
+          allow_free_text: false,
+          options: [{ id: makeId(), label_text: "", score_delta: 0, next_type: "terminal", next_node_key: "" }],
+        },
+      ])
+    );
   }
 
   function removeNode(nodeId: string) {
-    setNodes((prev) => prev.filter((node) => node.id !== nodeId));
+    setNodes((prev) => sanitizeNodeReferences(prev.filter((node) => node.id !== nodeId)));
   }
 
   function createLinkedSubnode(nodeId: string, optionId: string) {
@@ -462,40 +502,47 @@ export default function FlowBuilderClient({ clientId }: Props) {
         ),
       };
       next.splice(parentIndex + 1, 0, subnode);
-      return next;
+      return sanitizeNodeReferences(next);
     });
   }
 
   function addOption(nodeId: string) {
     setNodes((prev) =>
-      prev.map((node) => {
+      sanitizeNodeReferences(prev.map((node) => {
         if (node.id !== nodeId || node.options.length >= MAX_OPTIONS) return node;
         return {
           ...node,
           options: [...node.options, { id: makeId(), label_text: "", score_delta: 0, next_type: "terminal", next_node_key: "" }],
         };
-      })
+      }))
     );
   }
 
   function updateOption(nodeId: string, optionId: string, patch: Partial<BuilderOption>) {
     setNodes((prev) =>
-      prev.map((node) => {
+      sanitizeNodeReferences(prev.map((node) => {
         if (node.id !== nodeId) return node;
         return {
           ...node,
-          options: node.options.map((option) => (option.id === optionId ? { ...option, ...patch } : option)),
+          options: node.options.map((option) => {
+            if (option.id !== optionId) return option;
+            const nextOption = { ...option, ...patch };
+            if (nextOption.next_type !== "node") {
+              nextOption.next_node_key = "";
+            }
+            return nextOption;
+          }),
         };
-      })
+      }))
     );
   }
 
   function removeOption(nodeId: string, optionId: string) {
     setNodes((prev) =>
-      prev.map((node) => {
+      sanitizeNodeReferences(prev.map((node) => {
         if (node.id !== nodeId) return node;
         return { ...node, options: node.options.filter((option) => option.id !== optionId) };
-      })
+      }))
     );
   }
 
@@ -506,7 +553,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
     setSubmitting(true);
 
     const nodeKeys = new Set<string>();
-    for (const node of nodes) {
+    for (const node of sanitizedNodes) {
       if (!node.node_key.trim()) {
         setError("Todos los nodos deben tener node_key");
         setSubmitting(false);
@@ -530,7 +577,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
       nodeKeys.add(node.node_key);
     }
 
-    for (const node of nodes) {
+    for (const node of sanitizedNodes) {
       for (const option of node.options) {
         if (!option.label_text.trim()) {
           setError(`Hay una opción vacía en el nodo \"${node.node_key}\".`);
@@ -539,6 +586,11 @@ export default function FlowBuilderClient({ clientId }: Props) {
         }
         if (option.next_type === "node" && !option.next_node_key.trim()) {
           setError(`La opción \"${option.label_text}\" debe apuntar a un nodo destino.`);
+          setSubmitting(false);
+          return;
+        }
+        if (option.next_type === "node" && !nodeKeys.has(option.next_node_key.trim())) {
+          setError(`La opción \"${option.label_text}\" apunta a un nodo inexistente: ${option.next_node_key}.`);
           setSubmitting(false);
           return;
         }
@@ -557,7 +609,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
         max_irrelevant_streak: maxIrrelevantStreak,
         max_reminders: maxReminders,
         reminder_delay_minutes: reminderDelayMinutes,
-        steps: toPayload(nodes),
+        steps: toPayload(sanitizedNodes),
       }),
     });
 
