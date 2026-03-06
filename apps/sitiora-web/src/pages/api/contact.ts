@@ -112,7 +112,7 @@ export const POST: APIRoute = async (context) => {
       to: email,
       replyTo: CONTACT_REPLY_TO_EMAIL,
       subject: "Recibimos tu solicitud - Sitiora Kumera",
-      text: `Hola ${nombre},\n\nGracias por escribirnos. Recibimos tu solicitud para ${servicio}.\nTe responderemos dentro de las proximas 24 horas habiles.\n\nSi prefieres, puedes escribir directamente por WhatsApp:\nhttps://wa.me/56994186218\n\nKumera Servicios Digitales SpA`,
+      text: `Hola ${nombre},\n\nGracias por escribirnos. Recibimos tu solicitud para ${servicio}.\nTe responderemos dentro de las proximas 24 horas habiles.\n\nSi prefieres, puedes escribir directamente por WhatsApp:\nhttps://wa.me/56954387442\n\nKumera Servicios Digitales SpA`,
       headers: {
         "Auto-Submitted": "auto-replied",
         "X-Auto-Response-Suppress": "All",
