@@ -15,6 +15,11 @@ export default function LeadosCreateClientForm() {
     close_client_no_response_template: "",
     close_attended_other_line_template: "",
     score_threshold: 85,
+    phone_number_id: "",
+    waba_id: "",
+    meta_access_token: "",
+    meta_app_secret: "",
+    assign_to_current_user: true,
   });
 
   async function onCreateClient(event: FormEvent) {
@@ -22,7 +27,7 @@ export default function LeadosCreateClientForm() {
     setError(null);
     setMessage(null);
 
-    const response = await fetch("/api/admin/kumeramessaging/clients", {
+    const response = await fetch("/api/admin/kumeramessaging/onboard-client", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...clientForm, strategic_questions: [] }),
@@ -43,8 +48,13 @@ export default function LeadosCreateClientForm() {
       close_client_no_response_template: "",
       close_attended_other_line_template: "",
       score_threshold: 85,
+      phone_number_id: "",
+      waba_id: "",
+      meta_access_token: "",
+      meta_app_secret: "",
+      assign_to_current_user: true,
     });
-    setMessage("Cliente creado. Ahora puedes ir a Clientes activos para editar o crear flujo.");
+    setMessage("Cliente, canal y asignación creados. Ahora puedes ir a Clientes activos para editar o crear flujo.");
   }
 
   function applyDefaultTemplates() {
@@ -59,8 +69,8 @@ export default function LeadosCreateClientForm() {
       <form className="admin-card" onSubmit={onCreateClient}>
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="badge badge-accent">PASO 1</span>
-            <h2 className="section-title">Crear cliente Kumera Messaging</h2>
+            <span className="badge badge-accent">ALTA INTERNA</span>
+            <h2 className="section-title">Crear cliente operativo Kumera Messaging</h2>
           </div>
           <button
             type="button"
@@ -70,6 +80,10 @@ export default function LeadosCreateClientForm() {
             Aplicar template base
           </button>
         </div>
+
+        <p className="section-desc mb-4">
+          Este formulario crea el cliente, cifra el canal WhatsApp con la clave actual y asigna el cliente al usuario actual.
+        </p>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="admin-field">
@@ -92,6 +106,22 @@ export default function LeadosCreateClientForm() {
             <label className="admin-label">Score threshold</label>
             <input className="admin-input" type="number" min={0} max={100} value={clientForm.score_threshold} onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
           </div>
+          <div className="admin-field">
+            <label className="admin-label">Phone Number ID</label>
+            <input className="admin-input" value={clientForm.phone_number_id} onChange={(e) => setClientForm((v) => ({ ...v, phone_number_id: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">WABA ID</label>
+            <input className="admin-input" value={clientForm.waba_id} onChange={(e) => setClientForm((v) => ({ ...v, waba_id: e.target.value }))} />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Meta Access Token</label>
+            <textarea className="admin-input min-h-24" value={clientForm.meta_access_token} onChange={(e) => setClientForm((v) => ({ ...v, meta_access_token: e.target.value }))} required />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Meta App Secret</label>
+            <input className="admin-input" type="password" value={clientForm.meta_app_secret} onChange={(e) => setClientForm((v) => ({ ...v, meta_app_secret: e.target.value }))} required />
+          </div>
           <div className="admin-field md:col-span-2">
             <label className="admin-label">Template HUMAN_REQUIRED</label>
             <textarea className="admin-input min-h-24" placeholder="Usa {priority_phone} y {priority_email}" value={clientForm.human_required_message_template} onChange={(e) => setClientForm((v) => ({ ...v, human_required_message_template: e.target.value }))} />
@@ -104,9 +134,22 @@ export default function LeadosCreateClientForm() {
             <label className="admin-label">Template cierre: atendido en otra línea</label>
             <textarea className="admin-input min-h-24" placeholder="Usa {priority_phone} y {priority_email}" value={clientForm.close_attended_other_line_template} onChange={(e) => setClientForm((v) => ({ ...v, close_attended_other_line_template: e.target.value }))} />
           </div>
+          <label className="admin-field md:col-span-2 flex items-center gap-3 rounded-lg border px-3 py-3" style={{ borderColor: "var(--admin-border)" }}>
+            <input
+              type="checkbox"
+              checked={clientForm.assign_to_current_user}
+              onChange={(e) => setClientForm((v) => ({ ...v, assign_to_current_user: e.target.checked }))}
+            />
+            <div>
+              <div className="admin-label" style={{ marginBottom: 2 }}>Asignación</div>
+              <div style={{ color: "var(--admin-text-muted)", fontSize: 13 }}>
+                Asignar automáticamente este cliente al usuario actual para operación y pruebas.
+              </div>
+            </div>
+          </label>
         </div>
 
-        <button className="admin-btn admin-btn-primary mt-4" type="submit">Crear cliente</button>
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">Crear cliente operativo</button>
       </form>
     </div>
   );
