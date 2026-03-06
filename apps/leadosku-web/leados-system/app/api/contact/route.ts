@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { env } from '@/lib/env';
 
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-const RATE_MAX = 5;
+const configuredWindowSeconds = Number(process.env.CONTACT_RATE_LIMIT_WINDOW_SECONDS ?? 600);
+const configuredMaxRequests = Number(process.env.CONTACT_RATE_LIMIT_MAX_REQUESTS ?? 5);
+const RATE_WINDOW_MS =
+  Number.isFinite(configuredWindowSeconds) && configuredWindowSeconds > 0
+    ? configuredWindowSeconds * 1000
+    : 10 * 60 * 1000;
+const RATE_MAX =
+  Number.isFinite(configuredMaxRequests) && configuredMaxRequests > 0
+    ? configuredMaxRequests
+    : 5;
 const rateStore = new Map<string, { count: number; resetAt: number }>();
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,6 +29,15 @@ function getClientIp(request: Request) {
 }
 
 function isRateLimited(key: string) {
+  if (rateStore.size > 1000) {
+    const now = Date.now();
+    for (const [entryKey, entry] of rateStore.entries()) {
+      if (entry.resetAt <= now) {
+        rateStore.delete(entryKey);
+      }
+    }
+  }
+
   const now = Date.now();
   const entry = rateStore.get(key);
   if (!entry || entry.resetAt <= now) {
@@ -62,6 +79,14 @@ export async function POST(request: Request) {
   const telefono = sanitize(payload.telefono);
   const email = sanitize(payload.email);
   const mensaje = sanitize(payload.mensaje);
+
+  const identity = (email || telefono || 'anonymous').toLowerCase();
+  if (isRateLimited(`kumeramessaging_contact_identity:${identity}`)) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes para este contacto. Intenta nuevamente en unos minutos.' },
+      { status: 429 }
+    );
+  }
 
   if (!telefono && !email) {
     return NextResponse.json({ error: 'Debes enviar teléfono o correo.' }, { status: 400 });

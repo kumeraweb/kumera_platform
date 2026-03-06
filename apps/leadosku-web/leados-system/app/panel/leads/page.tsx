@@ -203,8 +203,8 @@ export default function PanelLeadsPage() {
 
               {(mobileTab === 'active' ? activeLeads : closedLeads).map((lead) => (
                 <Link key={lead.id} href={`/panel/leads/${lead.id}`} className="block border-b border-[#F4F4F0] last:border-b-0">
-                  <div className="px-4 py-3 flex items-start gap-3 hover:bg-[#FAFAF8] transition-colors">
-                    <div className="w-11 h-11 rounded-full bg-[#E9F9EF] text-[#059669] flex items-center justify-center text-[14px] font-bold shrink-0">
+                  <div className="px-4 py-4 flex items-start gap-4 hover:bg-[#FAFAF8] transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-[#E9F9EF] text-[#059669] flex items-center justify-center text-[15px] font-bold shrink-0">
                       {(lead.wa_profile_name?.trim()?.charAt(0) ?? '#').toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -390,31 +390,31 @@ export default function PanelLeadsPage() {
         )}
       </div>
 
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-[#E5E5E5] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-[#E5E5E5] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 pb-[env(safe-area-inset-bottom)]">
         <div className="grid grid-cols-3">
           <button
             onClick={() => setMobileTab('active')}
-            className={`py-3.5 px-2 flex flex-col items-center gap-1 text-[11px] font-semibold ${
+            className={`py-4 px-2 flex flex-col items-center gap-1.5 text-[11px] font-semibold ${
               mobileTab === 'active' ? 'text-[#111] bg-[#F9F9F6]' : 'text-[#71717A]'
             }`}
           >
-            <MessageCircle size={18} />
+            <MessageCircle size={20} />
             <span>Leads activos</span>
           </button>
           <button
             onClick={() => setMobileTab('closed')}
-            className={`py-3.5 px-2 flex flex-col items-center gap-1 text-[11px] font-semibold ${
+            className={`py-4 px-2 flex flex-col items-center gap-1.5 text-[11px] font-semibold ${
               mobileTab === 'closed' ? 'text-[#111] bg-[#F9F9F6]' : 'text-[#71717A]'
             }`}
           >
-            <Archive size={18} />
+            <Archive size={20} />
             <span>Leads cerrados</span>
           </button>
           <button
             onClick={signOut}
-            className="py-3.5 px-2 flex flex-col items-center gap-1 text-[11px] font-semibold text-[#71717A]"
+            className="py-4 px-2 flex flex-col items-center gap-1.5 text-[11px] font-semibold text-[#71717A]"
           >
-            <LogOut size={18} />
+            <LogOut size={20} />
             <span>Logout</span>
           </button>
         </div>

@@ -48,7 +48,7 @@ export default function PanelLoginPage() {
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-bold uppercase tracking-widest text-[#52525B]">Email</label>
             <input
-              className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg text-[15px] focus:outline-none focus:border-[#111] transition-colors bg-white text-[#111]"
+              className="w-full px-4 py-4 md:py-3 border border-[#E5E5E5] rounded-lg text-[15px] focus:outline-none focus:border-[#111] transition-colors bg-white text-[#111]"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -60,7 +60,7 @@ export default function PanelLoginPage() {
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-bold uppercase tracking-widest text-[#52525B]">Contraseña</label>
             <input
-              className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg text-[15px] focus:outline-none focus:border-[#111] transition-colors bg-white text-[#111]"
+              className="w-full px-4 py-4 md:py-3 border border-[#E5E5E5] rounded-lg text-[15px] focus:outline-none focus:border-[#111] transition-colors bg-white text-[#111]"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -71,12 +71,12 @@ export default function PanelLoginPage() {
           
           {error && <div className="bg-red-50 text-red-600 text-[13px] font-semibold p-3 rounded border border-red-100">{error}</div>}
           
-          <button className="k-btn-black w-full mt-4 h-[48px]" disabled={loading}>
+          <button className="k-btn-black w-full mt-4 h-[52px] md:h-[48px] text-[15px]" disabled={loading}>
             {loading ? (
               'Ingresando...'
             ) : (
               <span className="flex items-center gap-2">
-                <LogIn size={18} />
+                <LogIn size={20} />
                 Ingresar al Flow
               </span>
             )}

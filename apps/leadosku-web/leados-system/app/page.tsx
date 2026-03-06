@@ -116,7 +116,7 @@ const HERO_FLOWS: HeroFlow[] = [
     userChoice: '3',
     analysisMsg: 'IA preventiva detecta urgencia y prioridad alta.',
     resultLabel: 'Correo enviado',
-    resultTitle: 'Asignado a: Recepcion de urgencias',
+    resultTitle: 'Asignado',
     resultBody: 'Tu equipo toma el control desde el panel.',
     resultTone: 'positive'
   },
@@ -129,7 +129,7 @@ const HERO_FLOWS: HeroFlow[] = [
     userChoice: '1',
     analysisMsg: 'IA preventiva detecta oportunidad comercial real.',
     resultLabel: 'Correo enviado',
-    resultTitle: 'Asignado a: Equipo comercial',
+    resultTitle: 'Asignado',
     resultBody: 'El lead queda disponible en el panel de ventas.',
     resultTone: 'positive'
   },
@@ -142,7 +142,7 @@ const HERO_FLOWS: HeroFlow[] = [
     userChoice: 'Quiero pasajes',
     analysisMsg: 'IA preventiva detecta solicitud fuera del rubro.',
     resultLabel: 'Filtro activo',
-    resultTitle: 'No se deriva a ejecutivo',
+    resultTitle: 'No se deriva',
     resultBody: 'Kumi contiene el mensaje y vuelve a mostrar opciones validas.',
     resultTone: 'neutral'
   },
@@ -155,7 +155,7 @@ const HERO_FLOWS: HeroFlow[] = [
     userChoice: '2',
     analysisMsg: 'IA preventiva detecta falla especifica y ruta correcta.',
     resultLabel: 'Correo enviado',
-    resultTitle: 'Asignado a: Jefe de taller',
+    resultTitle: 'Asignado',
     resultBody: 'El equipo tecnico toma la conversacion desde el panel.',
     resultTone: 'positive'
   }
@@ -378,6 +378,12 @@ export default function LandingPage() {
     setContactSuccess(null);
     setContactError(null);
 
+    if (!contactForm.telefono.trim() && !contactForm.email.trim()) {
+      setContactError('Ingresa al menos teléfono o correo para poder contactarte.');
+      setContactLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -400,7 +406,7 @@ export default function LandingPage() {
 
   return (
     <main className="kumi-light-landing overflow-x-clip">
-      <header className="k-header">
+      <header className="k-header relative z-50">
         <Link href="/" className="k-logo">
           Kumi <span>by Kumera</span>
         </Link>
@@ -411,28 +417,41 @@ export default function LandingPage() {
         <button
           type="button"
           onClick={() => setMobileMenuOpen((prev) => !prev)}
-          className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-[#E5E5E5] bg-white text-[#111]"
+          className="md:hidden inline-flex items-center justify-center p-2 -mr-2 text-[#111] transition-opacity"
           aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
         >
-          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileMenuOpen ? <X size={26} strokeWidth={2} /> : <Menu size={26} strokeWidth={2} />}
         </button>
       </header>
-      {mobileMenuOpen && (
-        <div className="md:hidden sticky top-[74px] z-40 border-b border-[#E5E5E5] bg-white">
-          <div className="px-4 py-3 flex flex-col gap-2">
-            <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-black w-full">WhatsApp directo</a>
-            <a href="/panel/login" className="k-btn-ghost w-full">Ingresar al panel</a>
+
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`fixed inset-0 z-40 bg-white md:hidden transition-transform duration-300 ease-in-out flex flex-col pt-[100px] px-6 ${
+          mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
+        }`}
+      >
+        <div className="flex flex-col gap-4 w-full text-left bg-white h-full relative z-40">
+          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-[28px] font-medium tracking-tight text-[#111] py-4 border-b border-gray-100 flex items-center justify-between">
+            Cómo Funciona <span className="text-gray-300">&rarr;</span>
+          </a>
+          <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-[28px] font-medium tracking-tight text-[#111] py-4 border-b border-gray-100 flex items-center justify-between">
+            Planes <span className="text-gray-300">&rarr;</span>
+          </a>
+          
+          <div className="mt-8 flex flex-col gap-3">
+            <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-black w-full text-[16px] py-4 justify-center">Contactar por WhatsApp</a>
+            <Link href="/panel/login" onClick={() => setMobileMenuOpen(false)} className="k-btn-ghost w-full text-[16px] py-4 justify-center">Ingresar al Panel</Link>
           </div>
         </div>
-      )}
+      </div>
 
       <section className="k-hero-split lg:grid-cols-[1.2fr_0.8fr]" style={{ alignItems: 'flex-start' }}>
-        <div className="k-hero-content pt-10">
-          <h1 className="k-h1 mb-6">Te escriben mucho. No todos son clientes.</h1>
-          <p className="k-body mb-8">Kumi es un servicio gestionado de pre-calificación por WhatsApp con flujo determinístico. Filtra ruido, prioriza oportunidades y deriva a tu equipo cuando realmente corresponde.</p>
-          <div className="flex flex-wrap gap-3">
-            <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-black">Solicitar cotización</a>
-            <a href="#how-it-works" className="k-btn-ghost">Ver cómo funciona</a>
+        <div className="k-hero-content pt-4 md:pt-10">
+          <h1 className="k-h1 mb-6">Te escriben mucho.<br/>No todos son clientes.</h1>
+          <p className="k-body mb-8 md:mb-10 text-[18px]">Kumi es un servicio gestionado de pre-calificación por WhatsApp con flujo determinístico. Filtra ruido, prioriza oportunidades y deriva a tu equipo cuando realmente corresponde.</p>
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+            <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-black py-4 md:py-3 w-full sm:w-auto text-[16px] md:text-[14px]">Solicitar cotización</a>
+            <a href="#how-it-works" className="k-btn-ghost py-4 md:py-3 w-full sm:w-auto text-[16px] md:text-[14px] bg-white hover:bg-gray-50 border-gray-200">Ver cómo funciona</a>
           </div>
         </div>
         <div className="k-hero-visual flex justify-center items-start pt-6 bg-transparent h-[540px]">
@@ -452,15 +471,17 @@ export default function LandingPage() {
       <div className="k-divider !my-0"></div>
 
       <section className="k-section-pad k-container text-center" id="how-it-works">
-        <h2 className="k-h2 mb-20 max-w-4xl mx-auto">La IA se usa para proteger tu tiempo,<br/>no para inventar respuestas.</h2>
-        <div className="k-stats-grid text-left">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="k-h2 mb-20 mx-auto max-w-[980px] text-center">La IA se usa para proteger tu tiempo,<br/>no para inventar respuestas.</h2>
+        </div>
+        <div className="k-stats-grid text-left max-w-5xl mx-auto">
           <div className="k-stat-box">
-            <div className="k-stat-label">Cero Alucinaciones</div>
+            <div className="k-stat-label">CERO ALUCINACIONES</div>
             <div className="k-stat-number">100%</div>
             <p className="k-body-sm m-0">Tus clientes eligen opciones definidas por flujo. Kumi no inventa servicios, precios ni promesas fuera de lo que vendes.</p>
           </div>
           <div className="k-stat-box">
-            <div className="k-stat-label">Control Humano</div>
+            <div className="k-stat-label">CONTROL HUMANO</div>
             <div className="k-stat-number">Panel</div>
             <p className="k-body-sm m-0">Cuando aparece una oportunidad real, se notifica por correo y tu equipo toma el control desde el panel comercial.</p>
           </div>
@@ -471,8 +492,8 @@ export default function LandingPage() {
 
       <section className="k-section-pad k-container">
         <h2 className="k-h2 mb-16 text-center">Un servicio gestionado.<br/>Cero trabajo técnico para ti.</h2>
-        <div className="k-feat-wrap">
-          <div className="k-feat-nav">
+        <div className="grid lg:grid-cols-2 gap-10 items-start mt-2">
+          <div className="k-feat-nav flex-1">
             <div className="k-feat-item" onClick={() => setActiveFeat(0)} style={{ borderLeft: activeFeat === 0 ? '4px solid #111' : '4px solid transparent', paddingLeft: '20px', marginLeft: '-24px' }}>
               <h4>Todo Incluido (Número + WhatsApp)</h4>
               <p>Nosotros proveemos el número, dejamos la WABA operativa y montamos toda la infraestructura técnica por ti.</p>
@@ -487,7 +508,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="k-feat-visual bg-[#F5F5F0] border border-[#E5E5E5] relative overflow-hidden">
+          <div className="hidden lg:block k-feat-visual bg-[#F5F5F0] border border-[#E5E5E5] relative overflow-hidden min-h-[420px] h-[420px]">
             {activeFeat === 0 && <KumiNode triggerOnVisible={true} />}
             {activeFeat === 1 && (
               <div className="w-[82%] bg-white p-6 shadow-xl border border-gray-200 rounded-xl relative z-10 flex flex-col gap-4">
@@ -551,11 +572,12 @@ export default function LandingPage() {
 
       <section className="k-section-pad k-container">
         <h2 className="k-h2 mb-10 text-center">Planes Claros para Tu Escala</h2>
-        <p className="k-body text-center mb-20 max-w-3xl mx-auto">Nuestro modelo absorbe costos variables de Meta + IA y te entrega una operación mensual predecible para tu negocio.</p>
-        <div className="md:grid md:grid-cols-3 md:gap-6 flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory">
-          <div className="k-card min-w-[290px] md:min-w-0 snap-start">
+        <p className="k-body text-center mb-16 md:mb-20 max-w-3xl mx-auto">Nuestro modelo absorbe costos variables de Meta + IA y te entrega una operación mensual predecible para tu negocio.</p>
+        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-3 md:gap-6 pb-6 pt-4 snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0">
+          <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center" id="pricing">
             <h3 className="k-h3 mb-2">Base</h3>
             <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para pymes y profesionales que quieren ordenar su WhatsApp.</p>
+            <div className="mb-2 text-[28px] font-bold tracking-tight">$59.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
             <div className="mb-6"><span className="text-3xl font-bold tracking-tight">~1.5k</span> <span className="text-gray-500 text-sm">conversaciones / mes</span></div>
             <ul className="flex flex-col gap-3 mb-8">
               <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ 1 flujo de pre-calificación</li>
@@ -564,10 +586,11 @@ export default function LandingPage() {
             </ul>
             <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-ghost w-full">Cotizar por WhatsApp</a>
           </div>
-          <div className="k-card min-w-[290px] md:min-w-0 snap-start !border-emerald-500 relative shadow-xl md:transform md:scale-105 z-10 bg-white">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-white text-[11px] uppercase tracking-wider font-bold py-1 px-3 rounded-full shadow-md">Más elegido</div>
+          <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center !border-emerald-500 relative shadow-xl md:transform md:scale-105 z-10 bg-white pt-14">
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[11px] uppercase tracking-wider font-bold py-1 px-3 rounded-full shadow-md whitespace-nowrap z-20">Más elegido</div>
             <h3 className="k-h3 mb-2">Crecimiento</h3>
             <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para equipos comerciales con demanda constante.</p>
+            <div className="mb-2 text-[28px] font-bold tracking-tight">$89.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
             <div className="mb-6"><span className="text-3xl font-bold tracking-tight">~5k</span> <span className="text-gray-500 text-sm">conversaciones / mes</span></div>
             <ul className="flex flex-col gap-3 mb-8">
               <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ Flujo avanzado + scoring</li>
@@ -576,9 +599,10 @@ export default function LandingPage() {
             </ul>
             <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-black w-full">Cotizar por WhatsApp</a>
           </div>
-          <div className="k-card min-w-[290px] md:min-w-0 snap-start">
+          <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center">
             <h3 className="k-h3 mb-2">Pro</h3>
             <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para operaciones con alto volumen de conversaciones.</p>
+            <div className="mb-2 text-[28px] font-bold tracking-tight">Desde $149.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
             <div className="mb-6"><span className="text-3xl font-bold tracking-tight">12k+</span> <span className="text-gray-500 text-sm">conversaciones / mes</span></div>
             <ul className="flex flex-col gap-3 mb-8">
               <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ Múltiples flujos por área</li>
@@ -602,12 +626,12 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setOpenFaq(isOpen ? null : index)}
-                  className="w-full py-5 flex items-center justify-between gap-4 text-left"
+                  className="w-full py-6 flex items-start sm:items-center justify-between gap-4 text-left"
                 >
-                  <h4 className="text-[36px] md:text-[44px] font-medium tracking-[-0.03em] leading-[1.06] text-[#111] m-0">
+                  <h4 className="text-[24px] md:text-[36px] lg:text-[44px] font-medium tracking-[-0.03em] leading-[1.1] md:leading-[1.06] text-[#111] m-0 pr-4">
                     {item.q}
                   </h4>
-                  <ChevronDown size={22} className={`text-[#A1A1AA] shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={22} className={`text-[#A1A1AA] shrink-0 mt-1 sm:mt-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
                   <p className="pb-5 mt-[-2px] text-[17px] leading-relaxed text-[#52525B] max-w-5xl">
@@ -623,39 +647,42 @@ export default function LandingPage() {
       <div className="k-divider"></div>
 
       <section className="k-section-pad k-container max-w-6xl">
-        <div className="grid lg:grid-cols-[1fr_1fr] gap-8 items-start bg-white border border-[#E5E5E5] rounded-xl p-6 md:p-10">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_1fr] gap-10 lg:gap-8 items-start bg-white border border-[#E5E5E5] rounded-xl p-6 md:p-10">
           <div>
-            <h2 className="k-h2 mb-5">Activa Kumi en tu negocio</h2>
-            <p className="k-body mb-7">Déjanos tus datos y te proponemos un flujo realista para pre-calificar leads por WhatsApp según tu rubro.</p>
-            <div className="flex flex-wrap gap-3">
+            <h2 className="text-[32px] md:text-[44px] tracking-[-0.03em] leading-[1.1] font-medium mb-5">Activa Kumi en tu negocio</h2>
+            <p className="k-body mb-8 text-[16px] md:text-[18px]">Déjanos tus datos y te proponemos un flujo realista para pre-calificar leads por WhatsApp según tu rubro.</p>
+            <div className="hidden lg:flex flex-wrap gap-3">
               <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-black">Ir a WhatsApp</a>
               <a href="/panel/login" className="k-btn-ghost">Ingresar al panel</a>
             </div>
           </div>
-          <form onSubmit={onContactSubmit} className="flex flex-col gap-3">
-            <input className="w-full border border-[#E5E5E5] rounded-lg px-4 py-3 text-[14px] focus:outline-none focus:border-[#111]" placeholder="Nombre" value={contactForm.nombre} onChange={(e) => setContactForm((prev) => ({ ...prev, nombre: e.target.value }))} />
-            <input className="w-full border border-[#E5E5E5] rounded-lg px-4 py-3 text-[14px] focus:outline-none focus:border-[#111]" placeholder="Negocio / rubro" value={contactForm.negocio} onChange={(e) => setContactForm((prev) => ({ ...prev, negocio: e.target.value }))} />
-            <div className="grid md:grid-cols-2 gap-3">
-              <input className="w-full border border-[#E5E5E5] rounded-lg px-4 py-3 text-[14px] focus:outline-none focus:border-[#111]" placeholder="Teléfono" value={contactForm.telefono} onChange={(e) => setContactForm((prev) => ({ ...prev, telefono: e.target.value }))} />
-              <input type="email" className="w-full border border-[#E5E5E5] rounded-lg px-4 py-3 text-[14px] focus:outline-none focus:border-[#111]" placeholder="Email" value={contactForm.email} onChange={(e) => setContactForm((prev) => ({ ...prev, email: e.target.value }))} />
-            </div>
-            <textarea className="w-full border border-[#E5E5E5] rounded-lg px-4 py-3 text-[14px] focus:outline-none focus:border-[#111] min-h-[120px] resize-y" placeholder="Cuéntanos qué quieres automatizar y cómo te llegan los contactos." value={contactForm.mensaje} onChange={(e) => setContactForm((prev) => ({ ...prev, mensaje: e.target.value }))} />
-            <button type="submit" disabled={contactLoading} className="k-btn-black w-full disabled:opacity-60 disabled:cursor-not-allowed">{contactLoading ? 'Enviando...' : 'Enviar solicitud'}</button>
-            {contactSuccess && <p className="text-[13px] text-emerald-700 font-medium">{contactSuccess}</p>}
-            {contactError && <p className="text-[13px] text-red-600 font-medium">{contactError}</p>}
+          <form onSubmit={onContactSubmit} className="flex flex-col gap-4 w-full">
+            <input className="w-full border border-[#E5E5E5] rounded-lg px-4 py-4 text-[16px] md:text-[14px] bg-[#fafafa] md:bg-white focus:outline-none focus:border-[#111]" placeholder="Nombre completo" value={contactForm.nombre} onChange={(e) => setContactForm((prev) => ({ ...prev, nombre: e.target.value }))} required />
+            <input className="w-full border border-[#E5E5E5] rounded-lg px-4 py-4 text-[16px] md:text-[14px] bg-[#fafafa] md:bg-white focus:outline-none focus:border-[#111]" placeholder="Negocio / Rubro (opcional)" value={contactForm.negocio} onChange={(e) => setContactForm((prev) => ({ ...prev, negocio: e.target.value }))} />
+            <input type="tel" className="w-full border border-[#E5E5E5] rounded-lg px-4 py-4 text-[16px] md:text-[14px] bg-[#fafafa] md:bg-white focus:outline-none focus:border-[#111]" placeholder="Teléfono de contacto (WhatsApp ideal)" value={contactForm.telefono} onChange={(e) => setContactForm((prev) => ({ ...prev, telefono: e.target.value }))} />
+            <input type="email" className="w-full border border-[#E5E5E5] rounded-lg px-4 py-4 text-[16px] md:text-[14px] bg-[#fafafa] md:bg-white focus:outline-none focus:border-[#111]" placeholder="Correo de contacto (opcional)" value={contactForm.email} onChange={(e) => setContactForm((prev) => ({ ...prev, email: e.target.value }))} />
+            <textarea className="w-full border border-[#E5E5E5] rounded-lg px-4 py-4 text-[16px] md:text-[14px] bg-[#fafafa] md:bg-white focus:outline-none focus:border-[#111] min-h-[100px] resize-y" placeholder="Cuentanos en qué te ayudamos (opcional)" value={contactForm.mensaje} onChange={(e) => setContactForm((prev) => ({ ...prev, mensaje: e.target.value }))} />
+            <p className="text-[12px] text-[#71717A] -mt-1">Debes completar teléfono o correo para que podamos responderte.</p>
+            <button type="submit" disabled={contactLoading} className="k-btn-black w-full py-4 mt-2 text-[16px] disabled:opacity-60 disabled:cursor-not-allowed">{contactLoading ? 'Enviando...' : 'Pedir contacto rápido'}</button>
+            {contactSuccess && <p className="text-[14px] text-emerald-700 font-medium text-center">{contactSuccess}</p>}
+            {contactError && <p className="text-[14px] text-red-600 font-medium text-center">{contactError}</p>}
           </form>
         </div>
       </section>
 
-      <footer className="py-12 border-t border-[#E5E5E5] mt-16 px-8">
-        <div className="k-container flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-[13px] text-gray-500">
-            <strong className="text-black font-semibold mr-2">Kumi Messaging.</strong>
-            Desarrollado y operado por Kumera Servicios Digitales SpA.
+      <footer className="py-16 md:py-24 border-t border-[#E5E5E5] mt-16 px-6 bg-white">
+        <div className="k-container flex flex-col items-center justify-center gap-6 text-center">
+          <Link href="/" className="k-logo text-2xl mb-2">
+            Kumi <span className="text-gray-400">by Kumera</span>
+          </Link>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10 mb-4">
+            <a href="#how-it-works" className="text-[14px] font-medium text-gray-500 hover:text-black transition-colors">Cómo funciona</a>
+            <a href="#pricing" className="text-[14px] font-medium text-gray-500 hover:text-black transition-colors">Planes</a>
+            <a href="/panel/login" className="text-[14px] font-medium text-gray-500 hover:text-black transition-colors">Ingresar al Panel</a>
+            <Link href="#" className="text-[14px] font-medium text-gray-500 hover:text-black transition-colors">Privacidad</Link>
           </div>
-          <div className="flex gap-6">
-            <a href="/panel/login" className="text-[13px] font-semibold text-gray-500 hover:text-black">Ingresar al Panel</a>
-            <Link href="#" className="text-[13px] font-semibold text-gray-500 hover:text-black">Privacidad</Link>
+          <div className="text-[13px] text-gray-400 max-w-md mx-auto">
+            © {new Date().getFullYear()} Kumi Messaging.<br className="md:hidden" /> Desarrollado por Kumera Servicios Digitales SpA.<br className="md:hidden"/> Todos los derechos reservados.
           </div>
         </div>
       </footer>
@@ -664,10 +691,10 @@ export default function LandingPage() {
         href={waLink}
         target="_blank"
         rel="noreferrer"
-        className="md:hidden fixed right-4 bottom-4 z-50 inline-flex items-center gap-2 bg-[#111] text-white rounded-full px-4 py-3 shadow-lg border border-black"
+        className="md:hidden fixed right-5 bottom-5 z-50 flex items-center justify-center w-[60px] h-[60px] bg-[#25D366] text-white rounded-full shadow-[0_8px_30px_rgb(37,211,102,0.4)] hover:scale-105 active:scale-95 transition-all duration-200 border border-[#20ba59]"
+        aria-label="Contactar por WhatsApp"
       >
-        <MessageCircle size={18} />
-        <span className="text-[13px] font-semibold">Contactar</span>
+        <MessageCircle size={32} stroke="currentColor" strokeWidth={1.5} />
       </a>
     </main>
   );

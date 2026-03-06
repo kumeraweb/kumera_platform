@@ -311,9 +311,23 @@
 
 /* Mobile */
 @media (max-width: 900px) {
+  .k-section-pad {
+    padding: 100px 24px;
+  }
+  .k-hero-split {
+    padding: 60px 24px 100px 24px;
+  }
   .k-hero-split, .k-stats-grid, .k-feat-wrap {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 48px;
+  }
+  .k-h1 {
+    font-size: 42px;
+    margin-bottom: 24px;
+  }
+  .k-h2 {
+    font-size: 34px;
+    margin-bottom: 32px;
   }
 }
 
