@@ -199,24 +199,41 @@ export default function EditClientForm({
           <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
             Define el `phone_number_id`, `waba_id` y reingresa credenciales Meta para cifrarlas con la clave actual.
           </p>
+          {channel ? (
+            <p className="mt-2 text-xs font-mono" style={{ color: "var(--admin-text-muted)" }}>
+              Canal actual: {channel.id}
+            </p>
+          ) : null}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="admin-field">
-            <label className="admin-label">Phone Number ID</label>
+            <label className="admin-label">Meta Phone Number ID (webhook)</label>
             <input className="admin-input" value={channelForm.phone_number_id} onChange={(e) => setChannelForm((v) => ({ ...v, phone_number_id: e.target.value }))} required />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Debe coincidir con el valor real que Meta envía como <span className="font-mono">metadata.phone_number_id</span> en los logs del webhook.
+            </p>
           </div>
           <div className="admin-field">
-            <label className="admin-label">WABA ID</label>
+            <label className="admin-label">WhatsApp Business Account ID (WABA ID)</label>
             <input className="admin-input" value={channelForm.waba_id} onChange={(e) => setChannelForm((v) => ({ ...v, waba_id: e.target.value }))} />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Identificador de la cuenta WABA asociada al número.
+            </p>
           </div>
           <div className="admin-field md:col-span-2">
             <label className="admin-label">Meta Access Token</label>
             <textarea className="admin-input min-h-24" placeholder={channel ? "Déjalo vacío para mantener el actual" : ""} value={channelForm.meta_access_token} onChange={(e) => setChannelForm((v) => ({ ...v, meta_access_token: e.target.value }))} />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Si el canal ya existe, puedes dejarlo vacío para no cambiar el token. Ingresa uno nuevo solo si vas a rotarlo o rehacer el canal.
+            </p>
           </div>
           <div className="admin-field md:col-span-2">
             <label className="admin-label">Meta App Secret</label>
             <input className="admin-input" type="password" placeholder={channel ? "Déjalo vacío para mantener el actual" : ""} value={channelForm.meta_app_secret} onChange={(e) => setChannelForm((v) => ({ ...v, meta_app_secret: e.target.value }))} />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Se obtiene desde la app de Meta y valida la firma del webhook. No es el WABA ID ni el número visible.
+            </p>
           </div>
           <label className="admin-field md:col-span-2 flex items-center gap-3 rounded-lg border px-3 py-3" style={{ borderColor: "var(--admin-border)" }}>
             <input type="checkbox" checked={channelForm.is_active} onChange={(e) => setChannelForm((v) => ({ ...v, is_active: e.target.checked }))} />
@@ -267,6 +284,9 @@ export default function EditClientForm({
           <div className="admin-field">
             <label className="admin-label">User ID (auth.users.id)</label>
             <input className="admin-input" value={assignUserId} onChange={(e) => setAssignUserId(e.target.value)} required />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Debe ser el <span className="font-mono">id</span> real de <span className="font-mono">auth.users</span> del usuario que abrirá el panel cliente.
+            </p>
           </div>
           <div className="admin-field">
             <label className="admin-label">Client ID</label>

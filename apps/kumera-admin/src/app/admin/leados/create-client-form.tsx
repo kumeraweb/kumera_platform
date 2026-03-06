@@ -107,20 +107,32 @@ export default function LeadosCreateClientForm() {
             <input className="admin-input" type="number" min={0} max={100} value={clientForm.score_threshold} onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
           </div>
           <div className="admin-field">
-            <label className="admin-label">Phone Number ID</label>
+            <label className="admin-label">Meta Phone Number ID (webhook)</label>
             <input className="admin-input" value={clientForm.phone_number_id} onChange={(e) => setClientForm((v) => ({ ...v, phone_number_id: e.target.value }))} required />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Debe coincidir exactamente con <span className="font-mono">metadata.phone_number_id</span> que llega desde Meta en el webhook. Ejemplo: <span className="font-mono">995622260298959</span>.
+            </p>
           </div>
           <div className="admin-field">
-            <label className="admin-label">WABA ID</label>
+            <label className="admin-label">WhatsApp Business Account ID (WABA ID)</label>
             <input className="admin-input" value={clientForm.waba_id} onChange={(e) => setClientForm((v) => ({ ...v, waba_id: e.target.value }))} />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Identificador de la cuenta de WhatsApp Business. No reemplaza al Phone Number ID.
+            </p>
           </div>
           <div className="admin-field md:col-span-2">
             <label className="admin-label">Meta Access Token</label>
             <textarea className="admin-input min-h-24" value={clientForm.meta_access_token} onChange={(e) => setClientForm((v) => ({ ...v, meta_access_token: e.target.value }))} required />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Token operativo del número/cuenta conectado a la app de Meta que enviará mensajes por WhatsApp Cloud API.
+            </p>
           </div>
           <div className="admin-field md:col-span-2">
             <label className="admin-label">Meta App Secret</label>
             <input className="admin-input" type="password" value={clientForm.meta_app_secret} onChange={(e) => setClientForm((v) => ({ ...v, meta_app_secret: e.target.value }))} required />
+            <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+              Se obtiene desde la app en <span className="font-mono">developers.facebook.com</span> y se usa para validar la firma del webhook.
+            </p>
           </div>
           <div className="admin-field md:col-span-2">
             <label className="admin-label">Template HUMAN_REQUIRED</label>
