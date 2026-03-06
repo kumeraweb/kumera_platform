@@ -76,6 +76,21 @@ export default function HomePage() {
         <section style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 24px 60px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48, alignItems: 'start' }}>
             <div className="animate-fade-in-up" style={{ maxWidth: 720 }}>
+              <a
+                href="https://www.kumeraweb.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Kumera Messaging es un producto operado por Kumera Servicios Digitales SpA"
+                style={{
+                  display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8,
+                  marginBottom: 20, color: 'rgba(203,213,225,0.72)', textDecoration: 'none',
+                  fontSize: 11, fontWeight: 500, letterSpacing: '0.02em'
+                }}
+              >
+                <span style={{ width: 56, height: 1, background: 'currentColor', opacity: 0.35 }} />
+                <span>Operado por Kumera Servicios Digitales SpA</span>
+              </a>
+
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '6px 14px', borderRadius: 999,
@@ -85,19 +100,6 @@ export default function HomePage() {
               }}>
                 <Zap size={12} />
                 Sistema de pre-calificación con IA
-              </div>
-
-              <div
-                title="Kumera Messaging es un producto operado por Kumera Servicios Digitales SpA."
-                style={{
-                  display: 'inline-flex', alignItems: 'center',
-                  padding: '8px 14px', borderRadius: 999,
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)',
-                  fontSize: 12, fontWeight: 600, color: '#cbd5e1',
-                  letterSpacing: '0.01em', marginBottom: 20
-                }}
-              >
-                Producto operado por Kumera Servicios Digitales SpA
               </div>
 
               <h1 style={{
@@ -295,7 +297,22 @@ export default function HomePage() {
           gap: 12, padding: '20px 24px',
           fontSize: 13, color: 'var(--landing-muted)'
         }}>
-          <span>© {new Date().getFullYear()} Kumera Messaging. Producto operado por Kumera Servicios Digitales SpA.</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+            <a
+              href="https://www.kumeraweb.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Kumera Messaging es un producto operado por Kumera Servicios Digitales SpA"
+              style={{
+                display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
+                color: 'rgba(203,213,225,0.72)', textDecoration: 'none', fontSize: 11, fontWeight: 500, letterSpacing: '0.02em'
+              }}
+            >
+              <span style={{ width: 48, height: 1, background: 'currentColor', opacity: 0.35 }} />
+              <span>Operado por Kumera Servicios Digitales SpA</span>
+            </a>
+            <span>© {new Date().getFullYear()} Kumera Messaging.</span>
+          </div>
           <span>Lead qualification engine for WhatsApp sales teams</span>
         </div>
       </footer>

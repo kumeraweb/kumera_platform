@@ -29,10 +29,19 @@ import { MessageCircle } from "@lucide/astro";
       </div>
     </div>
     <div class="footer__bottom">
-      <span class="footer__copy"
-        >© {new Date().getFullYear()} tractiva. Empresa operada por Kumera
-        Servicios Digitales SpA.</span
-      >
+      <div class="footer__meta">
+        <a
+          href="https://www.kumeraweb.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer__operator"
+          aria-label="tractiva es una empresa operada por Kumera Servicios Digitales SpA"
+        >
+          <span class="footer__operator-line"></span>
+          <span>Operada por Kumera Servicios Digitales SpA</span>
+        </a>
+        <span class="footer__copy">© {new Date().getFullYear()} tractiva.</span>
+      </div>
     </div>
   </div>
 </footer>
@@ -99,6 +108,33 @@ import { MessageCircle } from "@lucide/astro";
   }
   .footer__bottom {
     padding-top: 1.5rem;
+  }
+  .footer__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .footer__operator {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .footer__operator:hover {
+    color: var(--white);
+  }
+  .footer__operator-line {
+    width: 3rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
   }
   .footer__copy {
     font-size: 0.75rem;

@@ -99,10 +99,23 @@
         <div
             class="border-t border-bg/10 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3"
         >
-            <p class="section-label text-bg/25 max-w-xl">
-                © {new Date().getFullYear()} Sitiora. Empresa operada por Kumera
-                Servicios Digitales SpA.
-            </p>
+            <div class="flex flex-col items-start gap-2 max-w-xl">
+                <a
+                    href="https://www.kumeraweb.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex flex-col items-start gap-2 text-bg/28 hover:text-bg/44 transition-colors duration-200"
+                    aria-label="Sitiora es una empresa operada por Kumera Servicios Digitales SpA"
+                >
+                    <span class="h-px w-14 bg-current opacity-40"></span>
+                    <span class="section-label"
+                        >Operada por Kumera Servicios Digitales SpA</span
+                    >
+                </a>
+                <p class="section-label text-bg/25">
+                    © {new Date().getFullYear()} Sitiora.
+                </p>
+            </div>
             <p class="section-label text-bg/20">Parte de Kumera Platform</p>
         </div>
     </div>

@@ -4,14 +4,21 @@ import { ArrowRight, MessageCircle, CheckCircle } from "@lucide/astro";
 
 <section class="hero" id="hero-section">
   <div class="hero__container">
+    <div class="hero__operator">
+      <a
+        href="https://www.kumeraweb.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hero__operator-link"
+        aria-label="tractiva es una empresa operada por Kumera Servicios Digitales SpA"
+      >
+        <span class="hero__operator-line"></span>
+        <span>Operada por Kumera Servicios Digitales SpA</span>
+      </a>
+    </div>
+
     <div class="hero__badges">
       <span class="hero__badge">Google Ads para pymes y servicios profesionales en Chile</span>
-      <span
-        class="hero__badge hero__badge--operator"
-        title="tractiva es una empresa operada por Kumera Servicios Digitales SpA."
-      >
-        Operada por Kumera Servicios Digitales SpA
-      </span>
     </div>
 
     <div class="hero__split">
@@ -105,6 +112,34 @@ import { ArrowRight, MessageCircle, CheckCircle } from "@lucide/astro";
     display: flex;
     flex-direction: column;
     gap: clamp(1.5rem, 3vh, 2.5rem);
+  }
+
+  .hero__operator {
+    opacity: 0;
+  }
+  .hero--ready .hero__operator {
+    animation: heroFadeIn 0.45s ease both;
+  }
+  .hero__operator-link {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    color: var(--gray-500);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .hero__operator-link:hover {
+    color: var(--gray-700);
+  }
+  .hero__operator-line {
+    width: 3.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.35;
   }
 
   /* Badge */

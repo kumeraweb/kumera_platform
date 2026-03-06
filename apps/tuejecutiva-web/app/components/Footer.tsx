@@ -102,14 +102,15 @@ export default function Footer() {
                 </Link>
               </li>
               <li className="text-sm text-slate-500">
-                Empresa operada por{" "}
                 <a
                   href="https://www.kumeraweb.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-slate-700 hover:text-emerald-600 transition-colors"
+                  className="inline-flex flex-col items-start gap-2 text-[11px] font-medium tracking-[0.02em] text-slate-400 transition-colors hover:text-emerald-600"
+                  aria-label="TuEjecutiva es una empresa operada por Kumera Servicios Digitales SpA"
                 >
-                  Kumera Servicios Digitales SpA
+                  <span className="h-px w-12 bg-current opacity-35" />
+                  <span>Operada por Kumera Servicios Digitales SpA</span>
                 </a>
               </li>
               <li className="text-sm text-slate-500">
@@ -130,8 +131,7 @@ export default function Footer() {
             listadas. Cada profesional es responsable de su relación comercial.
           </p>
           <p className="text-center text-xs text-slate-400 mt-3">
-            © {currentYear} {siteConfig.name}. Empresa operada por Kumera
-            Servicios Digitales SpA.
+            © {currentYear} {siteConfig.name}.
           </p>
         </div>
       </div>
