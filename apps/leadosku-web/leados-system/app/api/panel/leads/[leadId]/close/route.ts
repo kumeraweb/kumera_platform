@@ -7,7 +7,7 @@ import { sendWhatsappText } from '@/lib/domain/messaging';
 import { getLeadCloseReasonLabel, getLeadCloseText, type LeadCloseReason } from '@/lib/domain/leadMessaging';
 
 const bodySchema = z.object({
-  reason: z.enum(['CLIENT_NO_RESPONSE', 'ATTENDED_OTHER_LINE'])
+  reason: z.enum(['CLIENT_NO_RESPONSE', 'ATTENDED_OTHER_LINE', 'MANUAL_INTERNAL'])
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ leadId: string }> }) {
@@ -46,80 +46,85 @@ export async function POST(req: Request, { params }: { params: Promise<{ leadId:
 
   const service = createSupabaseServiceClient();
 
-  const { data: client, error: clientError } = await service
-    .from('clients')
-    .select(
-      'id, notification_email, human_forward_number, priority_contact_email, human_required_message_template, close_client_no_response_template, close_attended_other_line_template'
-    )
-    .eq('id', auth.clientId)
-    .maybeSingle();
+  let closeMessageSent = false;
 
-  if (clientError) {
-    return fail(clientError.message, 500);
-  }
+  if (reason !== 'MANUAL_INTERNAL') {
+    const { data: client, error: clientError } = await service
+      .from('clients')
+      .select(
+        'id, notification_email, human_forward_number, priority_contact_email, human_required_message_template, close_client_no_response_template, close_attended_other_line_template'
+      )
+      .eq('id', auth.clientId)
+      .maybeSingle();
 
-  const { data: latestMsg } = await auth.supabase
-    .from('messages')
-    .select('phone_number_id')
-    .eq('lead_id', leadId)
-    .eq('client_id', auth.clientId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    if (clientError) {
+      return fail(clientError.message, 500);
+    }
 
-  let phoneNumberId = latestMsg?.phone_number_id;
-  if (!phoneNumberId) {
-    const { data: anyChannel } = await service
-      .from('client_channels')
+    const { data: latestMsg } = await auth.supabase
+      .from('messages')
       .select('phone_number_id')
+      .eq('lead_id', leadId)
       .eq('client_id', auth.clientId)
-      .eq('is_active', true)
+      .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
-    phoneNumberId = anyChannel?.phone_number_id;
-  }
 
-  if (!phoneNumberId) {
-    return fail('No active channel for client', 409);
-  }
+    let phoneNumberId = latestMsg?.phone_number_id;
+    if (!phoneNumberId) {
+      const { data: anyChannel } = await service
+        .from('client_channels')
+        .select('phone_number_id')
+        .eq('client_id', auth.clientId)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+      phoneNumberId = anyChannel?.phone_number_id;
+    }
 
-  const { data: channel, error: channelError } = await service
-    .from('client_channels')
-    .select('meta_access_token_enc')
-    .eq('client_id', auth.clientId)
-    .eq('phone_number_id', phoneNumberId)
-    .maybeSingle();
+    if (!phoneNumberId) {
+      return fail('No active channel for client', 409);
+    }
 
-  if (channelError) {
-    return fail(channelError.message, 500);
-  }
+    const { data: channel, error: channelError } = await service
+      .from('client_channels')
+      .select('meta_access_token_enc')
+      .eq('client_id', auth.clientId)
+      .eq('phone_number_id', phoneNumberId)
+      .maybeSingle();
 
-  if (!channel) {
-    return fail('Channel not found', 404);
-  }
+    if (channelError) {
+      return fail(channelError.message, 500);
+    }
 
-  const text = getLeadCloseText({ reason, client: client ?? {} });
+    if (!channel) {
+      return fail('Channel not found', 404);
+    }
 
-  try {
-    const accessToken = decryptSecret(channel.meta_access_token_enc);
-    const waResponse = await sendWhatsappText({
-      phoneNumberId,
-      accessToken,
-      to: lead.wa_user_id,
-      text
-    });
+    const text = getLeadCloseText({ reason, client: client ?? {} });
 
-    await service.from('messages').insert({
-      client_id: auth.clientId,
-      lead_id: lead.id,
-      direction: 'OUTBOUND',
-      phone_number_id: phoneNumberId,
-      wa_message_id: waResponse?.messages?.[0]?.id ?? null,
-      text_content: text,
-      raw_payload: waResponse ?? {}
-    });
-  } catch (error) {
-    return fail(error instanceof Error ? error.message : 'Could not send close message', 502);
+    try {
+      const accessToken = decryptSecret(channel.meta_access_token_enc);
+      const waResponse = await sendWhatsappText({
+        phoneNumberId,
+        accessToken,
+        to: lead.wa_user_id,
+        text
+      });
+
+      await service.from('messages').insert({
+        client_id: auth.clientId,
+        lead_id: lead.id,
+        direction: 'OUTBOUND',
+        phone_number_id: phoneNumberId,
+        wa_message_id: waResponse?.messages?.[0]?.id ?? null,
+        text_content: text,
+        raw_payload: waResponse ?? {}
+      });
+      closeMessageSent = true;
+    } catch (error) {
+      return fail(error instanceof Error ? error.message : 'Could not send close message', 502);
+    }
   }
 
   const { data, error } = await auth.supabase
@@ -142,5 +147,5 @@ export async function POST(req: Request, { params }: { params: Promise<{ leadId:
     return fail('Lead not found', 404);
   }
 
-  return ok({ lead: data, closeReason: reason, closeMessageSent: true });
+  return ok({ lead: data, closeReason: reason, closeMessageSent });
 }

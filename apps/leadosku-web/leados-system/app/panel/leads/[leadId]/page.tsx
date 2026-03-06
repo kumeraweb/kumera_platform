@@ -21,14 +21,15 @@ type Message = {
   created_at: string;
 };
 
-type CloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE';
+type CloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE' | 'MANUAL_INTERNAL';
 
 function askCloseReason(): CloseReason | null {
   const selected = window.prompt(
-    'Selecciona motivo de cierre:\n1) Cliente no responde\n2) Atencion tomada en otra linea\n\nEscribe 1 o 2'
+    'Selecciona motivo de cierre:\n1) Cliente no responde\n2) Atencion tomada en otra linea\n3) Cierre manual (sin mensaje)\n\nEscribe 1, 2 o 3'
   );
   if (selected === '1') return 'CLIENT_NO_RESPONSE';
   if (selected === '2') return 'ATTENDED_OTHER_LINE';
+  if (selected === '3') return 'MANUAL_INTERNAL';
   return null;
 }
 

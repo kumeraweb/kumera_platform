@@ -1,4 +1,4 @@
-export type LeadCloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE';
+export type LeadCloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE' | 'MANUAL_INTERNAL';
 
 type LeadMessagingClient = {
   human_forward_number?: string | null;
@@ -56,16 +56,21 @@ export function getLeadCloseText(params: {
     });
   }
 
-  const template =
-    params.client.close_attended_other_line_template ||
-    'Tu contacto esta siendo atendido en nuestra linea prioritaria. Muchas gracias por contactarnos.';
-  return applyTemplate(template, {
-    priority_phone: priorityPhone,
-    priority_email: priorityEmail
-  });
+  if (params.reason === 'ATTENDED_OTHER_LINE') {
+    const template =
+      params.client.close_attended_other_line_template ||
+      'Tu contacto esta siendo atendido en nuestra linea prioritaria. Muchas gracias por contactarnos.';
+    return applyTemplate(template, {
+      priority_phone: priorityPhone,
+      priority_email: priorityEmail
+    });
+  }
+
+  return '';
 }
 
 export function getLeadCloseReasonLabel(reason: LeadCloseReason) {
   if (reason === 'CLIENT_NO_RESPONSE') return 'CLIENT_NO_RESPONSE';
-  return 'ATTENDED_OTHER_LINE';
+  if (reason === 'ATTENDED_OTHER_LINE') return 'ATTENDED_OTHER_LINE';
+  return 'MANUAL_INTERNAL';
 }
