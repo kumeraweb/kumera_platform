@@ -15,7 +15,29 @@ type ClientRow = {
   close_attended_other_line_template: string | null;
 };
 
-export default function EditClientForm({ client }: { client: ClientRow }) {
+type ChannelRow = {
+  id: string;
+  client_id: string;
+  phone_number_id: string;
+  waba_id: string | null;
+  is_active: boolean;
+};
+
+type UserClientRow = {
+  user_id: string;
+  client_id: string;
+  created_at: string;
+};
+
+export default function EditClientForm({
+  client,
+  channel,
+  userClients,
+}: {
+  client: ClientRow;
+  channel: ChannelRow | null;
+  userClients: UserClientRow[];
+}) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -27,6 +49,14 @@ export default function EditClientForm({ client }: { client: ClientRow }) {
     close_attended_other_line_template: client.close_attended_other_line_template ?? "",
     score_threshold: client.score_threshold,
   });
+  const [channelForm, setChannelForm] = useState({
+    phone_number_id: channel?.phone_number_id ?? "",
+    waba_id: channel?.waba_id ?? "",
+    meta_access_token: "",
+    meta_app_secret: "",
+    is_active: channel?.is_active ?? true,
+  });
+  const [assignUserId, setAssignUserId] = useState("");
 
   async function onSave(event: FormEvent) {
     event.preventDefault();
@@ -50,6 +80,65 @@ export default function EditClientForm({ client }: { client: ClientRow }) {
 
   function applyDefaultTemplates() {
     setForm((prev) => ({ ...prev, ...DEFAULT_LEADOS_TEMPLATES }));
+  }
+
+  async function onSaveChannel(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setMessage(null);
+
+    const payload = {
+      phone_number_id: channelForm.phone_number_id,
+      waba_id: channelForm.waba_id || null,
+      meta_access_token: channelForm.meta_access_token || undefined,
+      meta_app_secret: channelForm.meta_app_secret || undefined,
+      is_active: channelForm.is_active,
+    };
+
+    const response = await fetch(
+      channel
+        ? `/api/admin/kumeramessaging/client-channels/${channel.id}`
+        : `/api/admin/kumeramessaging/client-channels`,
+      {
+        method: channel ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(channel ? payload : { ...payload, client_id: client.id }),
+      }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      setError(result.error ?? "No se pudo guardar el canal");
+      return;
+    }
+
+    setChannelForm((prev) => ({
+      ...prev,
+      meta_access_token: "",
+      meta_app_secret: "",
+    }));
+    setMessage(channel ? "Canal actualizado correctamente." : "Canal creado correctamente. Recarga la página para ver el identificador persistido.");
+  }
+
+  async function onAssignUser(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setMessage(null);
+
+    const response = await fetch(`/api/admin/kumeramessaging/user-clients/assign`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: assignUserId, client_id: client.id }),
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      setError(result.error ?? "No se pudo asignar el usuario");
+      return;
+    }
+
+    setAssignUserId("");
+    setMessage("Usuario asignado correctamente. Recarga la página para ver la lista actualizada.");
   }
 
   return (
@@ -102,6 +191,90 @@ export default function EditClientForm({ client }: { client: ClientRow }) {
         </div>
 
         <button className="admin-btn admin-btn-primary mt-4" type="submit">Guardar cambios</button>
+      </form>
+
+      <form className="admin-card" onSubmit={onSaveChannel}>
+        <div className="mb-4">
+          <h2 className="section-title">Canal WhatsApp</h2>
+          <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+            Define el `phone_number_id`, `waba_id` y reingresa credenciales Meta para cifrarlas con la clave actual.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">Phone Number ID</label>
+            <input className="admin-input" value={channelForm.phone_number_id} onChange={(e) => setChannelForm((v) => ({ ...v, phone_number_id: e.target.value }))} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">WABA ID</label>
+            <input className="admin-input" value={channelForm.waba_id} onChange={(e) => setChannelForm((v) => ({ ...v, waba_id: e.target.value }))} />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Meta Access Token</label>
+            <textarea className="admin-input min-h-24" placeholder={channel ? "Déjalo vacío para mantener el actual" : ""} value={channelForm.meta_access_token} onChange={(e) => setChannelForm((v) => ({ ...v, meta_access_token: e.target.value }))} />
+          </div>
+          <div className="admin-field md:col-span-2">
+            <label className="admin-label">Meta App Secret</label>
+            <input className="admin-input" type="password" placeholder={channel ? "Déjalo vacío para mantener el actual" : ""} value={channelForm.meta_app_secret} onChange={(e) => setChannelForm((v) => ({ ...v, meta_app_secret: e.target.value }))} />
+          </div>
+          <label className="admin-field md:col-span-2 flex items-center gap-3 rounded-lg border px-3 py-3" style={{ borderColor: "var(--admin-border)" }}>
+            <input type="checkbox" checked={channelForm.is_active} onChange={(e) => setChannelForm((v) => ({ ...v, is_active: e.target.checked }))} />
+            <div>
+              <div className="admin-label" style={{ marginBottom: 2 }}>Estado del canal</div>
+              <div style={{ color: "var(--admin-text-muted)", fontSize: 13 }}>
+                Activo para recibir y responder mensajes.
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">
+          {channel ? "Guardar canal" : "Crear canal"}
+        </button>
+      </form>
+
+      <form className="admin-card" onSubmit={onAssignUser}>
+        <div className="mb-4">
+          <h2 className="section-title">Usuarios autorizados</h2>
+          <p className="mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
+            Vincula un `auth.users.id` para que ese usuario pueda abrir el panel del cliente.
+          </p>
+        </div>
+
+        {userClients.length > 0 ? (
+          <div className="mb-4 overflow-x-auto">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Asignado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userClients.map((item) => (
+                  <tr key={item.user_id}>
+                    <td><span className="font-mono text-xs">{item.user_id}</span></td>
+                    <td>{new Date(item.created_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-field">
+            <label className="admin-label">User ID (auth.users.id)</label>
+            <input className="admin-input" value={assignUserId} onChange={(e) => setAssignUserId(e.target.value)} required />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Client ID</label>
+            <input className="admin-input" value={client.id} disabled />
+          </div>
+        </div>
+
+        <button className="admin-btn admin-btn-primary mt-4" type="submit">Asignar usuario</button>
       </form>
     </div>
   );
