@@ -1,11 +1,14 @@
 -- Kumera Messaging namespace migration
--- Estado: PREPARADA, NO EJECUTAR hasta desplegar primero el codigo con fallback dual.
+-- Estado: PREPARADA
 -- Objetivo:
 -- 1) mover schema `leados` -> `kumeramessaging`
 -- 2) habilitar rol global `admin_kumeramessaging`
 -- 3) migrar service keys/slugs legacy a `kumeramessaging`
-
-begin;
+--
+-- IMPORTANTE:
+-- No envolver este archivo completo en una sola transaccion.
+-- Postgres no permite usar un nuevo valor de enum en la misma transaccion
+-- en la que fue agregado.
 
 do $$
 begin
@@ -22,6 +25,10 @@ exception
   when duplicate_object then null;
 end $$;
 
+-- A partir de aqui, el valor del enum ya debe estar comprometido.
+-- Si corres este script en Supabase SQL Editor, cada sentencia queda
+-- efectivamente separada y es seguro reutilizar el enum nuevo.
+
 insert into core.user_roles (user_id, role, active)
 select ur.user_id, 'admin_kumeramessaging'::core.global_role, ur.active
 from core.user_roles ur
@@ -29,14 +36,98 @@ where ur.role = 'admin_leados'
 on conflict (user_id, role) do update
 set active = excluded.active;
 
-update billing.services
-set slug = 'kumeramessaging',
-    name = 'Kumera Messaging'
-where slug in ('leados', 'leadosku');
+do $$
+declare
+  canonical_service_id uuid;
+begin
+  insert into billing.services (slug, name)
+  select 'kumeramessaging', 'Kumera Messaging'
+  where not exists (
+    select 1 from billing.services where slug = 'kumeramessaging'
+  );
 
-update billing.subscriptions
-set service_key = 'kumeramessaging'
-where service_key in ('leados', 'leadosku');
+  select id
+  into canonical_service_id
+  from billing.services
+  where slug = 'kumeramessaging'
+  order by created_at asc nulls last, id asc
+  limit 1;
+
+  if canonical_service_id is null then
+    raise exception 'Could not resolve canonical billing service kumeramessaging';
+  end if;
+
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'billing'
+      and table_name = 'plans'
+      and column_name = 'service_id'
+  ) then
+    update billing.plans
+    set service_id = canonical_service_id
+    where service_id in (
+      select id
+      from billing.services
+      where slug in ('leados', 'leadosku')
+        and id <> canonical_service_id
+    );
+  end if;
+
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'billing'
+      and table_name = 'contract_templates'
+      and column_name = 'service_id'
+  ) then
+    update billing.contract_templates
+    set service_id = canonical_service_id
+    where service_id in (
+      select id
+      from billing.services
+      where slug in ('leados', 'leadosku')
+        and id <> canonical_service_id
+    );
+  end if;
+
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'billing'
+      and table_name = 'subscriptions'
+      and column_name = 'service_id'
+  ) then
+    update billing.subscriptions
+    set service_id = canonical_service_id
+    where service_id in (
+      select id
+      from billing.services
+      where slug in ('leados', 'leadosku')
+        and id <> canonical_service_id
+    );
+  end if;
+
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'billing'
+      and table_name = 'subscriptions'
+      and column_name = 'service_key'
+  ) then
+    update billing.subscriptions
+    set service_key = 'kumeramessaging'
+    where service_key in ('leados', 'leadosku');
+  end if;
+
+  update billing.services
+  set name = 'Kumera Messaging'
+  where id = canonical_service_id;
+
+  delete from billing.services
+  where slug in ('leados', 'leadosku')
+    and id <> canonical_service_id;
+end $$;
 
 do $$
 begin
@@ -75,8 +166,6 @@ exception
   when undefined_table then null;
   when invalid_schema_name then null;
 end $$;
-
-commit;
 
 -- Verificaciones sugeridas post-migracion:
 -- select schema_name from information_schema.schemata where schema_name in ('leados', 'kumeramessaging');
