@@ -22,7 +22,7 @@ export default function LeadosCreateClientForm() {
     setError(null);
     setMessage(null);
 
-    const response = await fetch("/api/admin/leados/clients", {
+    const response = await fetch("/api/admin/kumeramessaging/clients", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...clientForm, strategic_questions: [] }),
@@ -60,7 +60,7 @@ export default function LeadosCreateClientForm() {
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="badge badge-accent">PASO 1</span>
-            <h2 className="section-title">Crear cliente LeadOS</h2>
+            <h2 className="section-title">Crear cliente Kumera Messaging</h2>
           </div>
           <button
             type="button"

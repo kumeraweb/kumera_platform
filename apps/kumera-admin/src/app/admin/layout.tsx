@@ -32,7 +32,7 @@ function IconTuejecutiva() {
   );
 }
 
-function IconLeados() {
+function IconKumeraMessaging() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -54,7 +54,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: IconDashboard },
   { href: "/admin/billing", label: "Billing", icon: IconBilling },
   { href: "/admin/tuejecutiva", label: "TuEjecutiva", icon: IconTuejecutiva },
-  { href: "/admin/leados", label: "LeadOS", icon: IconLeados },
+  { href: "/admin/kumeramessaging", label: "Kumera Messaging", icon: IconKumeraMessaging },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

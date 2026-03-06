@@ -33,7 +33,7 @@ export default function EditClientForm({ client }: { client: ClientRow }) {
     setError(null);
     setMessage(null);
 
-    const response = await fetch(`/api/admin/leados/clients/${client.id}`, {
+    const response = await fetch(`/api/admin/kumeramessaging/clients/${client.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

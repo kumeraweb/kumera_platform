@@ -33,10 +33,10 @@ export default async function LeadosClientEditPage({ params }: { params: Promise
           <p className="section-desc">Edita datos y templates sin salir del flujo de clientes.</p>
         </div>
         <div className="flex gap-2">
-          <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/leados/clients">
+          <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/kumeramessaging/clients">
             ← Volver a clientes
           </Link>
-          <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/leados/clients/${client.id}/flow`}>
+          <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/kumeramessaging/clients/${client.id}/flow`}>
             Ir a flujo
           </Link>
         </div>

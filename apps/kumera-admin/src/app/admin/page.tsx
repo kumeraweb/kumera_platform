@@ -20,7 +20,7 @@ function IconTuejecutiva() {
   );
 }
 
-function IconLeados() {
+function IconKumeraMessaging() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--admin-warning)" }}>
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -52,10 +52,10 @@ const modules = [
     accent: "var(--admin-success-subtle)",
   },
   {
-    href: "/admin/leados",
-    title: "LeadOS",
-    desc: "Clientes, canales WhatsApp, usuarios y flujos conversacionales.",
-    icon: IconLeados,
+    href: "/admin/kumeramessaging",
+    title: "Kumera Messaging",
+    desc: "Clientes, canales WhatsApp, panel operativo y flujos conversacionales.",
+    icon: IconKumeraMessaging,
     accent: "var(--admin-warning-subtle)",
   },
 ];
@@ -69,7 +69,7 @@ export default function AdminHomePage() {
           Panel administrativo
         </h1>
         <p className="mt-1.5 text-sm" style={{ color: "var(--admin-text-secondary)" }}>
-          Administra billing, TuEjecutiva y LeadOS desde un solo lugar.
+          Administra billing, TuEjecutiva y Kumera Messaging desde un solo lugar.
         </p>
       </div>
 

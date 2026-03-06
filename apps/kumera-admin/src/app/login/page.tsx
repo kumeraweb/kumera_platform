@@ -63,7 +63,7 @@ export default function LoginPage() {
               Kumera Admin
             </h1>
             <p className="m-0 mt-1 text-xs" style={{ color: "var(--admin-text-muted)" }}>
-              Acceso unificado para Billing, TuEjecutiva y LeadOS
+              Acceso unificado para Billing, TuEjecutiva y Kumera Messaging
             </p>
           </div>
         </div>

@@ -20,7 +20,7 @@ export const env = {
     process.env.NOTIFICATION_FROM_EMAIL ??
     process.env.CONTACT_FROM_EMAIL ??
     process.env.EMAIL_FROM ??
-    'LeadOS <noreply@kumeraweb.com>',
+    'Kumera Messaging <noreply@kumeraweb.com>',
   notificationEmailSubject: process.env.NOTIFICATION_EMAIL_SUBJECT ?? 'Lead Reportado',
   openAiApiKey: process.env.OPENAI_API_KEY,
   metaApiBaseUrl: process.env.META_API_BASE_URL ?? 'https://graph.facebook.com/v20.0',

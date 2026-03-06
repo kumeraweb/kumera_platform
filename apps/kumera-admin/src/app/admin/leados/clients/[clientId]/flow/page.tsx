@@ -37,7 +37,7 @@ export default async function LeadosClientFlowPage({ params }: { params: Promise
             {client.name} · {client.id}
           </p>
         </div>
-        <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/leados/clients">
+        <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href="/admin/kumeramessaging/clients">
           ← Volver a clientes
         </Link>
       </div>

@@ -361,7 +361,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
     setLoadingActiveFlow(true);
     setError(null);
     try {
-      const response = await fetch(`/api/admin/leados/client-flows?client_id=${clientId}`);
+      const response = await fetch(`/api/admin/kumeramessaging/client-flows?client_id=${clientId}`);
       const payload = await response.json();
       if (!response.ok) {
         setError(payload.error ?? "No se pudo cargar flujo activo");
@@ -545,7 +545,7 @@ export default function FlowBuilderClient({ clientId }: Props) {
       }
     }
 
-    const response = await fetch("/api/admin/leados/client-flows", {
+    const response = await fetch("/api/admin/kumeramessaging/client-flows", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

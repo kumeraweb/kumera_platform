@@ -52,10 +52,10 @@ export default async function LeadosClientsPage() {
                 <td><span className="badge badge-accent">{row.score_threshold}</span></td>
                 <td>
                   <div className="flex gap-2">
-                    <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/leados/clients/${row.id}/edit`}>
+                    <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/kumeramessaging/clients/${row.id}/edit`}>
                       Editar
                     </Link>
-                    <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/leados/clients/${row.id}/flow`}>
+                    <Link className="admin-btn admin-btn-secondary admin-btn-sm no-underline" href={`/admin/kumeramessaging/clients/${row.id}/flow`}>
                       Crear / editar flujo
                     </Link>
                   </div>

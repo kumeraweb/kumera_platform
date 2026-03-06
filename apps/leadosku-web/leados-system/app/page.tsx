@@ -199,7 +199,7 @@ export default function HomePage() {
                   'Árbol de preguntas y respuestas por cliente.',
                   'Escalamiento automático a humano por reglas y score.',
                   'Trazabilidad completa de decisiones por lead.',
-                  'Backoffice para onboarding y operación de canales.'
+                  'Onboarding y configuración gestionados internamente por Kumera.'
                 ].map((item) => (
                   <li key={item} style={{ display: 'flex', gap: 10, fontSize: 14, lineHeight: 1.6, color: '#d1d5db' }}>
                     <CheckCircle2 size={16} style={{ color: '#34d399', flexShrink: 0, marginTop: 3 }} />
@@ -221,7 +221,7 @@ export default function HomePage() {
                 MVP operativo
               </p>
               <p style={{ fontSize: 14, lineHeight: 1.6, color: '#a5b4fc', margin: 0 }}>
-                Flujo determinístico activo, panel cliente y backoffice funcionales.
+                Flujo determinístico activo y panel cliente operativo. La configuración vive en Kumera Admin.
               </p>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function HomePage() {
               display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16
             }}>
               {[
-                { icon: <GitBranch size={24} />, step: '01', title: 'Configura el flujo', desc: 'Define tu árbol de preguntas y scores por opción desde el backoffice.' },
+                { icon: <GitBranch size={24} />, step: '01', title: 'Definimos tu flujo', desc: 'Kumera configura internamente tu árbol de preguntas, reglas y derivaciones.' },
                 { icon: <Bot size={24} />, step: '02', title: 'El bot conversa', desc: 'Kumera Messaging guía al lead por WhatsApp, puntuando intención en cada paso.' },
                 { icon: <BarChart3 size={24} />, step: '03', title: 'Score y escalamiento', desc: 'Cuando el lead califica, se escala automáticamente a tu equipo.' },
                 { icon: <Users size={24} />, step: '04', title: 'Tu equipo cierra', desc: 'El humano recibe el contexto completo y continúa en el panel.' }

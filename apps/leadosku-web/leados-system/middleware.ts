@@ -14,14 +14,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Legacy backoffice API disabled. Use kumera-admin (/admin/leados).",
+          "Legacy backoffice API disabled. Use kumera-admin (/admin/kumeramessaging).",
       },
       { status: 410 }
     );
   }
 
   if (pathname.startsWith("/backoffice")) {
-    const target = new URL("/admin/leados?legacy=leados_backoffice_disabled", getKumeraAdminUrl());
+    const target = new URL("/admin/kumeramessaging?legacy=leados_backoffice_disabled", getKumeraAdminUrl());
     return NextResponse.redirect(target, 307);
   }
 
@@ -31,4 +31,3 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/backoffice/:path*", "/api/backoffice/:path*"],
 };
-
