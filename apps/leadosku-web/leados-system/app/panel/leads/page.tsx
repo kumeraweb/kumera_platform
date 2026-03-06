@@ -141,14 +141,11 @@ export default function PanelLeadsPage() {
       {/* ─── Compact Header ─── */}
       <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white border-b border-[#E5E5E5] shrink-0 sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <span className="text-[18px] font-extrabold tracking-[-0.04em]">Chats</span>
-          {tenant && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#F4F4F0] border border-[#E5E5E5] text-[12px] text-[#52525B]">
-              <Building2 size={14} />
-              <span className="font-bold text-[#111]">{tenant.client_name ?? 'Cliente'}</span>
-              {tenant.user_email && <span className="text-[#A1A1AA]">· {tenant.user_email}</span>}
-            </div>
-          )}
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#F4F4F0] border border-[#E5E5E5] text-[12px] text-[#52525B]">
+            <Building2 size={14} />
+            <span className="font-bold text-[#111]">{tenant?.client_name ?? 'Cliente'}</span>
+            {tenant?.user_email && <span className="text-[#A1A1AA]">· {tenant.user_email}</span>}
+          </div>
         </div>
         <div className="hidden md:flex gap-3">
           <button 

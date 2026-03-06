@@ -189,8 +189,8 @@ export default function LeadConversationPage() {
     <div className="min-h-[100dvh] bg-[#F9F9F6] text-[#111] flex flex-col font-sans antialiased">
       {/* ─── Chat Top Bar ─── */}
       <div className="px-4 md:px-6 py-3 bg-white border-b border-[#E5E5E5] shrink-0 sticky top-0 z-10">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0 flex items-center gap-3">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex items-center gap-3 flex-1">
             <Link href="/panel/leads">
               <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E5E5E5] bg-white text-[#52525B] text-[12px] font-semibold shadow-sm hover:bg-[#F9F9F6] hover:text-[#111] transition-colors">
                 <ArrowLeft size={14} />
@@ -208,13 +208,14 @@ export default function LeadConversationPage() {
               <span className="text-[15px] font-extrabold tracking-[-0.02em] text-[#111]">Conversación</span>
             )}
           </div>
-
-          {lead && (
-            <div className="flex gap-1.5 md:gap-2 shrink-0">
+        </div>
+        {lead && (
+          <div className="mt-2 -mx-1 px-1 overflow-x-auto">
+            <div className="flex min-w-max gap-2">
               <button
                 onClick={onTake}
                 disabled={lead.conversation_status !== 'HUMAN_REQUIRED'}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-all whitespace-nowrap ${
                   lead.conversation_status === 'HUMAN_REQUIRED'
                     ? 'bg-[#111] text-white hover:bg-black'
                     : 'bg-[#F4F4F0] text-[#A1A1AA] border border-[#E5E5E5] cursor-not-allowed'
@@ -225,7 +226,7 @@ export default function LeadConversationPage() {
               <button
                 onClick={onCloseLead}
                 disabled={lead.conversation_status === 'CLOSED'}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-colors ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-colors whitespace-nowrap ${
                   lead.conversation_status === 'CLOSED'
                     ? 'bg-[#F4F4F0] text-[#A1A1AA] border border-[#E5E5E5] cursor-not-allowed'
                     : 'bg-white text-red-600 border border-red-200 hover:bg-red-50'
@@ -236,7 +237,7 @@ export default function LeadConversationPage() {
               <button
                 onClick={onReopenLead}
                 disabled={lead.conversation_status !== 'CLOSED'}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-colors ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-colors whitespace-nowrap ${
                   lead.conversation_status === 'CLOSED'
                     ? 'bg-emerald-500 text-white hover:bg-emerald-600'
                     : 'bg-[#F4F4F0] text-[#A1A1AA] border border-[#E5E5E5] cursor-not-allowed'
@@ -245,8 +246,8 @@ export default function LeadConversationPage() {
                 <RotateCcw size={13} /> Reabrir
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
         {lead && (
           <div className="mt-2 flex items-center gap-2">
             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
