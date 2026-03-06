@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { RefreshCw, LogOut, Eye, Building2, ChevronLeft, ChevronRight, XCircle } from 'lucide-react';
+import { RefreshCw, LogOut, Eye, Building2, ChevronLeft, ChevronRight, MessageCircle, Archive, ChevronRight as ChevronRightRow } from 'lucide-react';
 
 type LeadRow = {
   id: string;
@@ -21,17 +21,6 @@ type TenantInfo = {
   client_name: string | null;
 };
 
-type CloseReason = 'CLIENT_NO_RESPONSE' | 'ATTENDED_OTHER_LINE';
-
-function askCloseReason(): CloseReason | null {
-  const selected = window.prompt(
-    'Selecciona motivo de cierre:\n1) Cliente no responde\n2) Atencion tomada en otra linea\n\nEscribe 1 o 2'
-  );
-  if (selected === '1') return 'CLIENT_NO_RESPONSE';
-  if (selected === '2') return 'ATTENDED_OTHER_LINE';
-  return null;
-}
-
 const PAGE_SIZE = 20;
 
 export default function PanelLeadsPage() {
@@ -42,7 +31,7 @@ export default function PanelLeadsPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [closingLeadId, setClosingLeadId] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<'active' | 'closed'>('active');
 
   const activeLeads = leads.filter((lead) => lead.conversation_status !== 'CLOSED');
   const closedLeads = leads.filter((lead) => lead.conversation_status === 'CLOSED');
@@ -147,166 +136,169 @@ export default function PanelLeadsPage() {
     router.push('/panel/login');
   }
 
-  async function onCloseLead(leadId: string) {
-    const reason = askCloseReason();
-    if (!reason) return;
-
-    setClosingLeadId(leadId);
-    setError(null);
-
-    const response = await fetch(`/api/panel/leads/${leadId}/close`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reason })
-    });
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      setError(payload.error ?? 'No se pudo cerrar la conversación');
-      setClosingLeadId(null);
-      return;
-    }
-
-    await loadLeads({ silent: true, keepPage: true });
-    setClosingLeadId(null);
-  }
-
   return (
-    <div style={{
-      minHeight: '100dvh', background: '#111827', color: '#e5e7eb',
-      display: 'flex', flexDirection: 'column'
-    }}>
+    <div className="min-h-[100dvh] bg-[#F9F9F6] text-[#111] flex flex-col font-sans antialiased">
       {/* ─── Compact Header ─── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '8px 12px', background: '#0f172a',
-        borderBottom: '1px solid #1e293b', flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 16, fontWeight: 800, color: '#f3f4f6', letterSpacing: '-0.02em' }}>Leads</span>
-          {tenant ? (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '3px 10px', borderRadius: 6,
-              background: '#1e293b', fontSize: 11, color: '#94a3b8'
-            }}>
-              <Building2 size={12} />
-              <span style={{ fontWeight: 600, color: '#cbd5e1' }}>{tenant.client_name ?? 'Cliente'}</span>
-              {tenant.user_email ? <span>· {tenant.user_email}</span> : null}
+      <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white border-b border-[#E5E5E5] shrink-0 sticky top-0 z-10">
+        <div className="flex items-center gap-4">
+          <span className="text-[18px] font-extrabold tracking-[-0.04em]">Chats</span>
+          {tenant && (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#F4F4F0] border border-[#E5E5E5] text-[12px] text-[#52525B]">
+              <Building2 size={14} />
+              <span className="font-bold text-[#111]">{tenant.client_name ?? 'Cliente'}</span>
+              {tenant.user_email && <span className="text-[#A1A1AA]">· {tenant.user_email}</span>}
             </div>
-          ) : null}
+          )}
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => void loadLeads()} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            padding: '6px 10px', borderRadius: 6,
-            background: 'transparent', border: '1px solid #334155',
-            color: '#94a3b8', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-          }}>
-            <RefreshCw size={13} />
+        <div className="hidden md:flex gap-3">
+          <button 
+            onClick={() => void loadLeads()} 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E5E5E5] bg-white text-[#52525B] text-[13px] font-bold shadow-sm hover:bg-[#F9F9F6] hover:text-[#111] transition-colors"
+          >
+            <RefreshCw size={14} /> Refrescar
           </button>
-          <button onClick={signOut} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            padding: '6px 10px', borderRadius: 6,
-            background: 'transparent', border: '1px solid #334155',
-            color: '#94a3b8', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-          }}>
-            <LogOut size={13} />
+          <button 
+            onClick={signOut} 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E5E5E5] bg-white text-[#52525B] text-[13px] font-bold shadow-sm hover:bg-[#F9F9F6] hover:text-[#111] transition-colors"
+          >
+            <LogOut size={14} /> Salir
           </button>
         </div>
       </div>
 
       {/* ─── Body ─── */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        {loading ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200 }}>
-            <span style={{ fontSize: 14, color: '#6b7280' }}>Cargando...</span>
+      <div className="flex-1 overflow-auto p-0 md:p-8 max-w-[1400px] mx-auto w-full pb-24 md:pb-8">
+        {loading && (
+          <div className="flex items-center justify-center h-[200px]">
+            <span className="text-[14px] text-[#A1A1AA] font-medium tracking-wide">Cargando leads...</span>
           </div>
-        ) : null}
+        )}
 
-        {error ? (
-          <div style={{ padding: '8px 12px', borderRadius: 6, background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)', color: '#fca5a5', fontSize: 13 }}>
+        {error && (
+          <div className="p-4 mb-6 rounded-lg bg-red-50 border border-red-100 text-red-600 text-[13px] font-semibold">
             {error}
           </div>
-        ) : null}
+        )}
 
-        {!loading && !error ? (
-          <div style={{
-            background: '#0f172a', border: '1px solid #1e293b',
-            borderRadius: 10, overflow: 'hidden'
-          }}>
+        {!loading && !error && (
+          <div className="md:hidden px-4 pt-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-[12px] text-[#71717A] font-medium">
+                {tenant?.client_name ? `Cuenta: ${tenant.client_name}` : 'Panel de conversaciones'}
+              </p>
+              <button
+                onClick={() => void loadLeads()}
+                className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#52525B] bg-white border border-[#E5E5E5] rounded-md px-2.5 py-1.5"
+              >
+                <RefreshCw size={13} /> Refrescar
+              </button>
+            </div>
+
+            <div className="bg-white border border-[#E5E5E5] rounded-xl overflow-hidden">
+              {((mobileTab === 'active' && activeLeads.length === 0) ||
+                (mobileTab === 'closed' && closedLeads.length === 0)) && (
+                <div className="p-6 text-center text-[13px] text-[#71717A]">
+                  {mobileTab === 'active'
+                    ? 'No hay chats activos por ahora.'
+                    : 'No hay chats cerrados en historial.'}
+                </div>
+              )}
+
+              {(mobileTab === 'active' ? activeLeads : closedLeads).map((lead) => (
+                <Link key={lead.id} href={`/panel/leads/${lead.id}`} className="block border-b border-[#F4F4F0] last:border-b-0">
+                  <div className="px-4 py-3 flex items-start gap-3 hover:bg-[#FAFAF8] transition-colors">
+                    <div className="w-11 h-11 rounded-full bg-[#E9F9EF] text-[#059669] flex items-center justify-center text-[14px] font-bold shrink-0">
+                      {(lead.wa_profile_name?.trim()?.charAt(0) ?? '#').toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[14px] font-bold text-[#111827] truncate">
+                          {lead.wa_profile_name ?? 'Sin nombre'}
+                        </p>
+                        <span
+                          className={`text-[10px] uppercase tracking-wide font-bold px-2 py-0.5 rounded-full border ${
+                            lead.conversation_status === 'ACTIVE'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : lead.conversation_status === 'HUMAN_REQUIRED'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : lead.conversation_status === 'HUMAN_TAKEN'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                  : 'bg-gray-50 text-gray-500 border-gray-200'
+                          }`}
+                        >
+                          {lead.conversation_status === 'CLOSED' ? 'CERRADO' : 'ACTIVO'}
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-[#52525B] truncate mt-0.5">
+                        {lead.last_message || 'Sin mensajes'}
+                      </p>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-[11px] text-[#A1A1AA] font-mono">{lead.wa_user_id}</span>
+                        <span className="text-[11px] font-semibold text-[#374151]">Score {lead.score}</span>
+                      </div>
+                    </div>
+                    <ChevronRightRow size={16} className="text-[#A1A1AA] mt-3 shrink-0" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <div className="hidden md:block bg-white border border-[#E5E5E5] rounded-xl shadow-sm overflow-hidden">
             {activeLeads.length > 0 ? (
-              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #1e293b' }}>
-                      {['Nombre', 'Número', 'Estado', 'Score', 'Último mensaje', 'Acciones'].map((h) => (
-                        <th key={h} style={{
-                          textAlign: 'left', padding: '8px 10px',
-                          fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-                          letterSpacing: '0.06em', color: '#64748b', whiteSpace: 'nowrap'
-                        }}>{h}</th>
+                    <tr className="border-b border-[#E5E5E5] bg-[#F9F9F6]">
+                      {['Nombre', 'Número', 'Estado', 'Score', 'Último mensaje', 'Acción'].map((h) => (
+                        <th key={h} className="text-left py-3 px-4 text-[11px] font-black uppercase tracking-[0.08em] text-[#A1A1AA] whitespace-nowrap">
+                          {h}
+                        </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {pagedLeads.map((lead) => (
-                      <tr key={lead.id} style={{ borderBottom: '1px solid #1e293b' }}>
-                        <td style={{ padding: '10px', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
+                      <tr key={lead.id} className="border-b border-[#F4F4F0] hover:bg-[#F9F9F6] transition-colors">
+                        <td className="py-4 px-4 font-bold text-[#111] whitespace-nowrap">
                           {lead.wa_profile_name ?? 'Sin nombre'}
                         </td>
-                        <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: 11, color: '#94a3b8' }}>
+                        <td className="py-4 px-4 font-mono text-[12px] text-[#52525B]">
                           {lead.wa_user_id}
                         </td>
-                        <td style={{ padding: '10px' }}>
-                          <span className={`badge ${lead.conversation_status}`} style={{ fontSize: 10 }}>
+                        <td className="py-4 px-4">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                            lead.conversation_status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            lead.conversation_status === 'HUMAN_TAKEN' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                            lead.conversation_status === 'HUMAN_REQUIRED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                            'bg-gray-50 text-gray-500 border-gray-200'
+                          }`}>
                             {lead.conversation_status}
                           </span>
                         </td>
-                        <td style={{ padding: '10px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontWeight: 700, color: '#f1f5f9', minWidth: 24 }}>{lead.score}</span>
-                            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#1e293b', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', borderRadius: 2, background: '#3b82f6', width: `${Math.min(lead.score, 100)}%` }} />
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-[#111] min-w-[24px]">{lead.score}</span>
+                            <div className="w-10 h-1.5 rounded-full bg-[#F4F4F0] overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full transition-all ${lead.score > 30 ? 'bg-emerald-500' : lead.score > 0 ? 'bg-amber-400' : 'bg-gray-300'}`} 
+                                style={{ width: `${Math.min(Math.max(lead.score, 0), 100)}%` }} 
+                              />
                             </div>
                           </div>
                         </td>
-                        <td style={{
-                          padding: '10px', maxWidth: 160, overflow: 'hidden',
-                          textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#64748b', fontSize: 12
-                        }}>
+                        <td className="py-4 px-4 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-[#52525B] text-[13px]">
                           {lead.last_message || '-'}
                         </td>
-                        <td style={{ padding: '10px 6px 10px 10px', textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: 6, justifyContent: 'flex-end' }}>
+                        <td className="py-4 px-4 text-right">
+                          <div className="inline-flex gap-2 justify-end">
                             <Link href={`/panel/leads/${lead.id}`}>
-                              <button style={{
-                                display: 'inline-flex', alignItems: 'center', gap: 4,
-                                padding: '5px 10px', borderRadius: 6,
-                                background: '#1e293b', border: '1px solid #334155',
-                                color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                <Eye size={12} />
-                                Ver
+                              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#E5E5E5] text-[#111] text-[12px] font-bold shadow-sm hover:bg-[#F9F9F6] transition-colors whitespace-nowrap">
+                                <Eye size={14} /> Atender
                               </button>
                             </Link>
-                            <button
-                              onClick={() => void onCloseLead(lead.id)}
-                              disabled={closingLeadId === lead.id}
-                              style={{
-                                display: 'inline-flex', alignItems: 'center', gap: 4,
-                                padding: '5px 10px', borderRadius: 6,
-                                background: 'transparent', border: '1px solid #334155',
-                                color: '#fca5a5',
-                                fontSize: 11, fontWeight: 600,
-                                cursor: closingLeadId === lead.id ? 'not-allowed' : 'pointer',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              <XCircle size={12} />
-                              {closingLeadId === lead.id ? 'Cerrando...' : 'Cerrar'}
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -315,113 +307,74 @@ export default function PanelLeadsPage() {
                 </table>
               </div>
             ) : (
-              <div style={{ padding: '14px 12px', color: '#64748b', fontSize: 13 }}>
+              <div className="p-8 text-center text-[#A1A1AA] text-[14px]">
                 No hay leads activos en este momento.
               </div>
             )}
 
             {/* ─── Pagination ─── */}
-            {activeLeads.length > PAGE_SIZE ? (
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '8px 12px', borderTop: '1px solid #1e293b',
-                fontSize: 12, color: '#64748b'
-              }}>
+            {activeLeads.length > PAGE_SIZE && (
+              <div className="flex items-center justify-between p-4 border-t border-[#E5E5E5] bg-[#F9F9F6] text-[12px] font-medium text-[#52525B]">
                 <span>{activeLeads.length} leads activos · página {page + 1} de {totalPages}</span>
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div className="flex gap-2">
                   <button
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                     disabled={page === 0}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 30, height: 30, borderRadius: 6,
-                      background: page === 0 ? 'transparent' : '#1e293b',
-                      border: '1px solid #334155',
-                      color: page === 0 ? '#334155' : '#94a3b8',
-                      cursor: page === 0 ? 'not-allowed' : 'pointer'
-                    }}
+                    className="flex items-center justify-center w-8 h-8 rounded-md bg-white border border-[#E5E5E5] text-[#111] disabled:text-[#A1A1AA] disabled:bg-transparent shadow-sm hover:bg-[#F4F4F0] disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors"
                   >
-                    <ChevronLeft size={14} />
+                    <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                     disabled={page >= totalPages - 1}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 30, height: 30, borderRadius: 6,
-                      background: page >= totalPages - 1 ? 'transparent' : '#1e293b',
-                      border: '1px solid #334155',
-                      color: page >= totalPages - 1 ? '#334155' : '#94a3b8',
-                      cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer'
-                    }}
+                    className="flex items-center justify-center w-8 h-8 rounded-md bg-white border border-[#E5E5E5] text-[#111] disabled:text-[#A1A1AA] disabled:bg-transparent shadow-sm hover:bg-[#F4F4F0] disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors"
                   >
-                    <ChevronRight size={14} />
+                    <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
-        ) : null}
+        )}
 
-        {!loading && !error && closedLeads.length > 0 ? (
-          <details style={{
-            marginTop: 12,
-            background: '#0f172a',
-            border: '1px solid #1e293b',
-            borderRadius: 10,
-            overflow: 'hidden'
-          }}>
-            <summary style={{
-              cursor: 'pointer',
-              listStyle: 'none',
-              padding: '10px 12px',
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#94a3b8',
-              borderBottom: '1px solid #1e293b'
-            }}>
-              Leads cerrados ({closedLeads.length})
+        {/* ─── Closed Leads ─── */}
+        {!loading && !error && closedLeads.length > 0 && (
+          <details className="hidden md:block mt-8 bg-white border border-[#E5E5E5] rounded-xl shadow-sm overflow-hidden group">
+            <summary className="cursor-pointer list-none flex items-center justify-between p-4 bg-[#F9F9F6] border-b border-transparent group-open:border-[#E5E5E5]">
+              <span className="text-[13px] font-black uppercase tracking-[0.05em] text-[#52525B]">
+                Historial Cerrado ({closedLeads.length})
+              </span>
+              <span className="text-[#A1A1AA] group-open:rotate-180 transition-transform"><ChevronRight size={16}/></span>
             </summary>
-            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #1e293b' }}>
-                    {['Nombre', 'Número', 'Score', 'Último mensaje', 'Acciones'].map((h) => (
-                      <th key={h} style={{
-                        textAlign: 'left', padding: '8px 10px',
-                        fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-                        letterSpacing: '0.06em', color: '#64748b', whiteSpace: 'nowrap'
-                      }}>{h}</th>
+                  <tr className="border-b border-[#E5E5E5] bg-[#F9F9F6]">
+                    {['Nombre', 'Número', 'Score', 'Último mensaje', 'Acción'].map((h) => (
+                      <th key={h} className="text-left py-3 px-4 text-[11px] font-black uppercase tracking-[0.08em] text-[#A1A1AA] whitespace-nowrap">
+                        {h}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {closedLeads.map((lead) => (
-                    <tr key={lead.id} style={{ borderBottom: '1px solid #1e293b' }}>
-                      <td style={{ padding: '10px', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
+                    <tr key={lead.id} className="border-b border-[#F4F4F0] hover:bg-[#F9F9F6] transition-colors">
+                      <td className="py-4 px-4 font-bold text-[#111] whitespace-nowrap">
                         {lead.wa_profile_name ?? 'Sin nombre'}
                       </td>
-                      <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: 11, color: '#94a3b8' }}>
+                      <td className="py-4 px-4 font-mono text-[12px] text-[#A1A1AA]">
                         {lead.wa_user_id}
                       </td>
-                      <td style={{ padding: '10px', fontWeight: 700, color: '#f1f5f9' }}>{lead.score}</td>
-                      <td style={{
-                        padding: '10px', maxWidth: 160, overflow: 'hidden',
-                        textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#64748b', fontSize: 12
-                      }}>
+                      <td className="py-4 px-4 font-extrabold text-[#A1A1AA]">{lead.score}</td>
+                      <td className="py-4 px-4 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-[#A1A1AA] text-[13px]">
                         {lead.last_message || '-'}
                       </td>
-                      <td style={{ padding: '10px 6px 10px 10px', textAlign: 'right' }}>
+                      <td className="py-4 px-4 text-right">
                         <Link href={`/panel/leads/${lead.id}`}>
-                          <button style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 4,
-                            padding: '5px 10px', borderRadius: 6,
-                            background: '#1e293b', border: '1px solid #334155',
-                            color: '#94a3b8', fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            <Eye size={12} />
-                            Ver
+                          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-transparent border border-[#E5E5E5] text-[#52525B] text-[12px] font-bold hover:bg-white hover:text-[#111] hover:border-[#111] transition-colors whitespace-nowrap">
+                            <Eye size={14} /> Historial
                           </button>
                         </Link>
                       </td>
@@ -431,16 +384,44 @@ export default function PanelLeadsPage() {
               </table>
             </div>
           </details>
-        ) : null}
+        )}
 
-        {!loading && !error && leads.length === 0 ? (
-          <div style={{
-            padding: '24px', textAlign: 'center', color: '#64748b', fontSize: 13
-          }}>
-            Sin leads visibles para este tenant. Revisa mapping en <code style={{ background: '#1e293b', padding: '2px 6px', borderRadius: 4, fontSize: 11 }}>user_clients</code> y políticas RLS.
+        {!loading && !error && leads.length === 0 && (
+          <div className="p-8 mt-4 text-center text-[#52525B] text-[14px] bg-[#F4F4F0] rounded-lg border border-[#E5E5E5] border-dashed">
+            Sin leads visibles para este tenant. 
           </div>
-        ) : null}
+        )}
       </div>
+
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-[#E5E5E5] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
+        <div className="grid grid-cols-3">
+          <button
+            onClick={() => setMobileTab('active')}
+            className={`py-3.5 px-2 flex flex-col items-center gap-1 text-[11px] font-semibold ${
+              mobileTab === 'active' ? 'text-[#111] bg-[#F9F9F6]' : 'text-[#71717A]'
+            }`}
+          >
+            <MessageCircle size={18} />
+            <span>Leads activos</span>
+          </button>
+          <button
+            onClick={() => setMobileTab('closed')}
+            className={`py-3.5 px-2 flex flex-col items-center gap-1 text-[11px] font-semibold ${
+              mobileTab === 'closed' ? 'text-[#111] bg-[#F9F9F6]' : 'text-[#71717A]'
+            }`}
+          >
+            <Archive size={18} />
+            <span>Leads cerrados</span>
+          </button>
+          <button
+            onClick={signOut}
+            className="py-3.5 px-2 flex flex-col items-center gap-1 text-[11px] font-semibold text-[#71717A]"
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { ArrowLeft, LogOut, UserCheck, XCircle, Send, RotateCcw } from 'lucide-react';
+import { ArrowLeft, UserCheck, XCircle, Send, RotateCcw } from 'lucide-react';
 
 type Lead = {
   id: string;
@@ -185,211 +185,153 @@ export default function LeadConversationPage() {
     await load({ silent: true });
   }
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    router.push('/panel/login');
-  }
-
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', height: '100dvh',
-      background: '#1a1a2e', color: '#e5e7eb'
-    }}>
-      {/* ─── Compact Top Bar ─── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '8px 12px', background: '#111827',
-        borderBottom: '1px solid #1f2937', flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link href="/panel/leads">
-            <button style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              padding: '6px 10px', borderRadius: 6,
-              background: 'transparent', border: '1px solid #374151',
-              color: '#9ca3af', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-            }}>
-              <ArrowLeft size={13} />
-              Volver
-            </button>
-          </Link>
-          {lead ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#f3f4f6' }}>
-                {lead.wa_profile_name ?? 'Sin nombre'}
-              </span>
-              <span style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>
-                {lead.wa_user_id}
-              </span>
+    <div className="min-h-[100dvh] bg-[#F9F9F6] text-[#111] flex flex-col font-sans antialiased">
+      {/* ─── Chat Top Bar ─── */}
+      <div className="px-4 md:px-6 py-3 bg-white border-b border-[#E5E5E5] shrink-0 sticky top-0 z-10">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex items-center gap-3">
+            <Link href="/panel/leads">
+              <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E5E5E5] bg-white text-[#52525B] text-[12px] font-semibold shadow-sm hover:bg-[#F9F9F6] hover:text-[#111] transition-colors">
+                <ArrowLeft size={14} />
+                Volver
+              </button>
+            </Link>
+            {lead ? (
+              <div className="min-w-0">
+                <p className="text-[15px] md:text-[16px] font-extrabold tracking-[-0.02em] text-[#111] truncate">
+                  {lead.wa_profile_name ?? 'Sin nombre'}
+                </p>
+                <p className="text-[11px] font-mono text-[#71717A] truncate">{lead.wa_user_id}</p>
+              </div>
+            ) : (
+              <span className="text-[15px] font-extrabold tracking-[-0.02em] text-[#111]">Conversación</span>
+            )}
+          </div>
+
+          {lead && (
+            <div className="flex gap-1.5 md:gap-2 shrink-0">
+              <button
+                onClick={onTake}
+                disabled={lead.conversation_status !== 'HUMAN_REQUIRED'}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-all ${
+                  lead.conversation_status === 'HUMAN_REQUIRED'
+                    ? 'bg-[#111] text-white hover:bg-black'
+                    : 'bg-[#F4F4F0] text-[#A1A1AA] border border-[#E5E5E5] cursor-not-allowed'
+                }`}
+              >
+                <UserCheck size={13} /> Atender
+              </button>
+              <button
+                onClick={onCloseLead}
+                disabled={lead.conversation_status === 'CLOSED'}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-colors ${
+                  lead.conversation_status === 'CLOSED'
+                    ? 'bg-[#F4F4F0] text-[#A1A1AA] border border-[#E5E5E5] cursor-not-allowed'
+                    : 'bg-white text-red-600 border border-red-200 hover:bg-red-50'
+                }`}
+              >
+                <XCircle size={13} /> Cerrar
+              </button>
+              <button
+                onClick={onReopenLead}
+                disabled={lead.conversation_status !== 'CLOSED'}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] md:text-[12px] font-bold transition-colors ${
+                  lead.conversation_status === 'CLOSED'
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    : 'bg-[#F4F4F0] text-[#A1A1AA] border border-[#E5E5E5] cursor-not-allowed'
+                }`}
+              >
+                <RotateCcw size={13} /> Reabrir
+              </button>
             </div>
-          ) : (
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#f3f4f6' }}>Conversación</span>
           )}
         </div>
-        <button
-          onClick={signOut}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            padding: '6px 10px', borderRadius: 6,
-            background: 'transparent', border: '1px solid #374151',
-            color: '#9ca3af', fontSize: 12, fontWeight: 600, cursor: 'pointer'
-          }}
-        >
-          <LogOut size={13} />
-        </button>
-      </div>
-
-      {/* ─── Lead Info Strip ─── */}
-      {lead ? (
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '6px 12px', background: '#111827',
-          borderBottom: '1px solid #1f2937', flexShrink: 0,
-          flexWrap: 'wrap', gap: 8
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span className={`badge ${lead.conversation_status}`} style={{ fontSize: 10 }}>
+        {lead && (
+          <div className="mt-2 flex items-center gap-2">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+              lead.conversation_status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+              lead.conversation_status === 'HUMAN_TAKEN' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+              lead.conversation_status === 'HUMAN_REQUIRED' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+              'bg-gray-50 text-gray-500 border-gray-200'
+            }`}>
               {lead.conversation_status}
             </span>
-            <span style={{ fontSize: 12, color: '#9ca3af' }}>
-              Score: <strong style={{ color: '#f3f4f6' }}>{lead.score}</strong>
+            <span className="text-[11px] text-[#52525B] font-medium">
+              Score <strong className="font-bold text-[#111]">{lead.score}</strong>
             </span>
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button
-              onClick={onTake}
-              disabled={lead.conversation_status !== 'HUMAN_REQUIRED'}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-                background: lead.conversation_status === 'HUMAN_REQUIRED' ? '#3b82f6' : '#1f2937',
-                border: 'none',
-                color: lead.conversation_status === 'HUMAN_REQUIRED' ? 'white' : '#4b5563',
-                cursor: lead.conversation_status === 'HUMAN_REQUIRED' ? 'pointer' : 'not-allowed'
-              }}
-            >
-              <UserCheck size={12} />
-              Tomar
-            </button>
-            <button
-              onClick={onCloseLead}
-              disabled={lead.conversation_status === 'CLOSED'}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-                background: 'transparent', border: '1px solid #374151',
-                color: lead.conversation_status === 'CLOSED' ? '#4b5563' : '#9ca3af',
-                cursor: lead.conversation_status === 'CLOSED' ? 'not-allowed' : 'pointer'
-              }}
-            >
-              <XCircle size={12} />
-              Cerrar
-            </button>
-            <button
-              onClick={onReopenLead}
-              disabled={lead.conversation_status !== 'CLOSED'}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-                background: lead.conversation_status === 'CLOSED' ? '#059669' : '#1f2937',
-                border: 'none',
-                color: lead.conversation_status === 'CLOSED' ? 'white' : '#4b5563',
-                cursor: lead.conversation_status === 'CLOSED' ? 'pointer' : 'not-allowed'
-              }}
-            >
-              <RotateCcw size={12} />
-              Reabrir
-            </button>
-          </div>
-        </div>
-      ) : null}
+        )}
+      </div>
 
       {/* ─── Loading / Error ─── */}
-      {loading ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: 14, color: '#6b7280' }}>Cargando...</span>
+      {loading && (
+        <div className="flex-1 flex items-center justify-center">
+          <span className="text-[14px] font-medium text-[#A1A1AA] tracking-wide">Cargando...</span>
         </div>
-      ) : null}
-      {error ? (
-        <div style={{ margin: '8px 12px', padding: '8px 12px', borderRadius: 6, background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)', color: '#fca5a5', fontSize: 13 }}>
+      )}
+      {error && (
+        <div className="m-4 p-4 rounded-lg bg-red-50 border border-red-100 text-red-600 text-[13px] font-semibold mx-auto w-full max-w-3xl">
           {error}
         </div>
-      ) : null}
+      )}
 
       {/* ─── Chat Messages Area ─── */}
-      {lead && !loading ? (
-        <div style={{
-          flex: 1, overflow: 'auto', padding: '12px',
-          display: 'flex', flexDirection: 'column', gap: 6,
-          background: '#0f0f23'
-        }}>
-          {messages.length === 0 ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 13, color: '#4b5563' }}>Sin mensajes aún</span>
+      {lead && !loading && (
+        <div className="flex-1 overflow-auto p-4 md:p-6 flex flex-col gap-4 bg-[#F9F9F6] max-w-4xl mx-auto w-full">
+          {messages.length === 0 && (
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-[13px] text-[#A1A1AA] font-medium">Conversación sin historial</span>
             </div>
-          ) : null}
+          )}
           {messages.map((message) => (
             <div
               key={message.id}
-              style={{
-                alignSelf: message.direction === 'INBOUND' ? 'flex-start' : 'flex-end',
-                maxWidth: '82%',
-                padding: '10px 14px',
-                borderRadius: message.direction === 'INBOUND' ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
-                background: message.direction === 'INBOUND' ? '#1f2937' : '#1d4ed8',
-                color: message.direction === 'INBOUND' ? '#e5e7eb' : '#f0f4ff',
-                fontSize: 14, lineHeight: 1.5
-              }}
+              className={`flex flex-col max-w-[85%] md:max-w-[70%] animate-in fade-in slide-in-from-bottom-2 ${
+                message.direction === 'INBOUND' ? 'self-start' : 'self-end'
+              }`}
             >
-              <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{message.text_content}</div>
-              <div style={{
-                fontSize: 10, marginTop: 4,
-                color: message.direction === 'INBOUND' ? '#6b7280' : 'rgba(255,255,255,0.45)',
-                textAlign: message.direction === 'INBOUND' ? 'left' : 'right'
-              }}>
-                {message.direction === 'INBOUND' ? 'Lead' : 'Bot/Agente'}
+              <div 
+                className={`px-4 py-3 text-[14px] leading-relaxed break-words shadow-sm border ${
+                  message.direction === 'INBOUND' 
+                  ? 'bg-white border-[#E5E5E5] text-[#111] rounded-2xl rounded-tl-sm' 
+                  : 'bg-[#111] border-[#111] text-white rounded-2xl rounded-tr-sm'
+                }`}
+                style={{ whiteSpace: 'pre-wrap' }}
+              >
+                {message.text_content}
+              </div>
+              <div className={`text-[10px] font-bold uppercase tracking-wider mt-1.5 flex items-center gap-1 ${
+                message.direction === 'INBOUND' ? 'text-[#A1A1AA] self-start' : 'text-[#A1A1AA] self-end'
+              }`}>
+                {message.direction === 'INBOUND' ? 'Lead' : 'Bot / Agente'}
               </div>
             </div>
           ))}
         </div>
-      ) : null}
+      )}
 
       {/* ─── Message Input ─── */}
-      {lead && !loading ? (
-        <div style={{
-          padding: '8px 12px', background: '#111827',
-          borderTop: '1px solid #1f2937', flexShrink: 0
-        }}>
-          <form onSubmit={onSend} style={{
-            display: 'flex', alignItems: 'center', gap: 8
-          }}>
+      {lead && !loading && (
+        <div className="p-4 bg-white border-t border-[#E5E5E5] shrink-0 sticky bottom-0">
+          <form onSubmit={onSend} className="max-w-4xl mx-auto w-full flex items-center gap-3">
             <input
               type="text"
-              placeholder="Escribe un mensaje..."
+              placeholder="Escribe un mensaje para el cliente..."
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              style={{
-                flex: 1, padding: '10px 14px', borderRadius: 8,
-                background: '#1f2937', border: '1px solid #374151',
-                color: '#f3f4f6', fontSize: 14,
-                outline: 'none', fontFamily: 'inherit'
-              }}
+              className="flex-1 px-4 py-3 rounded-xl bg-[#F9F9F6] border border-[#E5E5E5] text-[#111] text-[14px] focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] transition-all placeholder:text-[#A1A1AA]"
             />
             <button
               type="submit"
-              style={{
-                width: 40, height: 40, borderRadius: 8,
-                background: '#3b82f6', border: 'none',
-                color: 'white', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0
-              }}
+              disabled={!messageText.trim()}
+              className="w-12 h-12 rounded-xl bg-[#111] text-white flex items-center justify-center shrink-0 shadow-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:bg-[#A1A1AA] disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <Send size={16} />
+              <Send size={18} className="translate-x-0.5" />
             </button>
           </form>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

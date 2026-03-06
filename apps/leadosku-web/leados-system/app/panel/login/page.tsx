@@ -34,19 +34,21 @@ export default function PanelLoginPage() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card animate-fade-in-up">
-        <div className="login-logo">
-          <div className="logo-icon">K</div>
-          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Kumera Messaging</span>
+    <div className="kumi-light-landing flex items-center justify-center min-h-screen">
+      <div className="k-card w-full max-w-md mx-4 animate-fade-in-up">
+        
+        <div className="k-logo justify-center mb-8">
+          Kumi <span>by Kumera</span>
         </div>
-        <h1>Panel Cliente</h1>
-        <p className="login-subtitle">Accede a tus leads y conversaciones en tiempo real</p>
-        <form onSubmit={onSubmit}>
-          <div className="login-field">
-            <label>Email</label>
+        
+        <h1 className="k-h2 mb-2 text-center text-[28px]">Panel Cliente</h1>
+        <p className="k-body text-center mb-8 text-[14px]">Accede a tus leads y conversaciones en tiempo real.</p>
+        
+        <form onSubmit={onSubmit} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-bold uppercase tracking-widest text-[#52525B]">Email</label>
             <input
-              className="login-input"
+              className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg text-[15px] focus:outline-none focus:border-[#111] transition-colors bg-white text-[#111]"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -54,10 +56,11 @@ export default function PanelLoginPage() {
               required
             />
           </div>
-          <div className="login-field">
-            <label>Contraseña</label>
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-bold uppercase tracking-widest text-[#52525B]">Contraseña</label>
             <input
-              className="login-input"
+              className="w-full px-4 py-3 border border-[#E5E5E5] rounded-lg text-[15px] focus:outline-none focus:border-[#111] transition-colors bg-white text-[#111]"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -65,14 +68,16 @@ export default function PanelLoginPage() {
               required
             />
           </div>
-          {error ? <div className="login-error">{error}</div> : null}
-          <button className="login-btn" disabled={loading} style={{ marginTop: 8 }}>
+          
+          {error && <div className="bg-red-50 text-red-600 text-[13px] font-semibold p-3 rounded border border-red-100">{error}</div>}
+          
+          <button className="k-btn-black w-full mt-4 h-[48px]" disabled={loading}>
             {loading ? (
               'Ingresando...'
             ) : (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <LogIn size={16} />
-                Ingresar
+              <span className="flex items-center gap-2">
+                <LogIn size={18} />
+                Ingresar al Flow
               </span>
             )}
           </button>
