@@ -854,7 +854,7 @@ export async function POST(req: Request) {
             phoneNumberId: parsed.phoneNumberId,
             waUserId: parsed.waUserId,
             accessTokenEnc: channel.meta_access_token_enc,
-            text: 'Por ahora solo puedo ayudarte con los servicios configurados. Si quieres, vuelve a escribirnos para retomar.'
+            text: `Por ahora solo puedo ayudarte con lo configurado para ${client.name}. Si quieres, vuelve a escribirnos para retomar.`
           });
         } catch (error) {
           return fail(error instanceof Error ? error.message : 'Could not send close message', 500);
@@ -885,7 +885,7 @@ export async function POST(req: Request) {
           waUserId: parsed.waUserId,
         accessTokenEnc: channel.meta_access_token_enc,
         text: [
-          formatOutOfScopeMessage(stepBundle.step.prompt_text, stepBundle.options),
+          formatOutOfScopeMessage(stepBundle.step.prompt_text, stepBundle.options, client.name),
           isSubmenu ? '\nTambién puedes responder 0 para volver al menú principal.' : ''
         ]
           .filter(Boolean)

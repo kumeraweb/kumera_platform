@@ -46,13 +46,15 @@ export function renderStepPrompt(promptText: string, options: FlowOption[], conf
   return [promptText, renderOptionsList(options, config)].join('\n');
 }
 
-export function formatOutOfScopeMessage(promptText: string, options: FlowOption[]): string {
+export function formatOutOfScopeMessage(promptText: string, options: FlowOption[], businessName?: string | null): string {
+  const businessLabel = (businessName || 'este servicio').trim();
+
   if (options.length === 0) {
-    return 'Puedo ayudarte solo con los servicios disponibles de Tractiva.';
+    return `Puedo ayudarte solo con lo configurado para ${businessLabel}.`;
   }
 
   return [
-    'Puedo ayudarte solo con servicios de Google Ads.',
+    `Puedo ayudarte solo con las opciones configuradas para ${businessLabel}.`,
     "Si quieres ver las opciones válidas, responde: OPCIONES."
   ].join('\n');
 }
