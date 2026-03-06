@@ -1,3 +1,18 @@
+---
+const isKumeraMessagingLive = false;
+
+const companies = [
+  {
+    name: "Kumera Messaging",
+    href: null,
+    isLive: isKumeraMessagingLive,
+  },
+  { name: "tractiva", href: "https://www.tractiva.cl" },
+  { name: "Sitiora", href: "https://www.sitiora.cl" },
+  { name: "TuEjecutiva", href: "https://www.tuejecutiva.cl" },
+];
+---
+
 <section class="relative overflow-hidden bg-white">
   <div class="pointer-events-none absolute inset-0 flex justify-center">
     <div class="relative w-full max-w-[1120px]">
@@ -29,6 +44,54 @@
         y proyectos propios. Operamos desde Santiago y Concepción con enfoque en
         ingeniería, diseño y escalabilidad.
       </p>
+
+      <div class="hero-operator py-2">
+        <span
+          class="inline-flex items-center rounded-full border border-black/10 bg-black/[0.03] px-4 py-2 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-black/55"
+          title="Kumera Servicios Digitales SpA opera las marcas y empresas digitales del grupo."
+        >
+          Empresas operadas por Kumera Servicios Digitales SpA
+        </span>
+      </div>
+
+      <div class="hero-companies mt-8 max-w-3xl">
+        <p class="text-xs font-medium uppercase tracking-[0.3em] text-black/45">
+          Empresas y marcas operadas
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          {
+            companies.map((company) => (
+              company.href ? (
+                <a
+                  href={company.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-black/75 transition-all duration-300 hover:-translate-y-[1px] hover:border-black/20 hover:text-black"
+                >
+                  {company.name}
+                </a>
+              ) : company.isLive === false ? (
+                <span
+                  class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800"
+                  title="Kumera Messaging sigue en desarrollo y aun no se publica."
+                >
+                  <span>{company.name}</span>
+                  <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber-700">
+                    En construcción
+                  </span>
+                </span>
+              ) : (
+                <span
+                  class="inline-flex items-center rounded-full border border-black/8 bg-black/[0.025] px-4 py-2 text-sm font-medium text-black/45"
+                  title="Dominio público no configurado todavía."
+                >
+                  {company.name}
+                </span>
+              )
+            ))
+          }
+        </div>
+      </div>
 
       <div class="hero-cta mt-10">
         <a

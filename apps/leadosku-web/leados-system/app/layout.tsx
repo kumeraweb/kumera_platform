@@ -2,8 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'leadOsKu',
-  description: 'LeadOS MVP operativo'
+  title: 'Kumera Messaging',
+  description: 'Kumera Messaging para calificacion y gestion de conversaciones comerciales'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

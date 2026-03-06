@@ -8,12 +8,20 @@ export default function Hero() {
 
       <div className="mx-auto max-w-2xl text-center relative z-10">
         <div className="mb-8 flex justify-center">
-          <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-slate-600 ring-1 ring-slate-900/10 hover:ring-slate-900/20 bg-white/50 backdrop-blur-sm">
-            Perfiles verificados · Contacto directo{" "}
-            <Link href="/verificacion" className="font-semibold text-emerald-600">
-              <span className="absolute inset-0" aria-hidden="true" />
-              Conoce el proceso <span aria-hidden="true">→</span>
-            </Link>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-slate-600 ring-1 ring-slate-900/10 hover:ring-slate-900/20 bg-white/50 backdrop-blur-sm">
+              Perfiles verificados · Contacto directo{" "}
+              <Link href="/verificacion" className="font-semibold text-emerald-600">
+                <span className="absolute inset-0" aria-hidden="true" />
+                Conoce el proceso <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div
+              className="rounded-full px-3 py-1 text-sm leading-6 text-slate-500 ring-1 ring-slate-900/10 bg-white/70 backdrop-blur-sm"
+              title="TuEjecutiva es una empresa operada por Kumera Servicios Digitales SpA."
+            >
+              Operada por Kumera Servicios Digitales SpA
+            </div>
           </div>
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl text-balance">

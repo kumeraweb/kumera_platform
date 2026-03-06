@@ -37,8 +37,8 @@ export default function PanelLoginPage() {
     <div className="login-page">
       <div className="login-card animate-fade-in-up">
         <div className="login-logo">
-          <div className="logo-icon">L</div>
-          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>leadOsKu</span>
+          <div className="logo-icon">K</div>
+          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Kumera Messaging</span>
         </div>
         <h1>Panel Cliente</h1>
         <p className="login-subtitle">Accede a tus leads y conversaciones en tiempo real</p>

@@ -39,8 +39,8 @@ export default function HomePage() {
               width: 36, height: 36, borderRadius: 10,
               background: 'var(--gradient-main)', display: 'flex', alignItems: 'center',
               justifyContent: 'center', fontSize: 16, fontWeight: 900, color: 'white'
-            }}>L</div>
-            <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>leadOsKu</span>
+            }}>K</div>
+            <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Kumera Messaging</span>
           </div>
           <nav style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
@@ -87,6 +87,19 @@ export default function HomePage() {
                 Sistema de pre-calificación con IA
               </div>
 
+              <div
+                title="Kumera Messaging es un producto operado por Kumera Servicios Digitales SpA."
+                style={{
+                  display: 'inline-flex', alignItems: 'center',
+                  padding: '8px 14px', borderRadius: 999,
+                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)',
+                  fontSize: 12, fontWeight: 600, color: '#cbd5e1',
+                  letterSpacing: '0.01em', marginBottom: 20
+                }}
+              >
+                Producto operado por Kumera Servicios Digitales SpA
+              </div>
+
               <h1 style={{
                 fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 900, lineHeight: 1.08,
                 letterSpacing: '-0.04em', margin: '0 0 20px 0'
@@ -103,7 +116,7 @@ export default function HomePage() {
                 fontSize: 18, lineHeight: 1.7, color: 'var(--landing-muted)',
                 maxWidth: 560, margin: '0 0 32px 0'
               }}>
-                LeadOS estructura la conversación por árbol, puntúa intención de forma determinística y
+                Kumera Messaging estructura la conversación por árbol, puntúa intención de forma determinística y
                 escala al equipo humano cuando corresponde.
               </p>
 
@@ -224,7 +237,7 @@ export default function HomePage() {
             }}>
               {[
                 { icon: <GitBranch size={24} />, step: '01', title: 'Configura el flujo', desc: 'Define tu árbol de preguntas y scores por opción desde el backoffice.' },
-                { icon: <Bot size={24} />, step: '02', title: 'El bot conversa', desc: 'LeadOS guía al lead por WhatsApp, puntuando intención en cada paso.' },
+                { icon: <Bot size={24} />, step: '02', title: 'El bot conversa', desc: 'Kumera Messaging guía al lead por WhatsApp, puntuando intención en cada paso.' },
                 { icon: <BarChart3 size={24} />, step: '03', title: 'Score y escalamiento', desc: 'Cuando el lead califica, se escala automáticamente a tu equipo.' },
                 { icon: <Users size={24} />, step: '04', title: 'Tu equipo cierra', desc: 'El humano recibe el contexto completo y continúa en el panel.' }
               ].map((item) => (
@@ -282,7 +295,7 @@ export default function HomePage() {
           gap: 12, padding: '20px 24px',
           fontSize: 13, color: 'var(--landing-muted)'
         }}>
-          <span>© {new Date().getFullYear()} leadOsKu</span>
+          <span>© {new Date().getFullYear()} Kumera Messaging. Producto operado por Kumera Servicios Digitales SpA.</span>
           <span>Lead qualification engine for WhatsApp sales teams</span>
         </div>
       </footer>

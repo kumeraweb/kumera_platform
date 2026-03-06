@@ -102,14 +102,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li className="text-sm text-slate-500">
-                Operado por{" "}
+                Empresa operada por{" "}
                 <a
                   href="https://www.kumeraweb.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-slate-700 hover:text-emerald-600 transition-colors"
                 >
-                  Kumera
+                  Kumera Servicios Digitales SpA
                 </a>
               </li>
               <li className="text-sm text-slate-500">
@@ -130,7 +130,8 @@ export default function Footer() {
             listadas. Cada profesional es responsable de su relación comercial.
           </p>
           <p className="text-center text-xs text-slate-400 mt-3">
-            © {currentYear} {siteConfig.name}. Todos los derechos reservados.
+            © {currentYear} {siteConfig.name}. Empresa operada por Kumera
+            Servicios Digitales SpA.
           </p>
         </div>
       </div>

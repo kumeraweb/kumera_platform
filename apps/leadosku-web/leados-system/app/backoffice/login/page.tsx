@@ -34,8 +34,8 @@ export default function BackofficeLoginPage() {
     <div className="login-page">
       <div className="login-card animate-fade-in-up">
         <div className="login-logo">
-          <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #374151 0%, #111827 100%)' }}>L</div>
-          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>leadOsKu</span>
+          <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #374151 0%, #111827 100%)' }}>K</div>
+          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Kumera Messaging</span>
         </div>
         <h1>Backoffice</h1>
         <p className="login-subtitle">Administración interna del sistema</p>
@@ -47,7 +47,7 @@ export default function BackofficeLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@leadosku.com"
+              placeholder="admin@kumeramessaging.com"
               required
             />
           </div>

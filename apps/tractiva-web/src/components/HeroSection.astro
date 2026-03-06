@@ -6,6 +6,12 @@ import { ArrowRight, MessageCircle, CheckCircle } from "@lucide/astro";
   <div class="hero__container">
     <div class="hero__badges">
       <span class="hero__badge">Google Ads para pymes y servicios profesionales en Chile</span>
+      <span
+        class="hero__badge hero__badge--operator"
+        title="tractiva es una empresa operada por Kumera Servicios Digitales SpA."
+      >
+        Operada por Kumera Servicios Digitales SpA
+      </span>
     </div>
 
     <div class="hero__split">
@@ -104,6 +110,9 @@ import { ArrowRight, MessageCircle, CheckCircle } from "@lucide/astro";
   /* Badge */
   .hero__badges {
     opacity: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
   }
   .hero--ready .hero__badges {
     animation: heroFadeIn 0.5s ease 0.05s both;
@@ -121,6 +130,13 @@ import { ArrowRight, MessageCircle, CheckCircle } from "@lucide/astro";
     text-transform: uppercase;
     border-radius: 99px;
     border: 1px solid rgba(22, 163, 74, 0.15);
+  }
+  .hero__badge--operator {
+    background: rgba(15, 23, 42, 0.04);
+    color: var(--gray-600);
+    border-color: rgba(15, 23, 42, 0.08);
+    text-transform: none;
+    letter-spacing: 0.01em;
   }
 
   /* Split layout */
