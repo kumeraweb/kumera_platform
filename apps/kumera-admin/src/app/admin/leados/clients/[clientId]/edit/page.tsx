@@ -15,9 +15,7 @@ export default async function LeadosClientEditPage({ params }: { params: Promise
   const leados = createLeadosServiceClient();
   const { data: client, error } = await leados
     .from("clients")
-    .select(
-      "id, name, notification_email, score_threshold, human_forward_number, priority_contact_email, human_required_message_template, close_client_no_response_template, close_attended_other_line_template"
-    )
+    .select("*")
     .eq("id", clientId)
     .single();
 

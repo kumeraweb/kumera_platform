@@ -490,7 +490,7 @@ export default function LandingPage() {
 
       <div className="k-divider"></div>
 
-      <section className="k-section-pad k-container">
+      <section className="k-section-pad k-container" id="pricing">
         <h2 className="k-h2 mb-16 text-center">Un servicio gestionado.<br/>Cero trabajo técnico para ti.</h2>
         <div className="grid lg:grid-cols-2 gap-10 items-start mt-2">
           <div className="k-feat-nav flex-1">
@@ -573,8 +573,20 @@ export default function LandingPage() {
       <section className="k-section-pad k-container">
         <h2 className="k-h2 mb-10 text-center">Planes Claros para Tu Escala</h2>
         <p className="k-body text-center mb-16 md:mb-20 max-w-3xl mx-auto">Nuestro modelo absorbe costos variables de Meta + IA y te entrega una operación mensual predecible para tu negocio.</p>
-        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-3 md:gap-6 pb-6 pt-4 snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0">
-          <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center" id="pricing">
+        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-6 pt-4 snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0">
+          <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center">
+            <h3 className="k-h3 mb-2">Emprendedor</h3>
+            <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para profesionales y negocios que recién parten.</p>
+            <div className="mb-2 text-[28px] font-bold tracking-tight">$39.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
+            <div className="mb-6"><span className="text-3xl font-bold tracking-tight">~500</span> <span className="text-gray-500 text-sm">conversaciones / mes</span></div>
+            <ul className="flex flex-col gap-3 mb-8">
+              <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ Flujo base de pre-calificación</li>
+              <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ WABA + número operado por Kumera</li>
+              <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ Panel para tomar y cerrar leads</li>
+            </ul>
+            <a href={waLink} target="_blank" rel="noreferrer" className="k-btn-ghost w-full">Cotizar por WhatsApp</a>
+          </div>
+          <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center">
             <h3 className="k-h3 mb-2">Base</h3>
             <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para pymes y profesionales que quieren ordenar su WhatsApp.</p>
             <div className="mb-2 text-[28px] font-bold tracking-tight">$59.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
@@ -590,7 +602,7 @@ export default function LandingPage() {
             <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[11px] uppercase tracking-wider font-bold py-1 px-3 rounded-full shadow-md whitespace-nowrap z-20">Más elegido</div>
             <h3 className="k-h3 mb-2">Crecimiento</h3>
             <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para equipos comerciales con demanda constante.</p>
-            <div className="mb-2 text-[28px] font-bold tracking-tight">$89.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
+            <div className="mb-2 text-[28px] font-bold tracking-tight">$119.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
             <div className="mb-6"><span className="text-3xl font-bold tracking-tight">~5k</span> <span className="text-gray-500 text-sm">conversaciones / mes</span></div>
             <ul className="flex flex-col gap-3 mb-8">
               <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ Flujo avanzado + scoring</li>
@@ -602,7 +614,7 @@ export default function LandingPage() {
           <div className="k-card min-w-[300px] sm:min-w-[340px] md:min-w-0 snap-center">
             <h3 className="k-h3 mb-2">Pro</h3>
             <p className="k-body-sm mb-6 pb-6 border-b border-[#E5E5E5] h-[60px]">Para operaciones con alto volumen de conversaciones.</p>
-            <div className="mb-2 text-[28px] font-bold tracking-tight">Desde $149.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
+            <div className="mb-2 text-[28px] font-bold tracking-tight">Desde $249.000 <span className="text-[16px] font-medium text-gray-500">+ IVA / mes</span></div>
             <div className="mb-6"><span className="text-3xl font-bold tracking-tight">12k+</span> <span className="text-gray-500 text-sm">conversaciones / mes</span></div>
             <ul className="flex flex-col gap-3 mb-8">
               <li className="text-[14px] text-gray-700 font-medium tracking-tight">✓ Múltiples flujos por área</li>

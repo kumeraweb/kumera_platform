@@ -26,6 +26,11 @@ const onboardClientSchema = z.object({
   close_attended_other_line_template: optionalTemplate,
   score_threshold: z.number().int().min(0).max(100),
   strategic_questions: z.array(z.string()).max(3).default([]),
+  billing_plan_code: z.string().min(1).default("emprendedor_500"),
+  billing_plan_name: z.string().min(1).default("Emprendedor"),
+  monthly_inbound_limit: z.number().int().min(100).max(1000000).default(500),
+  monthly_ai_checks_limit: z.number().int().min(50).max(1000000).default(250),
+  enforce_monthly_limits: z.boolean().default(true),
   phone_number_id: z.string().min(1),
   waba_id: z.string().optional().nullable(),
   meta_access_token: z.string().min(1),
@@ -56,6 +61,11 @@ export async function POST(req: Request) {
       close_attended_other_line_template: body.close_attended_other_line_template,
       score_threshold: body.score_threshold,
       strategic_questions: body.strategic_questions,
+      billing_plan_code: body.billing_plan_code,
+      billing_plan_name: body.billing_plan_name,
+      monthly_inbound_limit: body.monthly_inbound_limit,
+      monthly_ai_checks_limit: body.monthly_ai_checks_limit,
+      enforce_monthly_limits: body.enforce_monthly_limits,
     })
     .select("*")
     .single();

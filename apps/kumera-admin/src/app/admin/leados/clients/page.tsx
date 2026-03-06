@@ -5,14 +5,12 @@ import { createLeadosServiceClient } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function LeadosClientsPage() {
-  await requireAdminPage([ROLE.LEADOS]);
+  await requireAdminPage([ROLE.KUMERA_MESSAGING, ROLE.LEADOS]);
 
   const leados = createLeadosServiceClient();
   const { data, error } = await leados
     .from("clients")
-    .select(
-      "id, name, notification_email, score_threshold, human_forward_number, priority_contact_email, created_at"
-    )
+    .select("*")
     .order("created_at", { ascending: false });
 
   return (
@@ -34,6 +32,8 @@ export default async function LeadosClientsPage() {
               <th>Nombre</th>
               <th>Email</th>
               <th>Prioritario</th>
+              <th>Plan</th>
+              <th>Límites</th>
               <th>Score</th>
               <th>Acciones</th>
             </tr>
@@ -49,6 +49,14 @@ export default async function LeadosClientsPage() {
                 <td style={{ fontWeight: 500 }}>{row.name}</td>
                 <td>{row.notification_email}</td>
                 <td>{row.priority_contact_email ?? "-"}</td>
+                <td>{row.billing_plan_name ?? "-"}</td>
+                <td style={{ whiteSpace: "nowrap" }}>
+                  {row.monthly_inbound_limit ?? 0} IN / {row.monthly_ai_checks_limit ?? 0} IA
+                  <br />
+                  <span className="text-xs" style={{ color: "var(--admin-text-muted)" }}>
+                    {row.enforce_monthly_limits ? "enforce on" : "enforce off"}
+                  </span>
+                </td>
                 <td><span className="badge badge-accent">{row.score_threshold}</span></td>
                 <td>
                   <div className="flex gap-2">

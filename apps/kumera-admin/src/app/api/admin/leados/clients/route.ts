@@ -25,10 +25,15 @@ const createClientSchema = z.object({
   close_attended_other_line_template: optionalTemplate,
   score_threshold: z.number().int().min(0).max(100),
   strategic_questions: z.array(z.string()).max(3),
+  billing_plan_code: z.string().min(1).optional(),
+  billing_plan_name: z.string().min(1).optional(),
+  monthly_inbound_limit: z.number().int().min(100).max(1000000).optional(),
+  monthly_ai_checks_limit: z.number().int().min(50).max(1000000).optional(),
+  enforce_monthly_limits: z.boolean().optional(),
 });
 
 export async function GET() {
-  const auth = await requireAdminApi([ROLE.LEADOS]);
+  const auth = await requireAdminApi([ROLE.KUMERA_MESSAGING, ROLE.LEADOS]);
   if (!auth.ok) return auth.response;
 
   const leados = createLeadosServiceClient();
@@ -38,7 +43,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireAdminApi([ROLE.LEADOS]);
+  const auth = await requireAdminApi([ROLE.KUMERA_MESSAGING, ROLE.LEADOS]);
   if (!auth.ok) return auth.response;
 
   const payload = await req.json().catch(() => null);

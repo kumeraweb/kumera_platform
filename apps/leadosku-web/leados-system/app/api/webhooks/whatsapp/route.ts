@@ -122,6 +122,12 @@ const INBOUND_RATE_WINDOW_SECONDS = Number(process.env.WEBHOOK_RATE_LIMIT_WINDOW
 const INBOUND_RATE_MAX_MESSAGES = Number(process.env.WEBHOOK_RATE_LIMIT_MAX_MESSAGES ?? 10);
 const LEAD_MAX_BOT_TURNS = Number(process.env.LEAD_MAX_BOT_TURNS ?? 40);
 const LEAD_MAX_SAME_STEP_EVENTS = Number(process.env.LEAD_MAX_SAME_STEP_EVENTS ?? 8);
+const DEFAULT_MONTHLY_INBOUND_LIMIT = Number(
+  process.env.KUMERA_MESSAGING_DEFAULT_MONTHLY_INBOUND_LIMIT ?? 500
+);
+const DEFAULT_MONTHLY_AI_CHECKS_LIMIT = Number(
+  process.env.KUMERA_MESSAGING_DEFAULT_MONTHLY_AI_CHECKS_LIMIT ?? 250
+);
 const SKIP_SIGNATURE_CHECK = process.env.WHATSAPP_SKIP_SIGNATURE_CHECK === 'true';
 const WEBHOOK_DEBUG = process.env.WHATSAPP_WEBHOOK_DEBUG === 'true';
 type LeadNotificationResult = Awaited<ReturnType<typeof sendLeadNotificationEmail>>;
@@ -202,6 +208,18 @@ function normalizeInput(text: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
+}
+
+function getCurrentMonthStartIso(): string {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+  return start.toISOString();
+}
+
+function positiveIntOrDefault(value: unknown, fallbackValue: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallbackValue;
+  return Math.floor(parsed);
 }
 
 async function sendBotMessage(params: {
@@ -345,14 +363,50 @@ export async function POST(req: Request) {
 
   const { data: client } = await service
     .from('clients')
-    .select(
-      'id, name, score_threshold, notification_email, human_forward_number, priority_contact_email, human_required_message_template, close_client_no_response_template, close_attended_other_line_template'
-    )
+    .select('*')
     .eq('id', channel.client_id)
     .maybeSingle();
   if (!client) {
     debugLog('ignored_client_not_found', { clientId: channel.client_id });
     return ok({ received: true, ignored: true });
+  }
+
+  const monthStartIso = getCurrentMonthStartIso();
+  const enforceMonthlyLimits = client.enforce_monthly_limits !== false;
+  const monthlyInboundLimit = positiveIntOrDefault(
+    client.monthly_inbound_limit,
+    DEFAULT_MONTHLY_INBOUND_LIMIT
+  );
+  const monthlyAiChecksLimit = positiveIntOrDefault(
+    client.monthly_ai_checks_limit,
+    DEFAULT_MONTHLY_AI_CHECKS_LIMIT
+  );
+
+  if (enforceMonthlyLimits) {
+    const { count: monthlyInboundCount, error: inboundUsageError } = await service
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('client_id', client.id)
+      .eq('direction', 'INBOUND')
+      .gte('created_at', monthStartIso);
+
+    if (inboundUsageError) {
+      return fail(inboundUsageError.message, 500);
+    }
+
+    if ((monthlyInboundCount ?? 0) >= monthlyInboundLimit) {
+      debugLog('ignored_monthly_inbound_limit_reached', {
+        clientId: client.id,
+        planCode: client.billing_plan_code,
+        monthlyInboundCount,
+        monthlyInboundLimit
+      });
+      return ok({
+        received: true,
+        ignored: true,
+        reason: 'monthly_inbound_limit_reached'
+      });
+    }
   }
 
   const { data: openLead } = await service
@@ -794,20 +848,47 @@ export async function POST(req: Request) {
   }
 
   if (!selectedOption) {
-    const defensiveMap = await mapTextToOptionDefensively({
-      messageText: parsed.text,
-      businessName: client.name,
-      stepPrompt: stepBundle.step.prompt_text,
-      options: stepBundle.options.map((o) => ({ option_code: o.option_code, label_text: o.label_text }))
-    });
+    let canUseAiDefensiveMapping = true;
 
-    aiSummary = defensiveMap.summary;
+    if (enforceMonthlyLimits) {
+      const { count: monthlyAiChecksCount, error: aiUsageError } = await service
+        .from('lead_step_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('client_id', client.id)
+        .in('mapping_source', ['AI_MAPPED', 'OUT_OF_SCOPE'])
+        .gte('created_at', monthStartIso);
 
-    if (defensiveMap.mapped_option_code) {
-      const byCode = stepBundle.options.find((o) => o.option_code === defensiveMap.mapped_option_code);
-      if (byCode) {
-        selectedOption = byCode;
-        mappingSource = 'AI_MAPPED';
+      if (aiUsageError) {
+        return fail(aiUsageError.message, 500);
+      }
+
+      if ((monthlyAiChecksCount ?? 0) >= monthlyAiChecksLimit) {
+        canUseAiDefensiveMapping = false;
+        aiSummary = 'AI_DEFENSIVE_LIMIT_REACHED';
+        debugLog('ai_defensive_limit_reached', {
+          clientId: client.id,
+          monthlyAiChecksCount,
+          monthlyAiChecksLimit
+        });
+      }
+    }
+
+    if (canUseAiDefensiveMapping) {
+      const defensiveMap = await mapTextToOptionDefensively({
+        messageText: parsed.text,
+        businessName: client.name,
+        stepPrompt: stepBundle.step.prompt_text,
+        options: stepBundle.options.map((o) => ({ option_code: o.option_code, label_text: o.label_text }))
+      });
+
+      aiSummary = defensiveMap.summary;
+
+      if (defensiveMap.mapped_option_code) {
+        const byCode = stepBundle.options.find((o) => o.option_code === defensiveMap.mapped_option_code);
+        if (byCode) {
+          selectedOption = byCode;
+          mappingSource = 'AI_MAPPED';
+        }
       }
     }
 

@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { DEFAULT_LEADOS_TEMPLATES } from "./templates";
+import { getPlanPreset, KUMERA_MESSAGING_PLAN_PRESETS } from "./plan-presets";
 
 export default function LeadosCreateClientForm() {
   const [message, setMessage] = useState<string | null>(null);
@@ -15,6 +16,11 @@ export default function LeadosCreateClientForm() {
     close_client_no_response_template: "",
     close_attended_other_line_template: "",
     score_threshold: 85,
+    billing_plan_code: "emprendedor_500",
+    billing_plan_name: "Emprendedor",
+    monthly_inbound_limit: 500,
+    monthly_ai_checks_limit: 250,
+    enforce_monthly_limits: true,
     phone_number_id: "",
     waba_id: "",
     meta_access_token: "",
@@ -48,6 +54,11 @@ export default function LeadosCreateClientForm() {
       close_client_no_response_template: "",
       close_attended_other_line_template: "",
       score_threshold: 85,
+      billing_plan_code: "emprendedor_500",
+      billing_plan_name: "Emprendedor",
+      monthly_inbound_limit: 500,
+      monthly_ai_checks_limit: 250,
+      enforce_monthly_limits: true,
       phone_number_id: "",
       waba_id: "",
       meta_access_token: "",
@@ -59,6 +70,18 @@ export default function LeadosCreateClientForm() {
 
   function applyDefaultTemplates() {
     setClientForm((prev) => ({ ...prev, ...DEFAULT_LEADOS_TEMPLATES }));
+  }
+
+  function applyPlanPreset(code: string) {
+    const preset = getPlanPreset(code);
+    if (!preset) return;
+    setClientForm((prev) => ({
+      ...prev,
+      billing_plan_code: preset.code,
+      billing_plan_name: preset.label,
+      monthly_inbound_limit: preset.monthlyInboundLimit,
+      monthly_ai_checks_limit: preset.monthlyAiChecksLimit,
+    }));
   }
 
   return (
@@ -106,6 +129,64 @@ export default function LeadosCreateClientForm() {
             <label className="admin-label">Score threshold</label>
             <input className="admin-input" type="number" min={0} max={100} value={clientForm.score_threshold} onChange={(e) => setClientForm((v) => ({ ...v, score_threshold: Number(e.target.value) }))} required />
           </div>
+          <div className="admin-field">
+            <label className="admin-label">Plan activo</label>
+            <select
+              className="admin-input"
+              value={clientForm.billing_plan_code}
+              onChange={(e) => applyPlanPreset(e.target.value)}
+            >
+              {KUMERA_MESSAGING_PLAN_PRESETS.map((plan) => (
+                <option key={plan.code} value={plan.code}>
+                  {plan.label} · {plan.publicPriceLabel}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Nombre comercial del plan</label>
+            <input
+              className="admin-input"
+              value={clientForm.billing_plan_name}
+              onChange={(e) => setClientForm((v) => ({ ...v, billing_plan_name: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Límite mensual mensajes INBOUND</label>
+            <input
+              className="admin-input"
+              type="number"
+              min={100}
+              value={clientForm.monthly_inbound_limit}
+              onChange={(e) => setClientForm((v) => ({ ...v, monthly_inbound_limit: Number(e.target.value) }))}
+              required
+            />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Límite mensual chequeos IA preventivos</label>
+            <input
+              className="admin-input"
+              type="number"
+              min={50}
+              value={clientForm.monthly_ai_checks_limit}
+              onChange={(e) => setClientForm((v) => ({ ...v, monthly_ai_checks_limit: Number(e.target.value) }))}
+              required
+            />
+          </div>
+          <label className="admin-field md:col-span-2 flex items-center gap-3 rounded-lg border px-3 py-3" style={{ borderColor: "var(--admin-border)" }}>
+            <input
+              type="checkbox"
+              checked={clientForm.enforce_monthly_limits}
+              onChange={(e) => setClientForm((v) => ({ ...v, enforce_monthly_limits: e.target.checked }))}
+            />
+            <div>
+              <div className="admin-label" style={{ marginBottom: 2 }}>Enforcement de consumo mensual</div>
+              <div style={{ color: "var(--admin-text-muted)", fontSize: 13 }}>
+                Si se alcanza el límite del plan, el webhook detiene nuevas respuestas automáticas hasta el próximo mes.
+              </div>
+            </div>
+          </label>
           <div className="admin-field">
             <label className="admin-label">Meta Phone Number ID (webhook)</label>
             <input className="admin-input" value={clientForm.phone_number_id} onChange={(e) => setClientForm((v) => ({ ...v, phone_number_id: e.target.value }))} required />

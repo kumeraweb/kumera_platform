@@ -3,6 +3,7 @@ import './kumi.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.kumeramessaging.cl'),
   title: 'Kumi — Tu primer filtro comercial por WhatsApp | Kumera Messaging',
   description:
     'Kumi pre califica tus contactos por WhatsApp, filtra conversaciones poco útiles y escala a tu equipo cuando aparece una oportunidad real. Servicio gestionado por Kumera.',
@@ -22,9 +23,29 @@ export const metadata: Metadata = {
     description:
       'Menos tiempo respondiendo, más tiempo cerrando ventas. Kumi pre califica tus contactos por WhatsApp automáticamente.',
     type: 'website',
+    url: 'https://www.kumeramessaging.cl',
     locale: 'es_CL',
     siteName: 'Kumi by Kumera',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Kumi by Kumera'
+      }
+    ]
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Kumi — Tu primer filtro comercial por WhatsApp',
+    description:
+      'Kumi pre califica contactos por WhatsApp y deriva oportunidades reales a tu equipo.',
+    images: ['/twitter-image']
+  },
+  icons: {
+    icon: '/icon',
+    apple: '/icon'
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
